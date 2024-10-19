@@ -1,5 +1,5 @@
 {
-  "name": "nndym-youth-dashboard",
+  "name": "temple-youth-org",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,16 +9,25 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "latest": "^0.2.0",
-    "n": "^9.2.3",
-    "next": "14.2.5",
+    "@apollo/client": "^3.11.5",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.1",
+    "@mui/material": "^5.16.7",
+    "@mui/x-date-pickers": "^7.16.0",
+    "dayjs": "^1.11.13",
+    "graphql": "^16.9.0",
+    "jsonwebtoken": "^9.0.2",
+    "next": "^14.2.13",
+    "next-auth": "^4.24.7",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "recharts": "^2.12.7"
   },
   "devDependencies": {
-    "eslint": "^8",
-    "eslint-config-next": "14.2.5",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1"
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "typescript": "^5"
   }
 }

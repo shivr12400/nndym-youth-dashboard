@@ -1,0 +1,32 @@
+{
+    "kids": [
+        {
+            "singingInterest": true,
+            "videoGamesInterest": false,
+            "mandir": "PSP",
+            "dancingInterest": false,
+            "sportsInterest": false,
+            "address": "42 Preston Road",
+            "instrumentInterest": true,
+            "email": "shivr12400@gmail.com",
+            "phone": "7329109078",
+            "name": "Suhil Rathod",
+            "artsCraftsInterest": false,
+            "birthday": "12/04/2000"
+        },
+        {
+            "singingInterest": false,
+            "videoGamesInterest": false,
+            "mandir": "PSP",
+            "dancingInterest": false,
+            "sportsInterest": false,
+            "address": "42 Preston Road",
+            "instrumentInterest": true,
+            "email": "shivr12400@gmail.com",
+            "phone": "7329109078",
+            "name": "lala Rathod",
+            "artsCraftsInterest": false,
+            "birthday": "12/03/2000"
+        }
+    ]
+}
