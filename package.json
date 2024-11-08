@@ -13,7 +13,7 @@
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.1",
-    "@mui/material": "^5.16.7",
+    "@mui/material": "^6.1.6",
     "@mui/x-date-pickers": "^7.16.0",
     "dayjs": "^1.11.13",
     "graphql": "^16.9.0",

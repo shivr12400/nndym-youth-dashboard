@@ -43,9 +43,9 @@ export default function Dashboard({ isAuthenticated, setIsAuthenticated }) {
       }));
 
     const [cards] = useState([
-        { id: 1, title: 'Colonia, NJ', tier: "Gold Tier", link: '/kids-attendance', image: '/images/del.jpg' },
-        { id: 2, title: 'Parisppany, NJ', tier: "Platinum Tier", link: '/india24', image: '/images/india24.jpg' },
-        { id: 3, title: 'Weehawken, NJ', tier: "Gold Tier", link: '/irelandScotland', image: '/images/galeway.jpg' },
+        { id: 1, title: 'Colonia, NJ', tier: "Gold Tier", mandirName: 'Colonia', image: '/images/del.jpg' },
+        { id: 2, title: 'Parsippany, NJ', tier: "Platinum Tier", mandirName: 'Parsippany', image: '/images/india24.jpg' },
+        { id: 3, title: 'Weehawken, NJ', tier: "Gold Tier", mandirName: 'Weehawken', image: '/images/galeway.jpg' },
       ]);
 
     if (!isAuthenticated) {
@@ -82,7 +82,7 @@ export default function Dashboard({ isAuthenticated, setIsAuthenticated }) {
                       </Typography>
                     </CardContent>
                     <CardActions>
-                      <Link href={card.link} passHref>
+                      <Link href={{ pathname: 'kids-attendance', query: { mandirName: card.mandirName }}} passHref>
                         <CardButton size="small" color="primary">
                          Visit Mandir
                         </CardButton>

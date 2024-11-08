@@ -16,8 +16,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 
 export default function KidsAttendance({ isAuthenticated }) {
-
-    const mandirName = "Colonia"
+    const router = useRouter();
+    const { mandirName } = router.query
 
     const keysToRemove = ["reporter", "kirtanClass", "balMandalClass", "instrumentClass", "satsangClass", "danceClass", "mandirName"];
     function removeKeys(jsonArray, keysToRemove) {
@@ -31,7 +31,6 @@ export default function KidsAttendance({ isAuthenticated }) {
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const router = useRouter();
 
     const [averageKids, setAverageKids] = useState(0);
     const [tier, setTier] = useState('Bronze');
