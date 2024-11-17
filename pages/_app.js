@@ -43,8 +43,6 @@ function MyApp({ Component, pageProps }) {
     return <div>Loading...</div>;
   }
 
-  console.log(isAuthenticated)
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
