@@ -12,9 +12,9 @@ import {
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import Footer from '../components/Footer';
-import { useState, useMemo } from 'react';
 import { styled } from '@mui/system';
 import Link from 'next/link';
+import { mandirs } from '../utils/mandirs';
 
 export default function Dashboard({ isAuthenticated, setIsAuthenticated }) {
     const router = useRouter();
@@ -42,12 +42,6 @@ export default function Dashboard({ isAuthenticated, setIsAuthenticated }) {
         },
       }));
 
-    const [cards] = useState([
-        { id: 1, title: 'Colonia, NJ', tier: "Gold Tier", mandirName: 'Colonia', image: '/images/del.jpg' },
-        { id: 2, title: 'Parsippany, NJ', tier: "Platinum Tier", mandirName: 'Parsippany', image: '/images/india24.jpg' },
-        { id: 3, title: 'Weehawken, NJ', tier: "Gold Tier", mandirName: 'Weehawken', image: '/images/galeway.jpg' },
-      ]);
-
     if (!isAuthenticated) {
         return (
           <h1>NOT AUTHENTICATED</h1>
@@ -64,25 +58,25 @@ export default function Dashboard({ isAuthenticated, setIsAuthenticated }) {
               Mandirs
             </Title>
             <Grid container spacing={6} justifyContent="center">
-              {cards.map((card) => (
-                <Grid item key={card.id} xs={12} sm={6} md={4}>
+              {mandirs.map((mandir) => (
+                <Grid item key={mandir.id} xs={12} sm={6} md={4}>
                   <StyledCard elevation={3}>
                     <CardMedia
                       component="img"
                       height="200"
-                      image={card.image}
-                      alt={card.title}
+                      src={mandir.image}
+                      alt={mandir.mandirName}
                     />
                     <CardContent>
                       <Typography gutterBottom variant="h5" component="div">
-                        {card.title}
+                        {mandir.mandirName}
                       </Typography>
                       <Typography gutterBottom variant="subtitle1" component="div">
-                        {card.tier}
+                        {mandir.tier}
                       </Typography>
                     </CardContent>
                     <CardActions>
-                      <Link href={{ pathname: 'kids-attendance', query: { mandirName: card.mandirName }}} passHref>
+                      <Link href={{ pathname: 'kids-attendance', query: { mandirName: mandir.mandirName }}} passHref>
                         <CardButton size="small" color="primary">
                          Visit Mandir
                         </CardButton>

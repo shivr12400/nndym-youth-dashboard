@@ -9,11 +9,10 @@ import { apiInfo } from '../api';
 import { activities } from '../activities';
 
 import Accordion from '@mui/material/Accordion';
-import AccordionActions from '@mui/material/AccordionActions';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+import { mandirs } from '../utils/mandirs';
 
 export default function KidsAttendance({ isAuthenticated }) {
     const router = useRouter();
@@ -78,19 +77,29 @@ export default function KidsAttendance({ isAuthenticated }) {
     const [openEvents, setOpenEvents] = useState(false);
 
     const handleChangeBMC = (event) => {
-        setBalMandalClass(event.target.checked);
+        const { name, checked } = event.target;
+        setBalMandalClass(checked);
+        setSatsangCount(prev => ({ ...prev, [name]: checked }));
     };
     const handleChangeSC = (event) => {
-        setSatsangClass(event.target.checked);
+        const { name, checked } = event.target;
+        setSatsangClass(checked);
+        setSatsangCount(prev => ({ ...prev, [name]: checked }));
     };
     const handleChangeKC = (event) => {
-        setKirtanClass(event.target.checked);
+        const { name, checked } = event.target;
+        setKirtanClass(checked);
+        setSatsangCount(prev => ({ ...prev, [name]: checked }));
     };
     const handleChangeIC = (event) => {
-        setInstrumentClass(event.target.checked);
+        const { name, checked } = event.target;
+        setInstrumentClass(checked);
+        setSatsangCount(prev => ({ ...prev, [name]: checked }));
     };
     const handleChangeDC = (event) => {
-        setDanceClass(event.target.checked);
+        const { name, checked } = event.target;
+        setDanceClass(checked);
+        setSatsangCount(prev => ({ ...prev, [name]: checked }));
     };
 
     useEffect(() => {
@@ -108,6 +117,8 @@ export default function KidsAttendance({ isAuthenticated }) {
                 const attendanceData = await attendanceResponse.json(); // Fixed: Changed .ok to .json()
                 const cleanedArray = removeKeys(attendanceData.satsang_count, keysToRemove);
                 setData(cleanedArray);
+                console.log(cleanedArray)
+                setAverageKids(getTrend(cleanedArray));
 
                 // Fetch leader info
                 const leaderResponse = await fetch(apiInfo.leader_info.get + "?mandirName=" + mandirName);
@@ -141,8 +152,10 @@ export default function KidsAttendance({ isAuthenticated }) {
         };
 
         fetchData();
-        setAverageKids(15);
-        setTier('Silver');
+        const mandir = mandirName
+        const result = mandirs.find(({ mandirName }) => mandirName === mandir)
+        setTier(result.tier);
+    
     }, [isAuthenticated, router]);
 
     const handleInputChangeLeaderInfo = (e) => {
@@ -285,6 +298,23 @@ export default function KidsAttendance({ isAuthenticated }) {
             lastDate = data[i].date
         }
     }
+
+    const getTrend = (kidsData) => {
+        console.log(data)
+        var totalKids = 0
+        var count = 0
+        for (const value of Object.values(kidsData)) {
+            for (let v in value) {
+                if (Number.isInteger(value[v])) {
+                    totalKids += value[v]
+                }
+                console.log(value[v]);
+            }
+            count++
+        }
+        return Math.round(totalKids / count)
+    }
+
     if (!isAuthenticated) {
         return (
             <h1>EXPIRED</h1>
@@ -715,11 +745,11 @@ export default function KidsAttendance({ isAuthenticated }) {
                                 onChange={handleInputChangeSatsangCount}
                             />
                             <FormGroup>
-                                <FormControlLabel control={<Checkbox checked={balMandalClass} onChange={handleChangeBMC} />} label="Bal Mandal Class" />
-                                <FormControlLabel control={<Checkbox checked={satsangClass} onChange={handleChangeSC} />} label="Satsang Class" />
-                                <FormControlLabel control={<Checkbox checked={kirtanClass} onChange={handleChangeKC} />} label="Kirtan Class" />
-                                <FormControlLabel control={<Checkbox checked={instrumentClass} onChange={handleChangeIC} />} label="Instrument Class" />
-                                <FormControlLabel control={<Checkbox checked={danceClass} onChange={handleChangeDC} />} label="Dance Class" />
+                                <FormControlLabel control={<Checkbox name="balMandalClass" checked={balMandalClass} onChange={handleChangeBMC} />} label="Bal Mandal Class" />
+                                <FormControlLabel control={<Checkbox name="satsangClass" checked={satsangClass} onChange={handleChangeSC} />} label="Satsang Class" />
+                                <FormControlLabel control={<Checkbox name="kirtanClass" checked={kirtanClass} onChange={handleChangeKC} />} label="Kirtan Class" />
+                                <FormControlLabel control={<Checkbox name="instrumentClass" checked={instrumentClass} onChange={handleChangeIC} />} label="Instrument Class" />
+                                <FormControlLabel control={<Checkbox name="danceClass" checked={danceClass} onChange={handleChangeDC} />} label="Dance Class" />
                             </FormGroup>
                             <Typography variant="h6" gutterBottom>
                                 Number of Kids 1 - 8 years old
