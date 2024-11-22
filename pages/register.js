@@ -26,12 +26,12 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
 
     const [mandirName, setMandirName] = useState('');
     const [open, setOpen] = useState(false);
-    const [sports, setSports] = React.useState(false);
-    const [singing, setSinging] = React.useState(false);
-    const [instrument, setInstrument] = React.useState(false);
-    const [artsCrafts, setArtsCrafts] = React.useState(false);
-    const [dancing, setDancing] = React.useState(false);
-    const [videoGames, setVideoGames] = React.useState(false);
+    const [sports, setSports] = useState(false);
+    const [singing, setSinging] = useState(false);
+    const [instrument, setInstrument] = useState(false);
+    const [artsCrafts, setArtsCrafts] = useState(false);
+    const [dancing, setDancing] = useState(false);
+    const [videoGames, setVideoGames] = useState(false);
 
     const [kidInfo, setKidInfo] = useState({
         name: '',
@@ -49,26 +49,35 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
 
     });
 
-    const handleChangeMandirName = (event) => {
-        setMandirName(event.target.value);
-    };
     const handleChangeSports = (event) => {
-        setSports(event.target.checked);
+        const { name, checked } = event.target;
+        setSports(checked)
+        setKidInfo(prev => ({ ...prev, [name]: checked }));
     };
     const handleChangeSinging = (event) => {
-        setSinging(event.target.checked);
+        const { name, checked } = event.target;
+        setSinging(checked);
+        setKidInfo(prev => ({ ...prev, [name]: checked }));
     };
     const handleChangeInstrument = (event) => {
-        setInstrument(event.target.checked);
+        const { name, checked } = event.target;
+        setInstrument(checked);
+        setKidInfo(prev => ({ ...prev, [name]: checked }));
     };
     const handleChangeArtsCrafts = (event) => {
-        setArtsCrafts(event.target.checked);
+        const { name, checked } = event.target;
+        setArtsCrafts(checked);
+        setKidInfo(prev => ({ ...prev, [name]: checked }));
     };
     const handleChangeDancing = (event) => {
-        setDancing(event.target.checked);
+        const { name, checked } = event.target;
+        setDancing(checked);
+        setKidInfo(prev => ({ ...prev, [name]: checked }));
     };
     const handleChangeVideoGames = (event) => {
-        setVideoGames(event.target.checked);
+        const { name, checked } = event.target;
+        setVideoGames(checked);
+        setKidInfo(prev => ({ ...prev, [name]: checked }));
     };
 
     const handleRegisterKids = (e) => {
@@ -113,7 +122,7 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
             }
             setOpen(true);
         } catch (err) {
-            setError(err.message);
+            console.log(err)
         }
     };
 
@@ -188,9 +197,10 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                                 <Select
                                     labelId="demo-simple-select-label"
                                     id="demo-simple-select"
-                                    value={mandirName}
+                                    name='mandir'
+                                    value={kidInfo.mandirName}
                                     label="mandir"
-                                    onChange={handleChangeMandirName}
+                                    onChange={handleRegisterKids}
                                 >
                                     <MenuItem value={"Colonia"}>Colonia</MenuItem>
                                     <MenuItem value={"PSP"}>PSP</MenuItem>
@@ -203,12 +213,12 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                                 Interests
                             </Typography>
                             <FormGroup>
-                                <FormControlLabel control={<Checkbox checked={sports} onChange={handleChangeSports} />} label="Sports" />
-                                <FormControlLabel control={<Checkbox checked={singing} onChange={handleChangeSinging} />} label="Singing" />
-                                <FormControlLabel control={<Checkbox checked={instrument} onChange={handleChangeInstrument} />} label="Instruments" />
-                                <FormControlLabel control={<Checkbox checked={artsCrafts} onChange={handleChangeArtsCrafts} />} label="Arts and Crafts" />
-                                <FormControlLabel control={<Checkbox checked={dancing} onChange={handleChangeDancing} />} label="Dancing" />
-                                <FormControlLabel control={<Checkbox checked={videoGames} onChange={handleChangeVideoGames} />} label="Video Games" />
+                                <FormControlLabel control={<Checkbox name="sportsInterest" checked={sports} onChange={handleChangeSports} />} label="Sports" />
+                                <FormControlLabel control={<Checkbox name="singingInterest" checked={singing} onChange={handleChangeSinging} />} label="Singing" />
+                                <FormControlLabel control={<Checkbox name="instrumentInterest" checked={instrument} onChange={handleChangeInstrument} />} label="Instruments" />
+                                <FormControlLabel control={<Checkbox name="artsCraftsInterest" checked={artsCrafts} onChange={handleChangeArtsCrafts} />} label="Arts and Crafts" />
+                                <FormControlLabel control={<Checkbox name="dancingInterest" checked={dancing} onChange={handleChangeDancing}/>} label="Dancing" />
+                                <FormControlLabel control={<Checkbox name="videoGamesInterest" checked={videoGames} onChange={handleChangeVideoGames}/>} label="Video Games" />
                             </FormGroup>
                             <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
                                 Submit
