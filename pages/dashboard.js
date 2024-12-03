@@ -1,99 +1,89 @@
-import React from 'react';
-import {
-    Container,
-    Grid,
-    Card,
-    CardContent,
-    CardActions,
-    CardMedia,
-    Button,
-    Typography
-  } from '@mui/material';
-import { useRouter } from 'next/router';
+import Link from 'next/link'; // Import Next.js's Link for routing
+import { Grid, Button, Typography, Container } from '@mui/material';
 import Layout from '../components/Layout';
 import Footer from '../components/Footer';
-import { useState, useMemo } from 'react';
 import { styled } from '@mui/system';
-import Link from 'next/link';
 
-export default function Dashboard({ isAuthenticated, setIsAuthenticated }) {
-    const router = useRouter();
+const mandirs = [
+  { id: 1, title: 'Colonia, NJ', tier: "Gold", mandirName: 'Colonia', image: '/images/del.jpg' },
+  { id: 2, title: 'Parsippany, NJ', tier: "Silver", mandirName: 'Parsippany', image: '/images/india24.jpg' },
+  { id: 3, title: 'Weehawken, NJ', tier: "Gold", mandirName: 'Weehawken', image: '/images/galeway.jpg' },
+  { id: 4, title: 'Colonia, NJ', tier: "Gold", mandirName: 'Colonia', image: '/images/del.jpg' },
+  { id: 5, title: 'Parsippany, NJ', tier: "Silver", mandirName: 'Parsippany', image: '/images/india24.jpg' },
+  { id: 6, title: 'Weehawken, NJ', tier: "Gold", mandirName: 'Weehawken', image: '/images/galeway.jpg' },
+  { id: 7, title: 'Colonia, NJ', tier: "Silver", mandirName: 'Colonia', image: '/images/del.jpg' },
+  { id: 8, title: 'Parsippany, NJ', tier: "Bronze", mandirName: 'Parsippany', image: '/images/india24.jpg' },
+  { id: 9, title: 'Weehawken, NJ', tier: "Gold", mandirName: 'Weehawken', image: '/images/galeway.jpg' },
+];
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        setIsAuthenticated(false);
-        router.push('/');
-    };
+const handleLogout = () => {
+  localStorage.removeItem('token');
+  setIsAuthenticated(false);
+  router.push('/');
+};
 
-    const StyledCard = styled(Card)(({ theme }) => ({
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        margin: theme.spacing(2),
-      }));
-      
-      const CardButton = styled(Button)(({ theme }) => ({
-        backgroundColor: "blue",
-        color: "white",
-        '&:hover': {
-          backgroundColor: "blue",
-          opacity: 0.9,
-        },
-      }));
+// Define button background colors based on tier
+const tierColors = {
+  Gold: '#C69C6D',     // Gold color
+  Silver: '#C0C0C0',    // Silver color
+  Bronze: '#6E4D25',  // Platinum color (light grayish)
+};
 
-    const [cards] = useState([
-        { id: 1, title: 'Colonia, NJ', tier: "Gold Tier", mandirName: 'Colonia', image: '/images/del.jpg' },
-        { id: 2, title: 'Parsippany, NJ', tier: "Platinum Tier", mandirName: 'Parsippany', image: '/images/india24.jpg' },
-        { id: 3, title: 'Weehawken, NJ', tier: "Gold Tier", mandirName: 'Weehawken', image: '/images/galeway.jpg' },
-      ]);
+const HoverButton = styled(Button)(({ theme, tier }) => ({
+  position: 'relative',
+  width: '100%',
+  height: '150px',
+  backgroundColor: tierColors[tier] || theme.palette.grey[900], // Apply tier-based color
+  borderRadius: '10px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  overflow: 'hidden',
+  transition: 'transform 0.3s ease',
+  '&:hover': {
+    transform: 'scale(1.05)',
+  },
+}));
 
-    if (!isAuthenticated) {
-        return (
-          <h1>NOT AUTHENTICATED</h1>
-        )
-    }
-    const Title = styled(Typography)(({ theme }) => ({
-        marginBottom: "40px"
-      }));
+const Title = styled(Typography)(({ theme }) => ({
+  marginBottom: "40px"
+}));
 
-    return (
-        <Layout>
-          <Container maxWidth="lg" sx={{ py: 6 }}>
-            <Title variant="h3" marginTop={"4"}>
-              Mandirs
-            </Title>
-            <Grid container spacing={6} justifyContent="center">
-              {cards.map((card) => (
-                <Grid item key={card.id} xs={12} sm={6} md={4}>
-                  <StyledCard elevation={3}>
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={card.image}
-                      alt={card.title}
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                        {card.title}
-                      </Typography>
-                      <Typography gutterBottom variant="subtitle1" component="div">
-                        {card.tier}
-                      </Typography>
-                    </CardContent>
-                    <CardActions>
-                      <Link href={{ pathname: 'kids-attendance', query: { mandirName: card.mandirName }}} passHref>
-                        <CardButton size="small" color="primary">
-                         Visit Mandir
-                        </CardButton>
-                      </Link>
-                    </CardActions>
-                  </StyledCard>
-                </Grid>
-              ))}
+export default function Home() {
+  return (
+    <Layout>
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Title variant="h3" marginTop={"4"}>
+          Mandirs
+        </Title>
+        <Grid container spacing={3} justifyContent="center" padding={3}>
+          {mandirs.map((button, index) => (
+            <Grid item xs={12} sm={4} md={3} key={index}>
+              <Link style={{ textDecoration: 'none' }} href={{ pathname: 'kids-attendance', query: { mandirName: button.mandirName } }} passHref>
+                <HoverButton component="a" tier={button.tier}>
+                  <Typography
+                    variant="h6"
+                    color="white"
+                    sx={{
+                      position: 'relative',
+                      zIndex: 2,
+                      textAlign: 'center',
+                      fontWeight: 'bold',
+                      textTransform: 'uppercase',
+                      letterSpacing: 1.5,
+                      textShadow: '2px 2px 6px rgba(0, 0, 0, 0.5)',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    {button.title}
+                  </Typography>
+                </HoverButton>
+              </Link>
             </Grid>
-          </Container>
-          <Footer />
-        </Layout>
-      );
+          ))}
+        </Grid>
+      </Container>
+      <Footer />
+    </Layout>
+  );
 }
