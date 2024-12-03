@@ -23,11 +23,11 @@ const Navbar = () => {
           <Link href="/" passHref>
             <NavButton>Home</NavButton>
           </Link>
-          <Link href="/lessonPlans" passHref>
-            <NavButton>Lesson Plans</NavButton>
+          <Link href="/information" passHref>
+            <NavButton>Information</NavButton>
           </Link>
           <Link href="/register" passHref>
-            <NavButton>register</NavButton>
+            <NavButton>Register</NavButton>
           </Link>
         </Toolbar>
       </Container>
