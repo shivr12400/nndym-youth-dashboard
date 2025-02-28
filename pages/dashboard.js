@@ -3,6 +3,8 @@ import { Grid, Button, Typography, Container } from '@mui/material';
 import Layout from '../components/Layout';
 import Footer from '../components/Footer';
 import { styled } from '@mui/system';
+import Link from 'next/link';
+import { mandirs } from '../utils/mandirs';
 
 const mandirs = [
   { id: 1, title: 'Colonia, NJ', tier: "Gold", mandirName: 'Colonia', image: '/images/del.jpg' },
