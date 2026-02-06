@@ -3,49 +3,54 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-        main: '#70A9A1',
+        main: '#3F51B5', // A modern blue for primary actions
+      },
+      secondary: {
+        main: '#FF4081', // A vibrant pink for secondary actions
+      },
+      error: {
+        main: '#D32F2F', // Standard error red
+      },
+      warning: {
+        main: '#FBC02D', // Standard warning yellow
+      },
+      info: {
+        main: '#2196F3', // Standard info blue
+      },
+      success: {
+        main: '#4CAF50', // Standard success green
+      },
+      background: {
+        default: '#F4F6F8', // Light gray for general background
+        paper: '#FFFFFF', // White for card-like surfaces
+      },
+      text: {
+        primary: '#212121', // Dark grey for primary text
+        secondary: '#757575', // Medium grey for secondary text
       },
       navText: {
-        main: '#F0F7F4',
+        main: '#FFFFFF', // White for navigation text
       },
       navHover: {
-        main: '#B3BFB8',
+        main: '#7986CB', // Lighter blue for navigation hover
       },
       navHoverText: {
-        main: '#3C493F',
+        main: '#FFFFFF', // White for navigation hover text
       },
       cardButton: {
-        background: '#3C493F',
-        text: '#F0F7F4',
+        background: '#3F51B5', // Primary color for card buttons
+        text: '#FFFFFF', // White text for card buttons
       },
   },
   typography: {
     fontFamily: [
-      'Roboto',
+      'Inter', // Modern sans-serif font
       '-apple-system',
       'BlinkMacSystemFont',
       '"Segoe UI"',
       'Arial',
       'sans-serif',
     ].join(','),
-    h1: {
-      fontWeight: 500,
-    },
-    h2: {
-      fontWeight: 500,
-    },
-    h3: {
-      fontWeight: 500,
-    },
-    h4: {
-      fontWeight: 500,
-    },
-    h5: {
-      fontWeight: 500,
-    },
-    h6: {
-      fontWeight: 500,
-    },
   },
 });
 

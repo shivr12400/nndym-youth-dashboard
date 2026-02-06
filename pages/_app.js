@@ -1,15 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import { useRouter } from 'next/router';
+import theme from '../styles/theme';
 import { verifyToken } from '../utils/auth';
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#0B2027',
-    },
-  },
-});
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();

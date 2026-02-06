@@ -21,6 +21,7 @@ import Footer from '../components/Footer';
 import { useState, useMemo } from 'react';
 import { styled } from '@mui/system';
 import { apiInfo } from '../api';
+import { mandirs } from '../utils/mandirs';
 
 export default function Register({ isAuthenticated, setIsAuthenticated }) {
 
@@ -117,6 +118,7 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                 method: 'POST',
                 body: JSON.stringify(kidInfo),
             });
+            console.log(kidInfo)
             if (!response.ok) {
                 throw new Error('Failed to update leader info');
             }
@@ -202,9 +204,10 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                                     label="mandir"
                                     onChange={handleRegisterKids}
                                 >
-                                    <MenuItem value={"Colonia"}>Colonia</MenuItem>
-                                    <MenuItem value={"PSP"}>PSP</MenuItem>
-                                    <MenuItem value={"Weehawken"}>Wee</MenuItem>
+                                    {mandirs.map(m => (
+                                        <MenuItem value={m.mandirName}>{m.mandirName}</MenuItem>
+                                    ))
+                                }
                                 </Select>
                             </FormControl>
                             <br></br>

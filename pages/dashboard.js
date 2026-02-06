@@ -3,20 +3,7 @@ import { Grid, Button, Typography, Container } from '@mui/material';
 import Layout from '../components/Layout';
 import Footer from '../components/Footer';
 import { styled } from '@mui/system';
-import Link from 'next/link';
 import { mandirs } from '../utils/mandirs';
-
-const mandirs = [
-  { id: 1, title: 'Colonia, NJ', tier: "Gold", mandirName: 'Colonia', image: '/images/del.jpg' },
-  { id: 2, title: 'Parsippany, NJ', tier: "Silver", mandirName: 'Parsippany', image: '/images/india24.jpg' },
-  { id: 3, title: 'Weehawken, NJ', tier: "Gold", mandirName: 'Weehawken', image: '/images/galeway.jpg' },
-  { id: 4, title: 'Colonia, NJ', tier: "Gold", mandirName: 'Colonia', image: '/images/del.jpg' },
-  { id: 5, title: 'Parsippany, NJ', tier: "Silver", mandirName: 'Parsippany', image: '/images/india24.jpg' },
-  { id: 6, title: 'Weehawken, NJ', tier: "Gold", mandirName: 'Weehawken', image: '/images/galeway.jpg' },
-  { id: 7, title: 'Colonia, NJ', tier: "Silver", mandirName: 'Colonia', image: '/images/del.jpg' },
-  { id: 8, title: 'Parsippany, NJ', tier: "Bronze", mandirName: 'Parsippany', image: '/images/india24.jpg' },
-  { id: 9, title: 'Weehawken, NJ', tier: "Gold", mandirName: 'Weehawken', image: '/images/galeway.jpg' },
-];
 
 const handleLogout = () => {
   localStorage.removeItem('token');
@@ -28,7 +15,7 @@ const handleLogout = () => {
 const tierColors = {
   Gold: '#C69C6D',     // Gold color
   Silver: '#C0C0C0',    // Silver color
-  Bronze: '#6E4D25',  // Platinum color (light grayish)
+  Platinum: '#6E4D25',  // Platinum color (light grayish)
 };
 
 const HoverButton = styled(Button)(({ theme, tier }) => ({
@@ -77,7 +64,7 @@ export default function Home() {
                       textDecoration: 'none'
                     }}
                   >
-                    {button.title}
+                    {button.mandirName}
                   </Typography>
                 </HoverButton>
               </Link>

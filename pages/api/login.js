@@ -2,8 +2,8 @@ import { createToken } from '../../utils/auth';
 
 const validTemples = [
   { name: '1', password: '2' },
-  { name: 'Tirupati Balaji', password: 'tirupati456' },
-  { name: 'Meenakshi Temple', password: 'madurai789' },
+  { name: 'Colonia', password: '2' },
+  { name: 'Parispanny', password: '2' },
   { name: 'Kashi Vishwanath', password: 'varanasi101' },
   { name: 'Jagannath Temple', password: 'puri202' }
 ];

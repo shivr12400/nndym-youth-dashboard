@@ -107,6 +107,7 @@ export default function KidsAttendance({ isAuthenticated }) {
             router.push('/');
             return;
         }
+
         const fetchData = async () => {
             try {
                 // Fetch attendance data
@@ -116,6 +117,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                 }
                 const attendanceData = await attendanceResponse.json(); // Fixed: Changed .ok to .json()
                 const cleanedArray = removeKeys(attendanceData.satsang_count, keysToRemove);
+                cleanedArray.sort((a, b) => new Date(a.date) - new Date(b.date));
                 setData(cleanedArray);
                 console.log(cleanedArray)
                 setAverageKids(getTrend(cleanedArray));
@@ -293,9 +295,15 @@ export default function KidsAttendance({ isAuthenticated }) {
 
     const formattedToday = mm + '/' + dd + '/' + yyyy;
     let lastDate = ""
-    for (let i = 0; i < data.length; i++) {
-        if (i == data.length - 1) {
-            lastDate = data[i].date
+    if (data.length > 0) {
+        let mostRecentDate = new Date(data[0].date);
+        lastDate = data[0].date;
+        for (let i = 1; i < data.length; i++) {
+            const currentDate = new Date(data[i].date);
+            if (currentDate > mostRecentDate) {
+                mostRecentDate = currentDate;
+                lastDate = data[i].date;
+            }
         }
     }
 
