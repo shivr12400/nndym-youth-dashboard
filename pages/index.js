@@ -52,8 +52,9 @@ export default function Login({ isAuthenticated, setIsAuthenticated }) {
         >
           <Box
             component="img"
-            alt='hello'
-            src="https://upload.wikimedia.org/wikipedia/en/8/82/NNDYM_logo.jpg"
+            alt="NNDYM logo"
+            src="/logo.svg"
+            sx={{ maxWidth: 160, height: 'auto' }}
           />
           <Typography component="h1" variant="h5" paddingTop={"20px"}>
             Dashboard Login
@@ -69,7 +70,7 @@ export default function Login({ isAuthenticated, setIsAuthenticated }) {
               required
               fullWidth
               id="templeName"
-              label="Temple Name"
+              label="Mandir Name"
               name="templeName"
               autoFocus
               value={templeName}

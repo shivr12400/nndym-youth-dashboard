@@ -53,7 +53,7 @@ export default function UpcomingEvents({
                         fullWidth
                         id="outlined-basic"
                         variant="outlined"
-                        label="Date (MM/DD/YY)"
+                        label="Date (MM/DD/YYYY)"
                         name="date"
                         value={upcomingEvents.date}
                         onChange={handleInputChangeEvents}

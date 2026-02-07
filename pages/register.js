@@ -157,7 +157,7 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                                     required
                                     fullWidth
                                     id="birthday"
-                                    label="birthday"
+                                    label="birthday (MM/DD/YYYY)"
                                     name="birthday"
                                     value={kidInfo.birthday}
                                     onChange={handleRegisterKids}

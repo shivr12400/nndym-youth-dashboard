@@ -14,11 +14,14 @@ export default function Home() {
   return (
     <Layout>
       <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Alert severity="info" sx={{ mb: 3 }}>
+        {/* <Alert severity="info" sx={{ mb: 3 }}>
           Retreat 2026 Registrations are out, sign up your kids now! —{' '}
           <Link href="https://nndym.org" target="_blank" rel="noopener noreferrer" style={{ fontWeight: 600 }}>
            Register Here
           </Link>
+        </Alert> */}
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Retreat 2026 Registrations will be out soon!
         </Alert>
         <Title variant="h3" marginTop={"4"}>
           Mandirs

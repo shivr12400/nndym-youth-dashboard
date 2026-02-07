@@ -41,7 +41,7 @@ export default function SatsangForm({
                         required
                         fullWidth
                         id="date"
-                        label="Date"
+                        label="Date (MM/DD/YYYY)"
                         name="date"
                         value={satsangCount.date}
                         onChange={handleInputChangeSatsangCount}
