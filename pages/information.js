@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Layout from '../components/Layout';
 import Footer from '../components/Footer';
+import { motion } from 'framer-motion';
 
 // Create custom styled button
 const CustomButton = styled(Button)(() => ({
@@ -13,10 +14,11 @@ const CustomButton = styled(Button)(() => ({
     minHeight: '200px',
     width: '100%',
     transition: 'all 0.3s ease-in-out',
-    backgroundColor: 'primary',
-    color: '#F6F1D1',
+    backgroundColor: '#3F51B5',
+    color: '#FFFFFF',
     '&:hover': {
-      backgroundColor: '#2f5a68', // Darker shade for hover
+      backgroundColor: '#FFFFFF', // Darker shade for hover
+      color: '#3F51B5',
       transform: 'translateY(-4px)',
       //boxShadow: theme.shadows[8],
     },
@@ -66,26 +68,30 @@ export default function HomePage() {
   return (
     <Layout>
     <ThemeProvider theme={theme}>
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Title variant="h3" marginTop={"4"}>
-              Information
-            </Title>
-        <Box sx={{ flexGrow: 1, py: 4 }}>
-          <Grid container spacing={3}>
-            {buttons.map((button, index) => (
-              <Grid item xs={6} key={index}>
-                <CustomButton
-                  href={button.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {button.text}
-                </CustomButton>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      </Container>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
+        <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Title variant="h3" marginTop={"4"}>
+                Information
+              </Title>
+          <Box sx={{ flexGrow: 1, py: 4 }}>
+            <Grid container spacing={3}>
+              {buttons.map((button, index) => (
+                <Grid item xs={6} key={index}>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <CustomButton
+                      href={button.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {button.text}
+                    </CustomButton>
+                  </motion.div>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        </Container>
+      </motion.div>
     </ThemeProvider>
     <Footer />
     </Layout>

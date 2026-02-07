@@ -16,6 +16,7 @@
     "@mui/material": "^6.1.6",
     "@mui/x-date-pickers": "^7.16.0",
     "dayjs": "^1.11.13",
+    "framer-motion": "^12.33.0",
     "graphql": "^16.9.0",
     "jsonwebtoken": "^9.0.2",
     "next": "^14.2.13",

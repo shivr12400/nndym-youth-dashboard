@@ -22,6 +22,7 @@ import { useState, useMemo } from 'react';
 import { styled } from '@mui/system';
 import { apiInfo } from '../api';
 import { mandirs } from '../utils/mandirs';
+import { motion } from 'framer-motion';
 
 export default function Register({ isAuthenticated, setIsAuthenticated }) {
 
@@ -132,103 +133,105 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
 
     return (
         <Layout>
-            <Container maxWidth="lg" sx={{ py: 6 }}>
-                <Title variant="h3" marginTop={"4"}>
-                    Register Kids
-                </Title>
-                {/* Form Card */}
-                <Card sx={{ mb: 4 }}>
-                    <CardContent>
-                        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="name"
-                                label="name"
-                                name="name"
-                                value={kidInfo.name}
-                                onChange={handleRegisterKids}
-                            />
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="birthday"
-                                label="birthday"
-                                name="birthday"
-                                value={kidInfo.birthday}
-                                onChange={handleRegisterKids}
-                            />
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="email"
-                                label="email"
-                                name="email"
-                                value={kidInfo.email}
-                                onChange={handleRegisterKids}
-                            />
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="phone"
-                                label="phone"
-                                name="phone"
-                                value={kidInfo.phone}
-                                onChange={handleRegisterKids}
-                            />
-                            <br></br>
-                            <br></br>
-                            <FormControl fullWidth>
-                                <InputLabel id="demo-simple-select-label">mandir</InputLabel>
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    id="demo-simple-select"
-                                    name='mandir'
-                                    value={kidInfo.mandirName}
-                                    label="mandir"
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
+                <Container maxWidth="lg" sx={{ py: 6 }}>
+                    <Title variant="h3" marginTop={"4"}>
+                        Register Kids
+                    </Title>
+                    {/* Form Card */}
+                    <Card sx={{ mb: 4 }}>
+                        <CardContent>
+                            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="name"
+                                    label="name"
+                                    name="name"
+                                    value={kidInfo.name}
                                     onChange={handleRegisterKids}
-                                >
-                                    {mandirs.map(m => (
-                                        <MenuItem value={m.mandirName}>{m.mandirName}</MenuItem>
-                                    ))
-                                }
-                                </Select>
-                            </FormControl>
-                            <br></br>
-                            <br></br>
-                            <Typography variant="h6" gutterBottom>
-                                Interests
-                            </Typography>
-                            <FormGroup>
-                                <FormControlLabel control={<Checkbox name="sportsInterest" checked={sports} onChange={handleChangeSports} />} label="Sports" />
-                                <FormControlLabel control={<Checkbox name="singingInterest" checked={singing} onChange={handleChangeSinging} />} label="Singing" />
-                                <FormControlLabel control={<Checkbox name="instrumentInterest" checked={instrument} onChange={handleChangeInstrument} />} label="Instruments" />
-                                <FormControlLabel control={<Checkbox name="artsCraftsInterest" checked={artsCrafts} onChange={handleChangeArtsCrafts} />} label="Arts and Crafts" />
-                                <FormControlLabel control={<Checkbox name="dancingInterest" checked={dancing} onChange={handleChangeDancing}/>} label="Dancing" />
-                                <FormControlLabel control={<Checkbox name="videoGamesInterest" checked={videoGames} onChange={handleChangeVideoGames}/>} label="Video Games" />
-                            </FormGroup>
-                            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
-                                Submit
-                            </Button>
-                            <br></br>
-                            {open ?
-                                <Button onClick={handleAnotherRegister} variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
-                                    Submit Another
-                                </Button> : <></>}
-                            <br></br>
-                            <br></br>
-                            {open ?
-                                <Alert severity="success" sx={{ width: '100%' }}>
-                                    Successfully submitted!
-                                </Alert> : <></>}
-                        </Box>
-                    </CardContent>
-                </Card>
-            </Container>
+                                />
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="birthday"
+                                    label="birthday"
+                                    name="birthday"
+                                    value={kidInfo.birthday}
+                                    onChange={handleRegisterKids}
+                                />
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="email"
+                                    label="email"
+                                    name="email"
+                                    value={kidInfo.email}
+                                    onChange={handleRegisterKids}
+                                />
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="phone"
+                                    label="phone"
+                                    name="phone"
+                                    value={kidInfo.phone}
+                                    onChange={handleRegisterKids}
+                                />
+                                <br></br>
+                                <br></br>
+                                <FormControl fullWidth>
+                                    <InputLabel id="demo-simple-select-label">mandir</InputLabel>
+                                    <Select
+                                        labelId="demo-simple-select-label"
+                                        id="demo-simple-select"
+                                        name='mandir'
+                                        value={kidInfo.mandirName}
+                                        label="mandir"
+                                        onChange={handleRegisterKids}
+                                    >
+                                        {mandirs.map(m => (
+                                            <MenuItem value={m.mandirName}>{m.mandirName}</MenuItem>
+                                        ))
+                                    }
+                                    </Select>
+                                </FormControl>
+                                <br></br>
+                                <br></br>
+                                <Typography variant="h6" gutterBottom>
+                                    Interests
+                                </Typography>
+                                <FormGroup>
+                                    <FormControlLabel control={<Checkbox name="sportsInterest" checked={sports} onChange={handleChangeSports} />} label="Sports" />
+                                    <FormControlLabel control={<Checkbox name="singingInterest" checked={singing} onChange={handleChangeSinging} />} label="Singing" />
+                                    <FormControlLabel control={<Checkbox name="instrumentInterest" checked={instrument} onChange={handleChangeInstrument} />} label="Instruments" />
+                                    <FormControlLabel control={<Checkbox name="artsCraftsInterest" checked={artsCrafts} onChange={handleChangeArtsCrafts} />} label="Arts and Crafts" />
+                                    <FormControlLabel control={<Checkbox name="dancingInterest" checked={dancing} onChange={handleChangeDancing}/>} label="Dancing" />
+                                    <FormControlLabel control={<Checkbox name="videoGamesInterest" checked={videoGames} onChange={handleChangeVideoGames}/>} label="Video Games" />
+                                </FormGroup>
+                                <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
+                                    Submit
+                                </Button>
+                                <br></br>
+                                {open ?
+                                    <Button onClick={handleAnotherRegister} variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
+                                        Submit Another
+                                    </Button> : <></>}
+                                <br></br>
+                                <br></br>
+                                {open ?
+                                    <Alert severity="success" sx={{ width: '100%' }}>
+                                        Successfully submitted!
+                                    </Alert> : <></>}
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Container>
+            </motion.div>
             <Footer />
         </Layout>
     );
