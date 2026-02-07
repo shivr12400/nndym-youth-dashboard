@@ -57,10 +57,10 @@ const Title = styled(Typography)(({ theme }) => ({
 
 export default function HomePage() {
   const buttons = [
-    { text: "Lesson Plans", url: "https://example.com/1" },
+    { text: "Lesson Plans", url: "https://drive.google.com/drive/folders/1kwKNiD0sbrnNf_qE8_ZHCVpq2dpUX6Sl?usp=sharing" },
     { text: "NNDYM Website", url: "https://nndym.org" },
     { text: "Kalupur Website", url: "https://www.swaminarayan.info/" },
-    { text: "Button 4", url: "https://example.com/4" },
+    { text: "Logos", url: "https://drive.google.com/drive/folders/10kBv8GkBXxqWRR-B3cWvFh2of8PO8r8m?usp=sharing" },
   ];
 
   return (

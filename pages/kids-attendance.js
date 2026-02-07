@@ -481,7 +481,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                         </Typography>
                         <ResponsiveContainer width="100%" height={400}>
                             <BarChart
-                                data={activities(kidsList)}
+                                data={activities(kidsList)['1-8']}
                                 margin={{
                                     top: 20,
                                     right: 30,
@@ -553,7 +553,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                         </Typography>
                         <ResponsiveContainer width="100%" height={400}>
                             <BarChart
-                                data={activities(kidsList)}
+                                data={activities(kidsList)['9-13']}
                                 margin={{
                                     top: 20,
                                     right: 30,
@@ -625,7 +625,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                         </Typography>
                         <ResponsiveContainer width="100%" height={400}>
                             <BarChart
-                                data={activities(kidsList)}
+                                data={activities(kidsList)['14-18']}
                                 margin={{
                                     top: 20,
                                     right: 30,
@@ -652,7 +652,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                         id="panel2-header"
                     >
                         <Typography variant="h6" gutterBottom>
-                        Kids Ages 18 - 25
+                        Kids Ages 19 - 25
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
@@ -697,7 +697,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                         </Typography>
                         <ResponsiveContainer width="100%" height={400}>
                             <BarChart
-                                data={activities(kidsList)}
+                                data={activities(kidsList)['19-25']}
                                 margin={{
                                     top: 20,
                                     right: 30,
