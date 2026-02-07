@@ -1,17 +1,18 @@
 // pages/kids-attendance.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Typography, Button, CircularProgress, TextField, Box, Card, CardContent, Slider, Checkbox, FormControlLabel, FormGroup, Grid, Table, TableContainer, TableHead, TableBody, TableCell, TableRow, Paper, Alert, Snackbar } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { BarChart, Bar, Legend } from 'recharts';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import { apiInfo } from '../api';
-import { activities } from '../activities';
+import { activities, calculateAge, getAgeRange } from '../activities';
 
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { mandirs } from '../utils/mandirs';
 
 export default function KidsAttendance({ isAuthenticated }) {
@@ -76,6 +77,22 @@ export default function KidsAttendance({ isAuthenticated }) {
     const [open, setOpen] = useState(false);
     const [openEvents, setOpenEvents] = useState(false);
 
+    const ageDistributionData = useMemo(() => {
+        const ranges = [
+            { range: '1-8', count: 0 },
+            { range: '9-13', count: 0 },
+            { range: '14-18', count: 0 },
+            { range: '19-25', count: 0 },
+        ];
+        kidsList.forEach((kid) => {
+            const age = calculateAge(kid.birthday);
+            const r = getAgeRange(age);
+            const entry = ranges.find((x) => x.range === r);
+            if (entry) entry.count++;
+        });
+        return ranges;
+    }, [kidsList]);
+
     const handleChangeBMC = (event) => {
         const { name, checked } = event.target;
         setBalMandalClass(checked);
@@ -102,63 +119,56 @@ export default function KidsAttendance({ isAuthenticated }) {
         setSatsangCount(prev => ({ ...prev, [name]: checked }));
     };
 
+    const fetchData = async () => {
+        if (!mandirName) return;
+        setIsLoading(true);
+        setError(null);
+        try {
+            const attendanceResponse = await fetch(apiInfo.kids_attendence.get + "?mandirName=" + mandirName);
+            if (!attendanceResponse.ok) throw new Error('Failed to fetch attendance data');
+            const attendanceData = await attendanceResponse.json();
+            const cleanedArray = removeKeys(attendanceData.satsang_count, keysToRemove);
+            cleanedArray.sort((a, b) => new Date(a.date) - new Date(b.date));
+            setData(cleanedArray);
+            setAverageKids(getTrend(cleanedArray));
+
+            const leaderResponse = await fetch(apiInfo.leader_info.get + "?mandirName=" + mandirName);
+            if (!leaderResponse.ok) throw new Error('Failed to fetch leader info');
+            const leaderData = await leaderResponse.json();
+            setLeaderInfo(leaderData);
+
+            const kidsResponse = await fetch(apiInfo.kids_list.get + "?mandirName=" + mandirName);
+            if (!kidsResponse.ok) throw new Error('Failed to fetch leader info');
+            const kidsListRes = await kidsResponse.json();
+            setKidsList(kidsListRes.kids);
+
+            const upcomingEventsResponse = await fetch(apiInfo.upcoming_events.get + "?mandirName=" + mandirName);
+            if (!upcomingEventsResponse.ok) throw new Error('Failed to fetch leader info');
+            const upcomingEventsList = await upcomingEventsResponse.json();
+            setAllUpcomingEvents(upcomingEventsList.upcomingEvents);
+
+            const result = mandirs.find(({ mandirName: m }) => m === mandirName);
+            if (result) setTier(result.tier);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleRefreshPage = () => {
+        fetchData();
+    };
+
     useEffect(() => {
         if (!isAuthenticated) {
             router.push('/');
             return;
         }
-
-        const fetchData = async () => {
-            try {
-                // Fetch attendance data
-                const attendanceResponse = await fetch(apiInfo.kids_attendence.get + "?mandirName=" + mandirName);
-                if (!attendanceResponse.ok) {
-                    throw new Error('Failed to fetch attendance data');
-                }
-                const attendanceData = await attendanceResponse.json(); // Fixed: Changed .ok to .json()
-                const cleanedArray = removeKeys(attendanceData.satsang_count, keysToRemove);
-                cleanedArray.sort((a, b) => new Date(a.date) - new Date(b.date));
-                setData(cleanedArray);
-                console.log(cleanedArray)
-                setAverageKids(getTrend(cleanedArray));
-
-                // Fetch leader info
-                const leaderResponse = await fetch(apiInfo.leader_info.get + "?mandirName=" + mandirName);
-                if (!leaderResponse.ok) {
-                    throw new Error('Failed to fetch leader info');
-                }
-                const leaderData = await leaderResponse.json();
-                setLeaderInfo(leaderData);
-
-                // Fetch kids info
-                const kidsResponse = await fetch(apiInfo.kids_list.get + "?mandirName=" + mandirName);
-                if (!kidsResponse.ok) {
-                    throw new Error('Failed to fetch leader info');
-                }
-                const kidsList = await kidsResponse.json();
-                setKidsList(kidsList.kids);
-
-                // Fetch kids info
-                const upcomingEventsResponse = await fetch(apiInfo.upcoming_events.get + "?mandirName=" + mandirName);
-                if (!upcomingEventsResponse.ok) {
-                    throw new Error('Failed to fetch leader info');
-                }
-                const upcomingEventsList = await upcomingEventsResponse.json();
-                setAllUpcomingEvents(upcomingEventsList.upcomingEvents);
-
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-        const mandir = mandirName
-        const result = mandirs.find(({ mandirName }) => mandirName === mandir)
-        setTier(result.tier);
-    
-    }, [isAuthenticated, router]);
+        if (mandirName) {
+            fetchData();
+        }
+    }, [isAuthenticated, router, mandirName]);
 
     const handleInputChangeLeaderInfo = (e) => {
         const { name, value } = e.target;
@@ -429,6 +439,27 @@ export default function KidsAttendance({ isAuthenticated }) {
                     </Grid>
                 </Grid>
                 <br></br>
+                <Card sx={{ mb: 4 }}>
+                    <CardContent>
+                        <Typography variant="h5" component="div" gutterBottom>
+                            Age distribution
+                        </Typography>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart
+                                data={ageDistributionData}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="range" />
+                                <YAxis />
+                                <Tooltip />
+                                <Bar dataKey="count" fill="#3F51B5" name="Kids" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+                <br></br>
+                
                 <Accordion>
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
@@ -466,7 +497,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                         <XAxis dataKey="date" />
                                         <YAxis />
                                         <Tooltip />
-                                        <Line type="monotone" dataKey="numberKidsFirstLevel" stroke="#8884d8" activeDot={{ r: 8 }} />
+                                        <Line type="monotone" dataKey="numberKidsFirstLevel" stroke="#3F51B5" activeDot={{ r: 8 }} />
                                     </LineChart>
                                 </ResponsiveContainer>
                             </div>
@@ -494,7 +525,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="value" fill="#8884d8" />
+                                <Bar dataKey="value" fill="#3F51B5" name="Count" />
                             </BarChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -538,7 +569,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                         <XAxis dataKey="date" />
                                         <YAxis />
                                         <Tooltip />
-                                        <Line type="monotone" dataKey="numberKidsSecondLevel" stroke="#8884d8" activeDot={{ r: 8 }} />
+                                        <Line type="monotone" dataKey="numberKidsSecondLevel" stroke="#3F51B5" activeDot={{ r: 8 }} />
                                     </LineChart>
                                 </ResponsiveContainer>
                             </div>
@@ -566,7 +597,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="value" fill="#8884d8" />
+                                <Bar dataKey="value" fill="#3F51B5" name="Count" />
                             </BarChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -610,7 +641,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                         <XAxis dataKey="date" />
                                         <YAxis />
                                         <Tooltip />
-                                        <Line type="monotone" dataKey="numberKidsThirdLevel" stroke="#8884d8" activeDot={{ r: 8 }} />
+                                        <Line type="monotone" dataKey="numberKidsThirdLevel" stroke="#3F51B5" activeDot={{ r: 8 }} />
                                     </LineChart>
                                 </ResponsiveContainer>
                             </div>
@@ -638,7 +669,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="value" fill="#8884d8" />
+                                <Bar dataKey="value" fill="#3F51B5" />
                             </BarChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -682,7 +713,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                         <XAxis dataKey="date" />
                                         <YAxis />
                                         <Tooltip />
-                                        <Line type="monotone" dataKey="numberKidsFourthLevel" stroke="#8884d8" activeDot={{ r: 8 }} />
+                                        <Line type="monotone" dataKey="numberKidsFourthLevel" stroke="#3F51B5" activeDot={{ r: 8 }} />
                                     </LineChart>
                                 </ResponsiveContainer>
                             </div>
@@ -710,7 +741,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="value" fill="#8884d8" />
+                                <Bar dataKey="value" fill="#3F51B5" name="Count" />
                             </BarChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -752,6 +783,8 @@ export default function KidsAttendance({ isAuthenticated }) {
                                 value={satsangCount.reporter}
                                 onChange={handleInputChangeSatsangCount}
                             />
+                            <br></br>
+                            <br></br>
                             <FormGroup>
                                 <FormControlLabel control={<Checkbox name="balMandalClass" checked={balMandalClass} onChange={handleChangeBMC} />} label="Bal Mandal Class" />
                                 <FormControlLabel control={<Checkbox name="satsangClass" checked={satsangClass} onChange={handleChangeSC} />} label="Satsang Class" />
@@ -759,8 +792,9 @@ export default function KidsAttendance({ isAuthenticated }) {
                                 <FormControlLabel control={<Checkbox name="instrumentClass" checked={instrumentClass} onChange={handleChangeIC} />} label="Instrument Class" />
                                 <FormControlLabel control={<Checkbox name="danceClass" checked={danceClass} onChange={handleChangeDC} />} label="Dance Class" />
                             </FormGroup>
+                            <br></br>
                             <Typography variant="h6" gutterBottom>
-                                Number of Kids 1 - 8 years old
+                                Kids 1 - 8 years old
                             </Typography>
                             <Slider
                                 defaultValue={10}
@@ -775,7 +809,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                 onChange={handleInputChangeSatsangCount}
                             />
                             <Typography variant="h6" gutterBottom>
-                                Number of Kids 9 - 13 years old
+                                Kids 9 - 13 years old
                             </Typography>
                             <Slider
                                 defaultValue={10}
@@ -790,7 +824,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                 onChange={handleInputChangeSatsangCount}
                             />
                             <Typography variant="h6" gutterBottom>
-                                Number of Kids 14 - 18 years old
+                                Kids 14 - 18 years old
                             </Typography>
                             <Slider
                                 defaultValue={10}
@@ -805,7 +839,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                 onChange={handleInputChangeSatsangCount}
                             />
                             <Typography variant="h6" gutterBottom>
-                                Number of Kids 19 - 25 years old
+                                Kids 19 - 25 years old
                             </Typography>
                             <Slider
                                 defaultValue={10}
@@ -824,9 +858,14 @@ export default function KidsAttendance({ isAuthenticated }) {
                             </Button>
                             <br></br>
                             {open ?
-                                <Button onClick={handleAnotherSubmitSatsangCount} variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
-                                    Submit Another
-                                </Button> : <></>}
+                                <>
+                                    <Button onClick={handleAnotherSubmitSatsangCount} variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
+                                        Submit Another
+                                    </Button>
+                                    <Button onClick={handleRefreshPage} variant="outlined" startIcon={<RefreshIcon />} sx={{ mt: 2, mr: 1 }}>
+                                        Refresh Charts
+                                    </Button>
+                                </> : <></>}
                             <br></br>
                             <br></br>
                             {open ?
@@ -903,9 +942,14 @@ export default function KidsAttendance({ isAuthenticated }) {
                             </Button>
                             <br></br>
                             {openEvents ?
-                                <Button onClick={handleAnotherSubmitEvents} variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
-                                    Submit Another
-                                </Button> : <></>}
+                                <>
+                                    <Button onClick={handleAnotherSubmitEvents} variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
+                                        Submit Another
+                                    </Button>
+                                    <Button onClick={handleRefreshPage} variant="outlined" startIcon={<RefreshIcon />} sx={{ mt: 2, mr: 1 }}>
+                                        Refresh Charts
+                                    </Button>
+                                </> : <></>}
                             <br></br>
                             <br></br>
                             {openEvents ?
@@ -931,7 +975,6 @@ export default function KidsAttendance({ isAuthenticated }) {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Name</TableCell>
-                                            <TableCell>Address</TableCell>
                                             <TableCell>Phone Number</TableCell>
                                             <TableCell>Email</TableCell>
                                         </TableRow>
@@ -940,7 +983,6 @@ export default function KidsAttendance({ isAuthenticated }) {
                                         {kidsList.map((kid) => (
                                             <TableRow key={kid.id}>
                                                 <TableCell>{kid.name}</TableCell>
-                                                <TableCell>{kid.address}</TableCell>
                                                 <TableCell>{kid.phone}</TableCell>
                                                 <TableCell>{kid.email}</TableCell>
                                             </TableRow>

@@ -1,4 +1,4 @@
-const calculateAge = (birthday) => {
+export const calculateAge = (birthday) => {
     if (!birthday) return 0;
     const today = new Date();
     const birthDate = new Date(birthday);
@@ -10,7 +10,7 @@ const calculateAge = (birthday) => {
     return age;
 }
 
-const getAgeRange = (age) => {
+export const getAgeRange = (age) => {
     if (age >= 1 && age <= 8) return '1-8';
     if (age >= 9 && age <= 13) return '9-13';
     if (age >= 14 && age <= 18) return '14-18';

@@ -39,7 +39,6 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
         birthday: '',
         email: '',
         phone: '',
-        address: '',
         mandir: '',
         sportsInterest: sports,
         singingInterest: singing,
@@ -99,7 +98,6 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
             birthday: '',
             email: '',
             phone: '',
-            address: '',
             mandir: '',
             sportsInterest: sports,
             singingInterest: singing,
@@ -180,16 +178,6 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                                 label="phone"
                                 name="phone"
                                 value={kidInfo.phone}
-                                onChange={handleRegisterKids}
-                            />
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="address"
-                                label="address"
-                                name="address"
-                                value={kidInfo.address}
                                 onChange={handleRegisterKids}
                             />
                             <br></br>
