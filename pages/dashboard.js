@@ -3,7 +3,7 @@ import { Grid, Typography, Container, Alert } from '@mui/material';
 import Layout from '../components/Layout';
 import Footer from '../components/Footer';
 import { mandirs } from '../utils/mandirs';
-import { HoverButton } from '../styles/dashboard';
+import { HoverButton } from '../components/common/HoverButton';
 import { styled } from '@mui/system';
 
 const Title = styled(Typography)(({ theme }) => ({

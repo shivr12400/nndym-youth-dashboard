@@ -258,10 +258,18 @@ export function useKidsAttendance(isAuthenticated) {
         { value: 40, label: '40' },
     ];
 
-    const compareDates = (d1, d2) => {
-        let date1 = new Date(d1).getTime();
-        let date2 = new Date(d2).getTime() + 604800000;
-        return date1 > date2;
+    // Normalize to start of day (UTC) for consistent date-only comparison
+    const toDateOnly = (d) => {
+        const dt = new Date(d);
+        return Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate());
+    };
+
+    const compareDates = (todayStr, lastSubmissionStr) => {
+        if (!lastSubmissionStr) return false;
+        const todayMs = toDateOnly(todayStr);
+        const lastMs = toDateOnly(lastSubmissionStr);
+        const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+        return todayMs > lastMs + oneWeekMs;
     };
 
     const today = new Date();

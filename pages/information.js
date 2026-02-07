@@ -4,7 +4,7 @@ import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 import Layout from '../components/Layout';
 import Footer from '../components/Footer';
 import { motion } from 'framer-motion';
-import CustomButton from '../components/information/CustomButton';
+import CustomButton from '../components/common/CustomButton';
 
   // Custom theme with your colors
   const theme = createTheme({
