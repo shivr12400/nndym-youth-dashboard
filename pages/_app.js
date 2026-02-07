@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Head from 'next/head';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import { useRouter } from 'next/router';
 import theme from '../styles/theme';
@@ -38,6 +39,9 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <ThemeProvider theme={theme}>
+      <Head>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+      </Head>
       <CssBaseline />
       <Component {...pageProps} isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
     </ThemeProvider>

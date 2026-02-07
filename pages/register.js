@@ -20,7 +20,7 @@ import Layout from '../components/Layout';
 import Footer from '../components/Footer';
 import { useState, useMemo } from 'react';
 import { styled } from '@mui/system';
-import { apiInfo } from '../api';
+import { apiInfo } from '../utils/api';
 import { mandirs } from '../utils/mandirs';
 import { motion } from 'framer-motion';
 

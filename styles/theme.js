@@ -3,48 +3,48 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-        main: '#3F51B5', // A modern blue for primary actions
+        main: '#094D92', 
       },
       secondary: {
-        main: '#FF4081', // A vibrant pink for secondary actions
+        main: '#1C1018',
       },
       error: {
-        main: '#D32F2F', // Standard error red
+        main: '#D32F2F', 
       },
       warning: {
-        main: '#FBC02D', // Standard warning yellow
+        main: '#FBC02D', 
       },
       info: {
-        main: '#2196F3', // Standard info blue
+        main: '#2196F3',
       },
       success: {
-        main: '#4CAF50', // Standard success green
+        main: '#4CAF50',
       },
       background: {
-        default: '#F4F6F8', // Light gray for general background
-        paper: '#FFFFFF', // White for card-like surfaces
+        default: '#EFEFEF', 
+        paper: '#FFFFFF', 
       },
       text: {
-        primary: '#212121', // Dark grey for primary text
-        secondary: '#757575', // Medium grey for secondary text
+        primary: '#1C1018',
+        secondary: '#094D92',
       },
       navText: {
-        main: '#FFFFFF', // White for navigation text
+        main: '#FFFFFF', 
       },
       navHover: {
-        main: '#7986CB', // Lighter blue for navigation hover
+        main: '#7986CB', 
       },
       navHoverText: {
-        main: '#FFFFFF', // White for navigation hover text
+        main: '#FFFFFF', 
       },
       cardButton: {
-        background: '#3F51B5', // Primary color for card buttons
-        text: '#FFFFFF', // White text for card buttons
+        background: '#094D92', 
+        text: '#EFEFEF', 
       },
   },
   typography: {
     fontFamily: [
-      'Inter', // Modern sans-serif font
+      'Inter', 
       '-apple-system',
       'BlinkMacSystemFont',
       '"Segoe UI"',

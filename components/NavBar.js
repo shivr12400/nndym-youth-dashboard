@@ -6,10 +6,10 @@ import { styled } from '@mui/system';
 import { motion } from 'framer-motion';
 
 const NavButton = styled(Button)(({theme}) => ({
-    color: '#F6F1D1',
+    color: theme.palette.navText.main,
     '&:hover': {
-        backgroundColor: '#40798C',
-        color: '#F6F1D1',
+        backgroundColor: '#FEFEFE',
+        color: '#094D92',
     },
   }));
 
@@ -19,7 +19,7 @@ const Navbar = () => {
       <AppBar position="static" color='primary'>
         <Container maxWidth="lg">
           <Toolbar disableGutters>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#F6F1D1' }}>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'navText.main' }}>
               NNDYM Mandir Dashboard
             </Typography>
             <Link href="/" passHref>

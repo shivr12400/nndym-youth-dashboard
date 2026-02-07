@@ -1,40 +1,22 @@
 // pages/index.js
 import { Button, Grid, Container, Box, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 import Layout from '../components/Layout';
 import Footer from '../components/Footer';
 import { motion } from 'framer-motion';
+import CustomButton from '../components/information/CustomButton';
 
-// Create custom styled button
-const CustomButton = styled(Button)(() => ({
-    padding: theme.spacing(4),
-    fontSize: '1.5rem',
-    fontWeight: 'bold',
-    minHeight: '200px',
-    width: '100%',
-    transition: 'all 0.3s ease-in-out',
-    backgroundColor: '#3F51B5',
-    color: '#FFFFFF',
-    '&:hover': {
-      backgroundColor: '#FFFFFF', // Darker shade for hover
-      color: '#3F51B5',
-      transform: 'translateY(-4px)',
-      //boxShadow: theme.shadows[8],
-    },
-  }));
-  
   // Custom theme with your colors
   const theme = createTheme({
     palette: {
       primary: {
-        main: '#40798C',
+        main: '#094D92',
       },
       secondary: {
-        main: '#40798C',
+        main: '#1C1018',
       },
       text: {
-        primary: '#F6F1D1',
+        primary: '#EFEFEF',
       },
     },
     components: {

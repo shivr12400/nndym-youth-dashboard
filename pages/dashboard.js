@@ -1,38 +1,10 @@
 import Link from 'next/link'; // Import Next.js's Link for routing
-import { Grid, Button, Typography, Container } from '@mui/material';
+import { Grid, Typography, Container, Alert } from '@mui/material';
 import Layout from '../components/Layout';
 import Footer from '../components/Footer';
-import { styled } from '@mui/system';
 import { mandirs } from '../utils/mandirs';
-
-const handleLogout = () => {
-  localStorage.removeItem('token');
-  setIsAuthenticated(false);
-  router.push('/');
-};
-
-// Define button background colors based on tier
-const tierColors = {
-  Gold: '#C69C6D',     // Gold color
-  Silver: '#C0C0C0',    // Silver color
-  Platinum: '#6E4D25',  // Platinum color (light grayish)
-};
-
-const HoverButton = styled(Button)(({ theme, tier }) => ({
-  position: 'relative',
-  width: '100%',
-  height: '150px',
-  backgroundColor: tierColors[tier] || theme.palette.grey[900], // Apply tier-based color
-  borderRadius: '10px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  overflow: 'hidden',
-  transition: 'transform 0.3s ease',
-  '&:hover': {
-    transform: 'scale(1.05)',
-  },
-}));
+import { HoverButton } from '../styles/dashboard';
+import { styled } from '@mui/system';
 
 const Title = styled(Typography)(({ theme }) => ({
   marginBottom: "40px"
@@ -42,6 +14,12 @@ export default function Home() {
   return (
     <Layout>
       <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Retreat 2026 Registrations are out, sign up your kids now! —{' '}
+          <Link href="https://nndym.org" target="_blank" rel="noopener noreferrer" style={{ fontWeight: 600 }}>
+           Register Here
+          </Link>
+        </Alert>
         <Title variant="h3" marginTop={"4"}>
           Mandirs
         </Title>
