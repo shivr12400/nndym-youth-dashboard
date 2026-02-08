@@ -11,7 +11,8 @@ import AttendanceCharts from '../components/kids-attendance/AttendanceCharts';
 import SatsangForm from '../components/kids-attendance/SatsangForm';
 import UpcomingEvents from '../components/kids-attendance/UpcomingEvents';
 import KidsListTable from '../components/kids-attendance/KidsListTable';
-import GenderDistributionChart from '../components/kids-attendance/GenderDistributionChart'; // New import
+import GenderDistributionChart from '../components/kids-attendance/GenderDistributionChart';
+import KidsOverTimeChart from '../components/kids-attendance/KidsOverTimeChart'; // New import
 import { activities } from '../utils/activities';
 
 export default function KidsAttendance({ isAuthenticated }) {
@@ -37,7 +38,9 @@ export default function KidsAttendance({ isAuthenticated }) {
         open,
         openEvents,
         ageDistributionData,
-        genderDistributionData, // New data prop
+        genderDistributionData,
+        kidsOverTimeData,
+        genderDistributionDataByAgeGroup, // New data prop
         marks,
         formattedToday,
         lastDate,
@@ -109,15 +112,18 @@ export default function KidsAttendance({ isAuthenticated }) {
                     </Grid>
                 </Grid>
 
+                <KidsOverTimeChart data={kidsOverTimeData} />
+
                 <AttendanceCharts
                     data={data}
                     isLoading={isLoading}
                     error={error}
                     activities={activities}
                     kidsList={kidsList}
+                    genderDistributionDataByAgeGroup={genderDistributionDataByAgeGroup} // New prop
                 />
                 
-                <br />
+                <br></br>
 
                 <SatsangForm
                     satsangCount={satsangCount}

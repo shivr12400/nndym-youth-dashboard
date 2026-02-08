@@ -1,11 +1,12 @@
 // components/kids-attendance/AttendanceCharts.js
-import { Accordion, AccordionSummary, AccordionDetails, Typography, Card, CardContent, CircularProgress } from '@mui/material';
+import { Accordion, AccordionSummary, AccordionDetails, Typography, Card, CardContent, CircularProgress, Grid } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
+import GenderDistributionChart from './GenderDistributionChart'; // Import GenderDistributionChart
 
 import { useTheme } from '@mui/material/styles';
 
-export default function AttendanceCharts({ data, isLoading, error, activities, kidsList }) {
+export default function AttendanceCharts({ data, isLoading, error, activities, kidsList, genderDistributionDataByAgeGroup }) {
     const theme = useTheme();
     const ageGroups = [
         { title: 'Kids Ages 1 - 8', dataKey: 'numberKidsFirstLevel', activityKey: '1-8' },
@@ -60,31 +61,39 @@ export default function AttendanceCharts({ data, isLoading, error, activities, k
                                 )}
                             </CardContent>
                         </Card>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h7" gutterBottom>
-                                    Top kids activities
-                                </Typography>
-                                <ResponsiveContainer width="100%" height={400}>
-                                    <BarChart
-                                        data={activities(kidsList)[group.activityKey]}
-                                        margin={{
-                                            top: 20,
-                                            right: 30,
-                                            left: 20,
-                                            bottom: 5,
-                                        }}
-                                    >
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="name" />
-                                        <YAxis />
-                                        <Tooltip />
-                                        <Legend />
-                                        <Bar dataKey="value" fill={theme.palette.primary.main} name="Count" />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </CardContent>
-                        </Card>
+                        <Grid container spacing={2}> {/* Grid for side-by-side charts */}
+                            <Grid item xs={12} md={6}>
+                                <Card>
+                                    <CardContent>
+                                        <Typography variant="h7" gutterBottom>
+                                            Top kids activities
+                                        </Typography>
+                                        <ResponsiveContainer width="100%" height={400}>
+                                            <BarChart
+                                                data={activities(kidsList)[group.activityKey]}
+                                                margin={{
+                                                    top: 20,
+                                                    right: 30,
+                                                    left: 20,
+                                                    bottom: 5,
+                                                }}
+                                            >
+                                                <CartesianGrid strokeDasharray="3 3" />
+                                                <XAxis dataKey="name" />
+                                                <YAxis />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Bar dataKey="male" fill={theme.palette.primary.main} name="Male" />
+                                                <Bar dataKey="female" fill={theme.palette.secondary.main} name="Female" />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <GenderDistributionChart data={genderDistributionDataByAgeGroup[group.activityKey] || []} />
+                            </Grid>
+                        </Grid>
                     </AccordionDetails>
                 </Accordion>
             ))}

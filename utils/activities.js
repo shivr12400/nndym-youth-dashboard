@@ -19,41 +19,56 @@ export const getAgeRange = (age) => {
 }
 
 const countActivities = (kids) => {
-    let artsCraftsInterest = 0
-    let dancingInterest = 0
-    let instrumentInterest = 0
-    let singingInterest = 0
-    let sportsInterest = 0
-    let videoGamesInterest = 0
+    let artsCraftsMale = 0;
+    let artsCraftsFemale = 0;
+    let dancingMale = 0;
+    let dancingFemale = 0;
+    let instrumentMale = 0;
+    let instrumentFemale = 0;
+    let singingMale = 0;
+    let singingFemale = 0;
+    let sportsMale = 0;
+    let sportsFemale = 0;
+    let videoGamesMale = 0;
+    let videoGamesFemale = 0;
     
     for (let i = 0; i < kids.length; i++) {
-        if (kids[i].artsCraftsInterest) {
-            artsCraftsInterest++
+        const kid = kids[i];
+        const gender = kid.gender;
+
+        if (kid.artsCraftsInterest) {
+            if (gender === 'Male') artsCraftsMale++;
+            else if (gender === 'Female') artsCraftsFemale++;
         }
-        if (kids[i].dancingInterest) {
-            dancingInterest++
+        if (kid.dancingInterest) {
+            if (gender === 'Male') dancingMale++;
+            else if (gender === 'Female') dancingFemale++;
         }
-        if (kids[i].instrumentInterest) {
-            instrumentInterest++
+        if (kid.instrumentInterest) {
+            if (gender === 'Male') instrumentMale++;
+            else if (gender === 'Female') instrumentFemale++;
         }
-        if (kids[i].singingInterest) {
-            singingInterest++
+        if (kid.singingInterest) {
+            if (gender === 'Male') singingMale++;
+            else if (gender === 'Female') singingFemale++;
         }
-        if (kids[i].sportsInterest) {
-            sportsInterest++
+        if (kid.sportsInterest) {
+            if (gender === 'Male') sportsMale++;
+            else if (gender === 'Female') sportsFemale++;
         }
-        if (kids[i].videoGamesInterest) {
-            videoGamesInterest++
+        if (kid.videoGamesInterest) {
+            if (gender === 'Male') videoGamesMale++;
+            else if (gender === 'Female') videoGamesFemale++;
         }
     }
     
     return [
-        {name: 'Arts and Crafts', value: artsCraftsInterest},
-        {name: 'Dancing', value: dancingInterest},
-        {name: 'Instrument', value: instrumentInterest},
-        {name: "Singing", value: singingInterest},
-        {name: "Sports", value: sportsInterest},
-        {name: "Video Games", value: videoGamesInterest},
+        {name: 'Arts and Crafts', male: artsCraftsMale, female: artsCraftsFemale},
+        {name: 'Dancing', male: dancingMale, female: dancingFemale},
+        {name: 'Instrument', male: instrumentMale, female: instrumentFemale},
+        {name: "Singing", male: singingMale, female: singingFemale},
+        {name: "Sports", male: sportsMale, female: sportsFemale},
+        {name: "Video Games", male: videoGamesMale, female: videoGamesFemale},
     ]
 }
 

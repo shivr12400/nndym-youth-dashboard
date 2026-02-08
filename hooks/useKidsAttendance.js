@@ -140,6 +140,58 @@ export function useKidsAttendance(isAuthenticated) {
         ];
     }, [kidsList]);
 
+    const kidsOverTimeData = useMemo(() => {
+        if (!data || data.length === 0) return [];
+
+        return data.map(entry => {
+            const totalKids = entry.numberKidsFirstLevel +
+                              entry.numberKidsSecondLevel +
+                              entry.numberKidsThirdLevel +
+                              entry.numberKidsFourthLevel;
+            const dateObj = new Date(entry.date);
+            const formattedDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`; // MM/DD
+
+            return {
+                date: formattedDate,
+                totalKids: totalKids,
+            };
+        });
+    }, [data]);
+
+    const genderDistributionDataByAgeGroup = useMemo(() => {
+        const ageRanges = {
+            '1-8': { Male: 0, Female: 0, Other: 0 },
+            '9-13': { Male: 0, Female: 0, Other: 0 },
+            '14-18': { Male: 0, Female: 0, Other: 0 },
+            '19-25': { Male: 0, Female: 0, Other: 0 },
+        };
+
+        kidsList.forEach(kid => {
+            const age = calculateAge(kid.birthday);
+            const range = getAgeRange(age);
+
+            if (range) {
+                if (kid.gender === 'Male') {
+                    ageRanges[range].Male++;
+                } else if (kid.gender === 'Female') {
+                    ageRanges[range].Female++;
+                } else {
+                    ageRanges[range].Other++;
+                }
+            }
+        });
+
+        const formattedData = {};
+        for (const range in ageRanges) {
+            formattedData[range] = [
+                { name: 'Male', value: ageRanges[range].Male },
+                { name: 'Female', value: ageRanges[range].Female },
+                { name: 'Other/Unspecified', value: ageRanges[range].Other },
+            ].filter(entry => entry.value > 0);
+        }
+        return formattedData;
+    }, [kidsList]);
+
     const handleChangeBMC = (event) => {
         const { name, checked } = event.target;
         setBalMandalClass(checked);
@@ -420,6 +472,8 @@ export function useKidsAttendance(isAuthenticated) {
         openEvents,
         ageDistributionData,
         genderDistributionData,
+        kidsOverTimeData,
+        genderDistributionDataByAgeGroup,
         marks,
         formattedToday,
         lastDate,
