@@ -1,7 +1,6 @@
 import Link from 'next/link'; // Import Next.js's Link for routing
 import { Grid, Typography, Container, Alert } from '@mui/material';
 import Layout from '../components/Layout';
-import Footer from '../components/Footer';
 import { mandirs } from '../utils/mandirs';
 import { HoverButton } from '../components/common/HoverButton';
 import { styled } from '@mui/system';
@@ -53,7 +52,6 @@ export default function Home() {
           ))}
         </Grid>
       </Container>
-      <Footer />
     </Layout>
   );
 }

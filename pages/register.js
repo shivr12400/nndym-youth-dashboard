@@ -20,7 +20,7 @@ import {
     FormLabel,
 } from '@mui/material';
 import Layout from '../components/Layout';
-import Footer from '../components/Footer';
+
 import { useState, useMemo } from 'react';
 import { styled } from '@mui/system';
 import { apiInfo } from '../utils/api';
@@ -317,7 +317,7 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                     </Card>
                 </Container>
             </motion.div>
-            <Footer />
+
         </Layout>
     );
 }

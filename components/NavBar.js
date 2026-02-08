@@ -37,6 +37,11 @@ const Navbar = () => {
                 <NavButton>Register</NavButton>
               </motion.div>
             </Link>
+            <Link href="/feedback" passHref>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <NavButton>Feedback</NavButton>
+              </motion.div>
+            </Link>
           </Toolbar>
         </Container>
       </AppBar>

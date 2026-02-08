@@ -2,7 +2,6 @@
 import { Button, Grid, Container, Box, Typography } from '@mui/material';
 import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 import Layout from '../components/Layout';
-import Footer from '../components/Footer';
 import { motion } from 'framer-motion';
 import CustomButton from '../components/common/CustomButton';
 
@@ -75,7 +74,6 @@ export default function HomePage() {
         </Container>
       </motion.div>
     </ThemeProvider>
-    <Footer />
     </Layout>
   );
 }
