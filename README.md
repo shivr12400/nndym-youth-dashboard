@@ -1,40 +1,73 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# NNDYM Youth Dashboard
+
+## Project Overview
+
+This project is a dynamic web dashboard designed for the NNDYM Youth program. It provides a centralized platform for managing and visualizing key data related to kids' attendance at satsangs, their interests in various activities, and leader information across different mandirs. The dashboard aims to provide actionable insights into youth engagement and participation trends, enabling better decision-making and program management.
+
+## Key Features
+
+*   **Mandir-specific Data:** Access and view data filtered by individual mandirs.
+*   **Kids Attendance Tracking:** Submit and monitor weekly satsang attendance counts.
+*   **Leader Information Management:** View and update contact details for mandir leaders.
+*   **Kids Registration:** Register new kids, capturing their demographic information and interests.
+*   **Comprehensive Data Visualization:**
+    *   **Age Distribution Chart:** Visualize the distribution of registered kids across different age groups.
+    *   **Gender Distribution Chart:** Understand the gender breakdown of registered kids overall and within specific age groups.
+    *   **Kids Over Time Chart:** Track total kids' attendance trends across all age groups over time.
+    *   **Top Kids Activities Charts (Gender-separated):** Identify popular activities among kids, with participation broken down by gender for each age group, providing granular insights into interests.
+*   **Upcoming Events Management:** View and submit details for future events.
+
+## Technology Stack
+
+*   **Frontend:** Next.js (React), Material-UI
+*   **Backend/API:** Implied API endpoints for data persistence (e.g., AWS Amplify, Node.js/Express)
+*   **Data Visualization:** Recharts
+*   **State Management:** React Hooks (useState, useEffect, useMemo)
 
 ## Getting Started
 
-First, run the development server:
+Follow these steps to set up and run the project locally:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1.  **Clone the repository:**
+    ```bash
+    git clone [repository-url]
+    cd nndym-youth-dashboard
+    ```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
+3.  **Configure Environment Variables (if any):**
+    *   If the project connects to a backend, ensure `apiInfo` in `utils/api.js` is correctly configured.
+    *   Refer to `.env.example` or project documentation for required environment variables.
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    # or
+    yarn dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Project Structure (High-Level)
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+*   `components/`: Reusable UI components.
+    *   `kids-attendance/`: Components specific to the kids attendance dashboard (e.g., charts, forms).
+*   `hooks/`: Custom React Hooks for encapsulating reusable logic (e.g., `useKidsAttendance`).
+*   `pages/`: Next.js pages (e.g., `index.js`, `dashboard.js`, `kids-attendance.js`, `register.js`).
+*   `public/`: Static assets.
+*   `styles/`: Global styles and Material-UI theme configuration.
+*   `utils/`: Utility functions (e.g., API calls, date calculations, activity processing).
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Contributing
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Contributions are welcome! Please follow the project's code style and submit pull requests for new features or bug fixes.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Support & Contact
 
-## Learn More
+For any questions or support, please contact the development team.
 
-To learn more about Next.js, take a look at the following resources:
+shiv.rathod@nndym.org
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+---
