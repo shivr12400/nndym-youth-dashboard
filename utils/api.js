@@ -18,5 +18,8 @@ export const apiInfo = {
     "login": {
         "post": "hello",
         "get": "hello"
+    },
+    "feedback": {
+        "post": "https://iwxkgbiu02.execute-api.us-east-1.amazonaws.com/production/feedback"
     }
 }
