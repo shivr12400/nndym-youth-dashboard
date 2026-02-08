@@ -1,11 +1,10 @@
 import { createToken } from '../../utils/auth';
 
 const validTemples = [
+  { name: 'snj@nndym.org', password: 'KFWhJJx(1EK.s;NkW1su' },
+  { name: 'colonia@nndym.org', password: 'w!v(N0V93!-_I8U&Ol72' },
+  { name: 'bowlinggreen@nndym.org', password: '4Diy#ci74:I/rFaLH92' },
   { name: '1', password: '2' },
-  { name: 'Tirupati Balaji', password: 'tirupati456' },
-  { name: 'Meenakshi Temple', password: 'madurai789' },
-  { name: 'Kashi Vishwanath', password: 'varanasi101' },
-  { name: 'Jagannath Temple', password: 'puri202' }
 ];
 
 export default function handler(req, res) {

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const SECRET_KEY = 'your-secret-key'; // In a real app, use an environment variable
+const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key'; // In a real app, use an environment variable
 
 export function createToken(templeName) {
   return jwt.sign({ templeName }, SECRET_KEY, { expiresIn: '1m' });

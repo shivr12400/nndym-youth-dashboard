@@ -3,49 +3,54 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-        main: '#70A9A1',
+        main: '#094D92', 
+      },
+      secondary: {
+        main: '#1C1018',
+      },
+      error: {
+        main: '#D32F2F', 
+      },
+      warning: {
+        main: '#FBC02D', 
+      },
+      info: {
+        main: '#2196F3',
+      },
+      success: {
+        main: '#4CAF50',
+      },
+      background: {
+        default: '#EFEFEF', 
+        paper: '#FFFFFF', 
+      },
+      text: {
+        primary: '#1C1018',
+        secondary: '#094D92',
       },
       navText: {
-        main: '#F0F7F4',
+        main: '#FFFFFF', 
       },
       navHover: {
-        main: '#B3BFB8',
+        main: '#7986CB', 
       },
       navHoverText: {
-        main: '#3C493F',
+        main: '#FFFFFF', 
       },
       cardButton: {
-        background: '#3C493F',
-        text: '#F0F7F4',
+        background: '#094D92', 
+        text: '#EFEFEF', 
       },
   },
   typography: {
     fontFamily: [
-      'Roboto',
+      'Inter', 
       '-apple-system',
       'BlinkMacSystemFont',
       '"Segoe UI"',
       'Arial',
       'sans-serif',
     ].join(','),
-    h1: {
-      fontWeight: 500,
-    },
-    h2: {
-      fontWeight: 500,
-    },
-    h3: {
-      fontWeight: 500,
-    },
-    h4: {
-      fontWeight: 500,
-    },
-    h5: {
-      fontWeight: 500,
-    },
-    h6: {
-      fontWeight: 500,
-    },
   },
 });
 
