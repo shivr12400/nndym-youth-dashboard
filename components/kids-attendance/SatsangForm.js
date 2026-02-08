@@ -5,6 +5,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 export default function SatsangForm({
     satsangCount,
     handleInputChangeSatsangCount,
+    handleDateBlur,
     handleSubmitSatsangCount,
     handleAnotherSubmitSatsangCount,
     handleRefreshPage,
@@ -22,7 +23,8 @@ export default function SatsangForm({
     formattedToday,
     lastDate,
     compareDates,
-    marks
+    marks,
+    dateError
 }) {
     return (
         <Card sx={{ mb: 4 }}>
@@ -45,6 +47,9 @@ export default function SatsangForm({
                         name="date"
                         value={satsangCount.date}
                         onChange={handleInputChangeSatsangCount}
+                        onBlur={handleDateBlur}
+                        error={!!dateError}
+                        helperText={dateError}
                     />
                     <TextField
                         margin="normal"

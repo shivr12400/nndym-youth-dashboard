@@ -1,6 +1,6 @@
 // pages/kids-attendance.js
 import React from 'react';
-import { Container, Typography, Button, CircularProgress, Box } from '@mui/material';
+import { Container, Typography, Button, CircularProgress, Box, Grid } from '@mui/material';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import { useKidsAttendance } from '../hooks/useKidsAttendance';
@@ -11,6 +11,7 @@ import AttendanceCharts from '../components/kids-attendance/AttendanceCharts';
 import SatsangForm from '../components/kids-attendance/SatsangForm';
 import UpcomingEvents from '../components/kids-attendance/UpcomingEvents';
 import KidsListTable from '../components/kids-attendance/KidsListTable';
+import GenderDistributionChart from '../components/kids-attendance/GenderDistributionChart'; // New import
 import { activities } from '../utils/activities';
 
 export default function KidsAttendance({ isAuthenticated }) {
@@ -36,6 +37,7 @@ export default function KidsAttendance({ isAuthenticated }) {
         open,
         openEvents,
         ageDistributionData,
+        genderDistributionData, // New data prop
         marks,
         formattedToday,
         lastDate,
@@ -47,7 +49,9 @@ export default function KidsAttendance({ isAuthenticated }) {
         handleChangeDC,
         handleInputChangeLeaderInfo,
         handleInputChangeEvents,
+        handleEventsDateBlur,
         handleInputChangeSatsangCount,
+        handleDateBlur,
         handleSubmitLeaderInfo,
         handleSubmitSatsangCount,
         handleAnotherSubmitSatsangCount,
@@ -55,6 +59,8 @@ export default function KidsAttendance({ isAuthenticated }) {
         handleSubmitEvents,
         compareDates,
         handleRefreshPage,
+        dateError,
+        eventsDateError,
     } = useKidsAttendance(isAuthenticated);
 
     if (!isAuthenticated) {
@@ -94,7 +100,14 @@ export default function KidsAttendance({ isAuthenticated }) {
 
                 <StatsCards averageKids={averageKids} tier={tier} />
 
-                <AgeDistributionChart data={ageDistributionData} />
+                <Grid container spacing={4}> {/* Add spacing between charts */}
+                    <Grid item xs={12} md={6}>
+                        <AgeDistributionChart data={ageDistributionData} />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <GenderDistributionChart data={genderDistributionData} />
+                    </Grid>
+                </Grid>
 
                 <AttendanceCharts
                     data={data}
@@ -109,6 +122,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                 <SatsangForm
                     satsangCount={satsangCount}
                     handleInputChangeSatsangCount={handleInputChangeSatsangCount}
+                    handleDateBlur={handleDateBlur}
                     handleSubmitSatsangCount={handleSubmitSatsangCount}
                     handleAnotherSubmitSatsangCount={handleAnotherSubmitSatsangCount}
                     handleRefreshPage={handleRefreshPage}
@@ -127,17 +141,19 @@ export default function KidsAttendance({ isAuthenticated }) {
                     lastDate={lastDate}
                     compareDates={compareDates}
                     marks={marks}
+                    dateError={dateError}
                 />
 
                 <UpcomingEvents
                     upcomingEvents={upcomingEvents}
                     upcomingAllEvents={upcomingAllEvents}
                     handleInputChangeEvents={handleInputChangeEvents}
+                    handleEventsDateBlur={handleEventsDateBlur}
                     handleSubmitEvents={handleSubmitEvents}
                     handleAnotherSubmitEvents={handleAnotherSubmitEvents}
-
                     handleRefreshPage={handleRefreshPage}
                     openEvents={openEvents}
+                    eventsDateError={eventsDateError}
                 />
 
                 <KidsListTable kidsList={kidsList} />

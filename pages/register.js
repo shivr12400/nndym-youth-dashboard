@@ -15,6 +15,9 @@ import {
     Button,
     Typography,
     Checkbox,
+    Radio,
+    RadioGroup,
+    FormLabel,
 } from '@mui/material';
 import Layout from '../components/Layout';
 import Footer from '../components/Footer';
@@ -34,6 +37,13 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
     const [artsCrafts, setArtsCrafts] = useState(false);
     const [dancing, setDancing] = useState(false);
     const [videoGames, setVideoGames] = useState(false);
+    const [phoneError, setPhoneError] = useState('');
+    const [birthdayError, setBirthdayError] = useState('');
+    const [emailError, setEmailError] = useState('');
+
+    const [isBirthdayValid, setIsBirthdayValid] = useState(false);
+    const [isEmailValid, setIsEmailValid] = useState(false);
+    const [isPhoneValid, setIsPhoneValid] = useState(false);
 
     const [kidInfo, setKidInfo] = useState({
         name: '',
@@ -41,6 +51,7 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
         email: '',
         phone: '',
         mandir: '',
+        gender: '',
         sportsInterest: sports,
         singingInterest: singing,
         instrumentInterest: instrument,
@@ -81,9 +92,53 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
         setKidInfo(prev => ({ ...prev, [name]: checked }));
     };
 
+    const validateBirthday = (value) => {
+        const birthdayRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+        if (!birthdayRegex.test(value)) {
+            setBirthdayError('Please use MM/DD/YYYY format');
+            setIsBirthdayValid(false);
+            return false;
+        }
+        setBirthdayError('');
+        setIsBirthdayValid(true);
+        return true;
+    };
+
+    const validateEmail = (value) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+            setEmailError('Please enter a valid email address');
+            setIsEmailValid(false);
+            return false;
+        }
+        setEmailError('');
+        setIsEmailValid(true);
+        return true;
+    };
+
+    const validatePhone = (value) => {
+        const phoneRegex = /^\d{10}$/; // Assuming 10 digits for phone number
+        if (!phoneRegex.test(value)) {
+            setPhoneError('Please enter a 10-digit phone number');
+            setIsPhoneValid(false);
+            return false;
+        }
+        setPhoneError('');
+        setIsPhoneValid(true);
+        return true;
+    };
+
     const handleRegisterKids = (e) => {
         const { name, value } = e.target;
         setKidInfo(prev => ({ ...prev, [name]: value }));
+
+        if (name === 'birthday') {
+            validateBirthday(value);
+        } else if (name === 'email') {
+            validateEmail(value);
+        } else if (name === 'phone') {
+            validatePhone(value);
+        }
     };
 
     const handleAnotherRegister = () => {
@@ -94,24 +149,33 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
         setArtsCrafts(false)
         setDancing(false)
         setVideoGames(false)
-        setKidInfo({
-            name: '',
-            birthday: '',
-            email: '',
-            phone: '',
-            mandir: '',
-            sportsInterest: sports,
-            singingInterest: singing,
-            instrumentInterest: instrument,
-            artsCraftsInterest: artsCrafts,
-            dancingInterest: dancing,
-            videoGamesInterest: videoGames,
-
-        })
+                setKidInfo(prev => ({
+                    name: '',
+                    birthday: '',
+                    email: '',
+                    phone: '',
+                                mandir: prev.mandir,
+                                gender: '', // Reset gender here
+                                sportsInterest: sports,                    singingInterest: singing,
+                    instrumentInterest: instrument,
+                    artsCraftsInterest: artsCrafts,
+                    dancingInterest: dancing,
+                    videoGamesInterest: videoGames,
+                }))
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const isBdayValid = validateBirthday(kidInfo.birthday);
+        const isMailValid = validateEmail(kidInfo.email);
+        const isPhnValid = validatePhone(kidInfo.phone);
+
+        if (!isBdayValid || !isMailValid || !isPhnValid) {
+            console.log('Validation failed. Please check your inputs.');
+            return;
+        }
+
         try {
             const response = await fetch(apiInfo.kids_list.post, {
                 method: 'POST',
@@ -122,6 +186,9 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                 throw new Error('Failed to update leader info');
             }
             setOpen(true);
+            setIsBirthdayValid(false);
+            setIsEmailValid(false);
+            setIsPhoneValid(false);
         } catch (err) {
             console.log(err)
         }
@@ -152,6 +219,19 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                                     value={kidInfo.name}
                                     onChange={handleRegisterKids}
                                 />
+                                <br></br>
+                                <FormControl component="fieldset" margin="normal" fullWidth>
+                                    <FormLabel component="legend">Gender</FormLabel>
+                                    <RadioGroup
+                                        row
+                                        name="gender"
+                                        value={kidInfo.gender}
+                                        onChange={handleRegisterKids}
+                                    >
+                                        <FormControlLabel value="Male" control={<Radio />} label="Male" />
+                                        <FormControlLabel value="Female" control={<Radio />} label="Female" />
+                                    </RadioGroup>
+                                </FormControl>
                                 <TextField
                                     margin="normal"
                                     required
@@ -161,6 +241,8 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                                     name="birthday"
                                     value={kidInfo.birthday}
                                     onChange={handleRegisterKids}
+                                    error={!!birthdayError}
+                                    helperText={birthdayError}
                                 />
                                 <TextField
                                     margin="normal"
@@ -171,6 +253,8 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                                     name="email"
                                     value={kidInfo.email}
                                     onChange={handleRegisterKids}
+                                    error={!!emailError}
+                                    helperText={emailError}
                                 />
                                 <TextField
                                     margin="normal"
@@ -181,6 +265,8 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                                     name="phone"
                                     value={kidInfo.phone}
                                     onChange={handleRegisterKids}
+                                    error={!!phoneError}
+                                    helperText={phoneError}
                                 />
                                 <br></br>
                                 <br></br>
@@ -190,19 +276,18 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                                         labelId="demo-simple-select-label"
                                         id="demo-simple-select"
                                         name='mandir'
-                                        value={kidInfo.mandirName}
+                                        value={kidInfo.mandir}
                                         label="mandir"
                                         onChange={handleRegisterKids}
                                     >
-                                        {mandirs.map(m => (
-                                            <MenuItem value={m.mandirName}>{m.mandirName}</MenuItem>
-                                        ))
-                                    }
-                                    </Select>
-                                </FormControl>
-                                <br></br>
-                                <br></br>
-                                <Typography variant="h6" gutterBottom>
+                                                                                {mandirs.map(m => (
+                                                                                    <MenuItem key={m.mandirName} value={m.mandirName}>{m.mandirName}</MenuItem>
+                                                                                ))}
+                                                                            </Select>
+                                                                        </FormControl>
+                                                                        <br></br>
+                                                                        <br></br>
+                                                                        <Typography variant="h6" gutterBottom>
                                     Interests
                                 </Typography>
                                 <FormGroup>

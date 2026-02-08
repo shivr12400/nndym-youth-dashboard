@@ -6,10 +6,12 @@ export default function UpcomingEvents({
     upcomingEvents,
     upcomingAllEvents,
     handleInputChangeEvents,
+    handleEventsDateBlur,
     handleSubmitEvents,
     handleAnotherSubmitEvents,
     handleRefreshPage,
-    openEvents
+    openEvents,
+    eventsDateError,
 }) {
     return (
         <Card sx={{ mb: 4 }}>
@@ -57,6 +59,9 @@ export default function UpcomingEvents({
                         name="date"
                         value={upcomingEvents.date}
                         onChange={handleInputChangeEvents}
+                        onBlur={handleEventsDateBlur}
+                        error={!!eventsDateError}
+                        helperText={eventsDateError}
                     />
                     <TextField
                         margin="normal"

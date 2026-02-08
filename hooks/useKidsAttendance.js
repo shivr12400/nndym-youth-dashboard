@@ -43,6 +43,42 @@ export function useKidsAttendance(isAuthenticated) {
     const [kirtanClass, setKirtanClass] = useState(false);
     const [instrumentClass, setInstrumentClass] = useState(false);
     const [danceClass, setDanceClass] = useState(false);
+    const [dateError, setDateError] = useState('');
+    const [eventsDateError, setEventsDateError] = useState('');
+
+    // Same date validation as register.js: MM/DD/YYYY format
+    const validateDate = (dateString) => {
+        const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+        if (!dateRegex.test(dateString)) {
+            setDateError('Please use MM/DD/YYYY format');
+            return false;
+        }
+        // Check for real calendar validity (e.g., no Feb 31)
+        const [month, day, year] = dateString.split('/').map(Number);
+        const date = new Date(year, month - 1, day);
+        if (date.getFullYear() !== year || date.getMonth() + 1 !== month || date.getDate() !== day) {
+            setDateError('Invalid date (e.g., Feb 31st)');
+            return false;
+        }
+        setDateError('');
+        return true;
+    };
+
+    const validateEventsDate = (dateString) => {
+        const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+        if (!dateRegex.test(dateString)) {
+            setEventsDateError('Please use MM/DD/YYYY format');
+            return false;
+        }
+        const [month, day, year] = dateString.split('/').map(Number);
+        const date = new Date(year, month - 1, day);
+        if (date.getFullYear() !== year || date.getMonth() + 1 !== month || date.getDate() !== day) {
+            setEventsDateError('Invalid date (e.g., Feb 31st)');
+            return false;
+        }
+        setEventsDateError('');
+        return true;
+    };
 
     const [satsangCount, setSatsangCount] = useState({
         mandirName: mandirName,
@@ -79,6 +115,29 @@ export function useKidsAttendance(isAuthenticated) {
             if (entry) entry.count++;
         });
         return ranges;
+    }, [kidsList]);
+
+    const genderDistributionData = useMemo(() => {
+        const distribution = {
+            Male: 0,
+            Female: 0,
+            Other: 0,
+        };
+
+        kidsList.forEach(kid => {
+            if (kid.gender === 'Male') {
+                distribution.Male++;
+            } else if (kid.gender === 'Female') {
+                distribution.Female++;
+            } else {
+                distribution.Other++;
+            }
+        });
+        return [
+            { name: 'Male', value: distribution.Male },
+            { name: 'Female', value: distribution.Female },
+            { name: 'Other/Unspecified', value: distribution.Other },
+        ];
     }, [kidsList]);
 
     const handleChangeBMC = (event) => {
@@ -167,11 +226,25 @@ export function useKidsAttendance(isAuthenticated) {
     const handleInputChangeEvents = (e) => {
         const { name, value } = e.target;
         setUpcomingEvents(prev => ({ ...prev, [name]: value }));
+        if (name === 'date') {
+            validateEventsDate(value);
+        }
+    };
+
+    const handleEventsDateBlur = () => {
+        validateEventsDate(upcomingEvents.date);
     };
 
     const handleInputChangeSatsangCount = (e) => {
         const { name, value } = e.target;
         setSatsangCount(prev => ({ ...prev, [name]: value }));
+        if (name === 'date') {
+            validateDate(value);
+        }
+    };
+
+    const handleDateBlur = () => {
+        validateDate(satsangCount.date);
     };
 
     const handleSubmitLeaderInfo = async (e) => {
@@ -192,6 +265,12 @@ export function useKidsAttendance(isAuthenticated) {
 
     const handleSubmitSatsangCount = async (e) => {
         e.preventDefault();
+        // Validate before submit — do not call API if date is invalid
+        const isDateValid = validateDate(satsangCount.date);
+        if (!isDateValid) {
+            console.log('Validation failed. Please check your inputs.');
+            return;
+        }
         try {
             const response = await fetch(apiInfo.kids_attendence.post, {
                 method: 'POST',
@@ -208,34 +287,46 @@ export function useKidsAttendance(isAuthenticated) {
 
     const handleAnotherSubmitSatsangCount = () => {
         setOpen(false)
+        setDateError('')
         setBalMandalClass(false)
         setSatsangClass(false)
         setKirtanClass(false)
         setInstrumentClass(false)
         setDanceClass(false)
-        setSatsangCount({
-            mandirName: mandirName,
+        setSatsangCount(prev => ({
+            mandirName: prev.mandirName,
             date: '',
             reporter: '',
-            numberKids: 0,
+            numberKidsFirstLevel: 0,
+            numberKidsSecondLevel: 0,
+            numberKidsThirdLevel: 0,
+            numberKidsFourthLevel: 0,
             balMandalClass: false,
             satsangClass: false,
             kirtanClass: false,
             instrumentClass: false,
             danceClass: false
-        })
+        }))
     }
 
     const handleAnotherSubmitEvents = () => {
         setOpenEvents(false)
-        setUpcomingEvents({
+        setEventsDateError('')
+        setUpcomingEvents(prev => ({
+            ...prev,
             date: '',
             upcomingEvents: '',
-        })
+        }))
     }
 
     const handleSubmitEvents = async (e) => {
         e.preventDefault();
+        // Validate before submit — do not call API if date is invalid
+        const isDateValid = validateEventsDate(upcomingEvents.date);
+        if (!isDateValid) {
+            console.log('Validation failed. Please check your inputs.');
+            return;
+        }
         try {
             const response = await fetch(apiInfo.upcoming_events.post, {
                 method: 'POST',
@@ -328,6 +419,7 @@ export function useKidsAttendance(isAuthenticated) {
         open,
         openEvents,
         ageDistributionData,
+        genderDistributionData,
         marks,
         formattedToday,
         lastDate,
@@ -344,7 +436,9 @@ export function useKidsAttendance(isAuthenticated) {
         handleChangeDC,
         handleInputChangeLeaderInfo,
         handleInputChangeEvents,
+        handleEventsDateBlur,
         handleInputChangeSatsangCount,
+        handleDateBlur,
         handleSubmitLeaderInfo,
         handleSubmitSatsangCount,
         handleAnotherSubmitSatsangCount,
@@ -352,5 +446,7 @@ export function useKidsAttendance(isAuthenticated) {
         handleSubmitEvents,
         compareDates,
         handleRefreshPage,
+        dateError,
+        eventsDateError,
     };
 }
