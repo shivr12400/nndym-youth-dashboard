@@ -6,7 +6,7 @@ export const mandirs = [
     // { id: 1, mandirName: 'Byron', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },
     { id: 1, mandirName: 'Cherry Hill', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },
     // { id: 1, mandirName: 'Chicago', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },
-    // { id: 1, mandirName: 'Cincinnati', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },
+    { id: 1, mandirName: 'Cincinnati', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },
     // { id: 1, mandirName: 'Cleveland', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },
     { id: 1, mandirName: 'Colonia', tier: "Silver", link: '/kids-attendance', image: '' },
     // { id: 1, mandirName: 'Dallas', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },

@@ -32,6 +32,12 @@ const Navbar = () => {
                 <NavButton>Information</NavButton>
               </motion.div>
             </Link>
+            {/* New Tiers Page Link Added Here */}
+            <Link href="/tiers" passHref>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <NavButton>Tiers</NavButton>
+              </motion.div>
+            </Link>
             <Link href="/register" passHref>
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <NavButton>Register</NavButton>
