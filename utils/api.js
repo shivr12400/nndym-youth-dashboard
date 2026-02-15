@@ -21,5 +21,9 @@ export const apiInfo = {
     },
     "feedback": {
         "post": "https://iwxkgbiu02.execute-api.us-east-1.amazonaws.com/production/feedback"
+    },
+    "goals": {
+        "post": "https://iwxkgbiu02.execute-api.us-east-1.amazonaws.com/production/goals",
+        "get": "https://iwxkgbiu02.execute-api.us-east-1.amazonaws.com/production/goals"
     }
 }

@@ -22,7 +22,7 @@ export const mandirs = [
     // { id: 1, mandirName: 'MDDC', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },
     // { id: 1, mandirName: 'Nashville', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },
     // { id: 1, mandirName: 'New York', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },
-    // { id: 2, mandirName: 'Parisppany', tier: "Silver", link: '/india24', image: '/images/india24.jpg' },
+    { id: 2, mandirName: 'Parsippany', tier: "Silver", link: '/india24', image: '/images/india24.jpg' },
     // { id: 1, mandirName: 'Raleigh', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },
     // { id: 1, mandirName: 'Regina', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },
     // { id: 1, mandirName: 'San Jose', tier: "Silver", link: '/kids-attendance', image: '/images/del.jpg' },

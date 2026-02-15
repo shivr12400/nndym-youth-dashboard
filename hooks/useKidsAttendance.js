@@ -5,15 +5,6 @@ import { apiInfo } from '../utils/api';
 import { mandirs } from '../utils/mandirs';
 import { calculateAge, getAgeRange } from '../utils/activities';
 
-const keysToRemove = ["reporter", "kirtanClass", "balMandalClass", "instrumentClass", "satsangClass", "danceClass", "mandirName"];
-function removeKeys(jsonArray, keysToRemove) {
-    return jsonArray.map(obj => {
-        return Object.fromEntries(
-            Object.entries(obj).filter(([key]) => !keysToRemove.includes(key))
-        );
-    });
-}
-
 export function useKidsAttendance(isAuthenticated) {
     const router = useRouter();
     const { mandirName } = router.query;
@@ -38,6 +29,15 @@ export function useKidsAttendance(isAuthenticated) {
         upcomingEvents: '',
     });
 
+    // Goals State
+    const [goals, setGoals] = useState({
+        goal1: '',
+        goal2: '',
+        goal3: ''
+    });
+    // NEW: Snackbar State for Goals
+    const [openGoalsSnackbar, setOpenGoalsSnackbar] = useState(false);
+
     const [balMandalClass, setBalMandalClass] = useState(false);
     const [satsangClass, setSatsangClass] = useState(false);
     const [kirtanClass, setKirtanClass] = useState(false);
@@ -46,14 +46,12 @@ export function useKidsAttendance(isAuthenticated) {
     const [dateError, setDateError] = useState('');
     const [eventsDateError, setEventsDateError] = useState('');
 
-    // Same date validation as register.js: MM/DD/YYYY format
     const validateDate = (dateString) => {
         const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
         if (!dateRegex.test(dateString)) {
             setDateError('Please use MM/DD/YYYY format');
             return false;
         }
-        // Check for real calendar validity (e.g., no Feb 31)
         const [month, day, year] = dateString.split('/').map(Number);
         const date = new Date(year, month - 1, day);
         if (date.getFullYear() !== year || date.getMonth() + 1 !== month || date.getDate() !== day) {
@@ -144,12 +142,12 @@ export function useKidsAttendance(isAuthenticated) {
         if (!data || data.length === 0) return [];
 
         return data.map(entry => {
-            const totalKids = entry.numberKidsFirstLevel +
-                              entry.numberKidsSecondLevel +
-                              entry.numberKidsThirdLevel +
-                              entry.numberKidsFourthLevel;
+            const totalKids = (entry.numberKidsFirstLevel || 0) +
+                              (entry.numberKidsSecondLevel || 0) +
+                              (entry.numberKidsThirdLevel || 0) +
+                              (entry.numberKidsFourthLevel || 0);
             const dateObj = new Date(entry.date);
-            const formattedDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`; // MM/DD
+            const formattedDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`; 
 
             return {
                 date: formattedDate,
@@ -218,6 +216,24 @@ export function useKidsAttendance(isAuthenticated) {
         setSatsangCount(prev => ({ ...prev, [name]: checked }));
     };
 
+    const getTrend = (kidsData) => {
+        if (!kidsData || kidsData.length === 0) return 0;
+        
+        let totalKids = 0;
+        let count = 0;
+        
+        kidsData.forEach(record => {
+             const dailyTotal = (Number(record.numberKidsFirstLevel) || 0) + 
+                                (Number(record.numberKidsSecondLevel) || 0) + 
+                                (Number(record.numberKidsThirdLevel) || 0) + 
+                                (Number(record.numberKidsFourthLevel) || 0);
+             totalKids += dailyTotal;
+             count++;
+        });
+
+        return count === 0 ? 0 : Math.round(totalKids / count);
+    };
+
     const fetchData = async () => {
         if (!mandirName) return;
         setIsLoading(true);
@@ -226,10 +242,10 @@ export function useKidsAttendance(isAuthenticated) {
             const attendanceResponse = await fetch(apiInfo.kids_attendence.get + "?mandirName=" + mandirName);
             if (!attendanceResponse.ok) throw new Error('Failed to fetch attendance data');
             const attendanceData = await attendanceResponse.json();
-            const cleanedArray = removeKeys(attendanceData.satsang_count, keysToRemove);
-            cleanedArray.sort((a, b) => new Date(a.date) - new Date(b.date));
-            setData(cleanedArray);
-            setAverageKids(getTrend(cleanedArray));
+            const fullArray = attendanceData.satsang_count || [];
+            fullArray.sort((a, b) => new Date(a.date) - new Date(b.date));
+            setData(fullArray);
+            setAverageKids(getTrend(fullArray));
 
             const leaderResponse = await fetch(apiInfo.leader_info.get + "?mandirName=" + mandirName);
             if (!leaderResponse.ok) throw new Error('Failed to fetch leader info');
@@ -245,6 +261,18 @@ export function useKidsAttendance(isAuthenticated) {
             if (!upcomingEventsResponse.ok) throw new Error('Failed to fetch upcoming events');
             const upcomingEventsList = await upcomingEventsResponse.json();
             setAllUpcomingEvents(upcomingEventsList.upcomingEvents);
+
+            const goalsResponse = await fetch(apiInfo.goals.get + "?mandirName=" + mandirName);
+            if (goalsResponse.ok) {
+                const goalsData = await goalsResponse.json();
+                if (goalsData) {
+                    setGoals({
+                        goal1: goalsData.goal1 || '',
+                        goal2: goalsData.goal2 || '',
+                        goal3: goalsData.goal3 || ''
+                    });
+                }
+            }
 
             const result = mandirs.find(({ mandirName: m }) => m === mandirName);
             if (result) setTier(result.tier);
@@ -283,6 +311,37 @@ export function useKidsAttendance(isAuthenticated) {
         }
     };
 
+    const handleInputChangeGoals = (e) => {
+        const { name, value } = e.target;
+        setGoals(prev => ({ ...prev, [name]: value }));
+    };
+
+    // UPDATED: Submit Handler for Goals using Snackbar instead of Alert
+    const handleSubmitGoals = async () => {
+        try {
+            const response = await fetch(apiInfo.goals.post, {
+                method: 'POST',
+                body: JSON.stringify({
+                    mandirName,
+                    ...goals
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to save goals');
+            }
+            setOpenGoalsSnackbar(true); // SHOW SNACKBAR
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
+    const handleCloseGoalsSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenGoalsSnackbar(false);
+    };
+
     const handleEventsDateBlur = () => {
         validateEventsDate(upcomingEvents.date);
     };
@@ -317,7 +376,6 @@ export function useKidsAttendance(isAuthenticated) {
 
     const handleSubmitSatsangCount = async (e) => {
         e.preventDefault();
-        // Validate before submit — do not call API if date is invalid
         const isDateValid = validateDate(satsangCount.date);
         if (!isDateValid) {
             console.log('Validation failed. Please check your inputs.');
@@ -373,7 +431,6 @@ export function useKidsAttendance(isAuthenticated) {
 
     const handleSubmitEvents = async (e) => {
         e.preventDefault();
-        // Validate before submit — do not call API if date is invalid
         const isDateValid = validateEventsDate(upcomingEvents.date);
         if (!isDateValid) {
             console.log('Validation failed. Please check your inputs.');
@@ -401,7 +458,6 @@ export function useKidsAttendance(isAuthenticated) {
         { value: 40, label: '40' },
     ];
 
-    // Normalize to start of day (UTC) for consistent date-only comparison
     const toDateOnly = (d) => {
         const dt = new Date(d);
         return Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate());
@@ -436,20 +492,6 @@ export function useKidsAttendance(isAuthenticated) {
         }
     }
 
-    const getTrend = (kidsData) => {
-        var totalKids = 0
-        var count = 0
-        for (const value of Object.values(kidsData)) {
-            for (let v in value) {
-                if (Number.isInteger(value[v])) {
-                    totalKids += value[v]
-                }
-            }
-            count++
-        }
-        return Math.round(totalKids / count)
-    }
-
     return {
         mandirName,
         data,
@@ -477,6 +519,10 @@ export function useKidsAttendance(isAuthenticated) {
         marks,
         formattedToday,
         lastDate,
+        goals,
+        openGoalsSnackbar,      // EXPORT
+        setOpenGoalsSnackbar,   // EXPORT
+        handleCloseGoalsSnackbar,// EXPORT
         setLeaderInfo,
         setUpcomingEvents,
         setSatsangCount,
@@ -498,6 +544,8 @@ export function useKidsAttendance(isAuthenticated) {
         handleAnotherSubmitSatsangCount,
         handleAnotherSubmitEvents,
         handleSubmitEvents,
+        handleInputChangeGoals,
+        handleSubmitGoals,
         compareDates,
         handleRefreshPage,
         dateError,

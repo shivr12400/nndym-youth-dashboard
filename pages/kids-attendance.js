@@ -1,6 +1,23 @@
 // pages/kids-attendance.js
-import React from 'react';
-import { Container, Typography, Button, CircularProgress, Box, Grid } from '@mui/material';
+import React, { useEffect } from 'react';
+import { 
+    Container, 
+    Typography, 
+    Button, 
+    CircularProgress, 
+    Box, 
+    Grid, 
+    Paper, 
+    Table, 
+    TableBody, 
+    TableCell, 
+    TableContainer, 
+    TableHead, 
+    TableRow, 
+    TextField,
+    Snackbar,
+    Alert 
+} from '@mui/material';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import { useKidsAttendance } from '../hooks/useKidsAttendance';
@@ -12,7 +29,7 @@ import SatsangForm from '../components/kids-attendance/SatsangForm';
 import UpcomingEvents from '../components/kids-attendance/UpcomingEvents';
 import KidsListTable from '../components/kids-attendance/KidsListTable';
 import GenderDistributionChart from '../components/kids-attendance/GenderDistributionChart';
-import KidsOverTimeChart from '../components/kids-attendance/KidsOverTimeChart'; // New import
+import KidsOverTimeChart from '../components/kids-attendance/KidsOverTimeChart';
 import { activities } from '../utils/activities';
 
 export default function KidsAttendance({ isAuthenticated }) {
@@ -40,10 +57,15 @@ export default function KidsAttendance({ isAuthenticated }) {
         ageDistributionData,
         genderDistributionData,
         kidsOverTimeData,
-        genderDistributionDataByAgeGroup, // New data prop
+        genderDistributionDataByAgeGroup,
         marks,
         formattedToday,
         lastDate,
+        goals,
+        handleInputChangeGoals,
+        handleSubmitGoals,
+        openGoalsSnackbar,       // NEW
+        handleCloseGoalsSnackbar,// NEW
         setIsEditing,
         handleChangeBMC,
         handleChangeSC,
@@ -66,6 +88,36 @@ export default function KidsAttendance({ isAuthenticated }) {
         eventsDateError,
     } = useKidsAttendance(isAuthenticated);
 
+    useEffect(() => {
+        if (data && data.length > 0) {
+            console.log("DEBUG: Data Keys found:", Object.keys(data[0]));
+        }
+    }, [data]);
+
+    const getOccurrenceCount = (activityName) => {
+        if (!data || !Array.isArray(data)) return 0;
+
+        const keyMap = {
+            'Bal Mandal': ['balMandal', 'bal_mandal', 'balMandalClass', 'bal_mandal_class'],
+            'Satsang':    ['satsang', 'satsang_class', 'satsangClass'],
+            'Kirtan':     ['kirtan', 'kirtan_class', 'kirtanClass'],
+            'Instrument': ['instrument', 'instrument_class', 'instrumentClass'],
+            'Dance':      ['dance', 'dance_class', 'danceClass']
+        };
+
+        const targetKeys = keyMap[activityName] || [];
+
+        return data.filter(row => {
+            return targetKeys.some(key => {
+                const val = row[key];
+                if (val === true) return true;
+                if (typeof val === 'number' && val > 0) return true;
+                if (val === 'true') return true; 
+                return false;
+            });
+        }).length;
+    };
+
     if (!isAuthenticated) {
         return <h1>EXPIRED</h1>;
     }
@@ -79,6 +131,14 @@ export default function KidsAttendance({ isAuthenticated }) {
             </Layout>
         );
     }
+
+    const classRows = [
+        { name: 'Bal Mandal', count: getOccurrenceCount('Bal Mandal') },
+        { name: 'Satsang', count: getOccurrenceCount('Satsang') },
+        { name: 'Kirtan', count: getOccurrenceCount('Kirtan') },
+        { name: 'Instrument', count: getOccurrenceCount('Instrument') },
+        { name: 'Dance', count: getOccurrenceCount('Dance') }
+    ].filter(row => row.count > 0);
 
     return (
         <Layout>
@@ -101,9 +161,117 @@ export default function KidsAttendance({ isAuthenticated }) {
                     setIsEditing={setIsEditing}
                 />
 
+                {/* NEW SECTION: Class Occurrences & Q2 Goals */}
+                <Grid container spacing={3} sx={{ mb: 4, mt: 1 }}>
+                    
+                    {/* Box 1: Class Occurrences */}
+                    <Grid item xs={12} md={6}>
+                        <Paper 
+                            sx={{ 
+                                p: 2, 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                height: '100%',
+                                borderRadius: 2, 
+                                boxShadow: 3 
+                            }}
+                        >
+                            <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                                Class Occurrences
+                            </Typography>
+                            <TableContainer>
+                                <Table size="small">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell><strong>Activity</strong></TableCell>
+                                            <TableCell align="right"><strong>Sessions</strong></TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {classRows.length > 0 ? (
+                                            classRows.map((row) => (
+                                                <TableRow key={row.name}>
+                                                    <TableCell>{row.name}</TableCell>
+                                                    <TableCell align="right">{row.count}</TableCell>
+                                                </TableRow>
+                                            ))
+                                        ) : (
+                                            <TableRow>
+                                                <TableCell colSpan={2} align="center" sx={{ fontStyle: 'italic', color: 'text.secondary', py: 2 }}>
+                                                    No classes recorded yet
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Paper>
+                    </Grid>
+
+                    {/* Box 2: Q2 Goals (3 Inputs) */}
+                    <Grid item xs={12} md={6}>
+                        <Paper 
+                            sx={{ 
+                                p: 2, 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                height: '100%',
+                                borderRadius: 2,
+                                boxShadow: 3 
+                            }}
+                        >
+                            <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                                Q2 Goals
+                            </Typography>
+                            <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                <TextField
+                                    fullWidth
+                                    label="Goal 1"
+                                    name="goal1"
+                                    value={goals?.goal1 || ''}
+                                    onChange={handleInputChangeGoals}
+                                    variant="outlined"
+                                    size="small"
+                                    InputLabelProps={{ shrink: true }}
+                                />
+                                <TextField
+                                    fullWidth
+                                    label="Goal 2"
+                                    name="goal2"
+                                    value={goals?.goal2 || ''}
+                                    onChange={handleInputChangeGoals}
+                                    variant="outlined"
+                                    size="small"
+                                    InputLabelProps={{ shrink: true }}
+                                />
+                                <TextField
+                                    fullWidth
+                                    label="Goal 3"
+                                    name="goal3"
+                                    value={goals?.goal3 || ''}
+                                    onChange={handleInputChangeGoals}
+                                    variant="outlined"
+                                    size="small"
+                                    InputLabelProps={{ shrink: true }}
+                                />
+                            </Box>
+                            <Box sx={{ mt: 'auto', pt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                                <Button 
+                                    onClick={handleSubmitGoals}
+                                    variant="contained" 
+                                    color="primary" 
+                                    size="small"
+                                >
+                                    Save Goals
+                                </Button>
+                            </Box>
+                        </Paper>
+                    </Grid>
+                </Grid>
+
                 <StatsCards averageKids={averageKids} tier={tier} />
 
-                <Grid container spacing={4}> {/* Add spacing between charts */}
+                <Grid container spacing={4}>
                     <Grid item xs={12} md={6}>
                         <AgeDistributionChart data={ageDistributionData} />
                     </Grid>
@@ -120,10 +288,10 @@ export default function KidsAttendance({ isAuthenticated }) {
                     error={error}
                     activities={activities}
                     kidsList={kidsList}
-                    genderDistributionDataByAgeGroup={genderDistributionDataByAgeGroup} // New prop
+                    genderDistributionDataByAgeGroup={genderDistributionDataByAgeGroup}
                 />
                 
-                <br></br>
+                <br />
 
                 <SatsangForm
                     satsangCount={satsangCount}
@@ -163,6 +331,19 @@ export default function KidsAttendance({ isAuthenticated }) {
                 />
 
                 <KidsListTable kidsList={kidsList} />
+
+                {/* SUCCESS SNACKBAR FOR GOALS */}
+                <Snackbar 
+                    open={openGoalsSnackbar} 
+                    autoHideDuration={4000} 
+                    onClose={handleCloseGoalsSnackbar}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                >
+                    <Alert onClose={handleCloseGoalsSnackbar} severity="success" sx={{ width: '100%' }}>
+                        Goals updated successfully!
+                    </Alert>
+                </Snackbar>
+
             </Container>
         </Layout>
     );
