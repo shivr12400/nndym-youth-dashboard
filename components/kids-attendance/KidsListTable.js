@@ -6,7 +6,7 @@ export default function KidsListTable({ kidsList }) {
         <Card sx={{ mb: 4 }}>
             <CardContent>
                 <Typography variant="h6" gutterBottom>
-                    Kids List
+                    Yuvaks/Yuvatis
                 </Typography>
                 <br></br>
                 {kidsList.length === 0 ? (

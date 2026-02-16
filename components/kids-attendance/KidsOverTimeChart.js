@@ -10,7 +10,7 @@ export default function KidsOverTimeChart({ data }) {
         <Card sx={{ mb: 4 }}>
             <CardContent>
                 <Typography variant="h5" component="div" gutterBottom>
-                    Kids Over Time (All Age Groups)
+                    Yuvaks/Yuvatis Over Time (All Age Groups)
                 </Typography>
                 <ResponsiveContainer width="100%" height={300}>
                     <LineChart

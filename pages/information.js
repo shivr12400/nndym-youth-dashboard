@@ -43,7 +43,7 @@ const columns = [
 
 const rows = [
   { category: 'ACTIVE Mandir Leaders', platinum: '3', gold: '3', silver: '2', bronze: '1', standard: '1' },
-  { category: 'Average Kids', platinum: '75', gold: '50', silver: '45', bronze: '35', standard: '30' },
+  { category: 'Average Yuvaks/Yuvatis', platinum: '75', gold: '50', silver: '45', bronze: '35', standard: '30' },
   { category: 'Classes each week', platinum: '5', gold: '4', silver: '3', bronze: '2', standard: '1' },
   { category: 'Monthly Events', platinum: '2 / Month', gold: '2 / Month', silver: '1 / Month', bronze: '1 / 2 Months', standard: '1 / 2 Months' },
   { category: 'Regional/National Event Signups', platinum: '50', gold: '45', silver: '35', bronze: '30', standard: '≤ 25' },

@@ -9,10 +9,10 @@ import { useTheme } from '@mui/material/styles';
 export default function AttendanceCharts({ data, isLoading, error, activities, kidsList, genderDistributionDataByAgeGroup }) {
     const theme = useTheme();
     const ageGroups = [
-        { title: 'Kids Ages 1 - 8', dataKey: 'numberKidsFirstLevel', activityKey: '1-8' },
-        { title: 'Kids Ages 9 - 13', dataKey: 'numberKidsSecondLevel', activityKey: '9-13' },
-        { title: 'Kids Ages 14 - 18', dataKey: 'numberKidsThirdLevel', activityKey: '14-18' },
-        { title: 'Kids Ages 19 - 25', dataKey: 'numberKidsFourthLevel', activityKey: '19-25' },
+        { title: 'Yuvaks/Yuvatis 1 - 8', dataKey: 'numberKidsFirstLevel', activityKey: '1-8' },
+        { title: 'Yuvaks/Yuvatis 9 - 13', dataKey: 'numberKidsSecondLevel', activityKey: '9-13' },
+        { title: 'Yuvaks/Yuvatis 14 - 18', dataKey: 'numberKidsThirdLevel', activityKey: '14-18' },
+        { title: 'Yuvaks/Yuvatis 19 - 25', dataKey: 'numberKidsFourthLevel', activityKey: '19-25' },
     ];
 
     return (

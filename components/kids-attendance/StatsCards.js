@@ -11,7 +11,7 @@ export default function StatsCards({ averageKids, tier }) {
                 <Card sx={{ backgroundColor: theme.palette.primary.main, color: theme.palette.primary.contrastText }}>
                     <CardContent>
                         <Typography variant="h5" component="div">
-                            Average Kids
+                            Average # Yuvaks/Yuvatis
                         </Typography>
                         <Typography variant="h3" sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                             {averageKids}

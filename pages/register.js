@@ -203,7 +203,7 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
                 <Container maxWidth="lg" sx={{ py: 6 }}>
                     <Title variant="h3" marginTop={"4"}>
-                        Register Kids
+                        Register Yuvaks/Yuvatis
                     </Title>
                     {/* Form Card */}
                     <Card sx={{ mb: 4 }}>

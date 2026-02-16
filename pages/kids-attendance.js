@@ -25,7 +25,7 @@ import LeaderInfoCard from '../components/kids-attendance/LeaderInfoCard';
 import StatsCards from '../components/kids-attendance/StatsCards';
 import AgeDistributionChart from '../components/kids-attendance/AgeDistributionChart';
 import AttendanceCharts from '../components/kids-attendance/AttendanceCharts';
-import SatsangForm from '../components/kids-attendance/SatsangForm';
+// SatsangForm import removed
 import UpcomingEvents from '../components/kids-attendance/UpcomingEvents';
 import KidsListTable from '../components/kids-attendance/KidsListTable';
 import GenderDistributionChart from '../components/kids-attendance/GenderDistributionChart';
@@ -43,49 +43,29 @@ export default function KidsAttendance({ isAuthenticated }) {
         tier,
         leaderInfo,
         upcomingEvents,
-        balMandalClass,
-        satsangClass,
-        kirtanClass,
-        instrumentClass,
-        danceClass,
-        satsangCount,
+        // Removed destructured form handlers related to SatsangForm
         kidsList,
         upcomingAllEvents,
         isEditing,
-        open,
-        openEvents,
+        openGoalsSnackbar,
+        handleCloseGoalsSnackbar,
         ageDistributionData,
         genderDistributionData,
         kidsOverTimeData,
         genderDistributionDataByAgeGroup,
-        marks,
-        formattedToday,
-        lastDate,
         goals,
         handleInputChangeGoals,
         handleSubmitGoals,
-        openGoalsSnackbar,
-        handleCloseGoalsSnackbar,
         setIsEditing,
-        handleChangeBMC,
-        handleChangeSC,
-        handleChangeKC,
-        handleChangeIC,
-        handleChangeDC,
         handleInputChangeLeaderInfo,
         handleInputChangeEvents,
         handleEventsDateBlur,
-        handleInputChangeSatsangCount,
-        handleDateBlur,
         handleSubmitLeaderInfo,
-        handleSubmitSatsangCount,
-        handleAnotherSubmitSatsangCount,
         handleAnotherSubmitEvents,
         handleSubmitEvents,
-        compareDates,
         handleRefreshPage,
-        dateError,
         eventsDateError,
+        openEvents,
     } = useKidsAttendance(isAuthenticated);
 
     useEffect(() => {
@@ -143,10 +123,15 @@ export default function KidsAttendance({ isAuthenticated }) {
     return (
         <Layout>
             <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-                <Button onClick={() => router.push('/dashboard')} variant="contained" color="primary" sx={{ mb: 2 }}>
-                    Back to Dashboard
-                </Button>
-                <br />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                    <Button onClick={() => router.push('/dashboard')} variant="outlined" color="primary">
+                        Back to Dashboard
+                    </Button>
+                    <Button onClick={() => router.push('/submit-satsang')} variant="contained" color="secondary">
+                        Submit Satsang Count
+                    </Button>
+                </Box>
+                
                 <br />
                 <Typography variant="h4" component="h1" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                     {mandirName} Mandir
@@ -161,10 +146,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                     setIsEditing={setIsEditing}
                 />
 
-                {/* NEW SECTION: Class Occurrences & Q2 Goals */}
                 <Grid container spacing={3} sx={{ mb: 4, mt: 1 }}>
-                    
-                    {/* Box 1: Class Occurrences */}
                     <Grid item xs={12} md={6}>
                         <Paper 
                             sx={{ 
@@ -179,7 +161,6 @@ export default function KidsAttendance({ isAuthenticated }) {
                             <Typography component="h2" variant="h6" color="primary" gutterBottom>
                                 Class Occurrences
                             </Typography>
-                            {/* UPDATED: Added overflowX: 'auto' for mobile scrolling */}
                             <TableContainer sx={{ overflowX: 'auto' }}>
                                 <Table size="small">
                                     <TableHead>
@@ -209,7 +190,6 @@ export default function KidsAttendance({ isAuthenticated }) {
                         </Paper>
                     </Grid>
 
-                    {/* Box 2: Q2 Goals (3 Inputs) */}
                     <Grid item xs={12} md={6}>
                         <Paper 
                             sx={{ 
@@ -294,30 +274,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                 
                 <br />
 
-                <SatsangForm
-                    satsangCount={satsangCount}
-                    handleInputChangeSatsangCount={handleInputChangeSatsangCount}
-                    handleDateBlur={handleDateBlur}
-                    handleSubmitSatsangCount={handleSubmitSatsangCount}
-                    handleAnotherSubmitSatsangCount={handleAnotherSubmitSatsangCount}
-                    handleRefreshPage={handleRefreshPage}
-                    balMandalClass={balMandalClass}
-                    satsangClass={satsangClass}
-                    kirtanClass={kirtanClass}
-                    instrumentClass={instrumentClass}
-                    danceClass={danceClass}
-                    handleChangeBMC={handleChangeBMC}
-                    handleChangeSC={handleChangeSC}
-                    handleChangeKC={handleChangeKC}
-                    handleChangeIC={handleChangeIC}
-                    handleChangeDC={handleChangeDC}
-                    open={open}
-                    formattedToday={formattedToday}
-                    lastDate={lastDate}
-                    compareDates={compareDates}
-                    marks={marks}
-                    dateError={dateError}
-                />
+                {/* SatsangForm was removed here */}
 
                 <UpcomingEvents
                     upcomingEvents={upcomingEvents}
@@ -333,7 +290,6 @@ export default function KidsAttendance({ isAuthenticated }) {
 
                 <KidsListTable kidsList={kidsList} />
 
-                {/* SUCCESS SNACKBAR FOR GOALS */}
                 <Snackbar 
                     open={openGoalsSnackbar} 
                     autoHideDuration={4000} 

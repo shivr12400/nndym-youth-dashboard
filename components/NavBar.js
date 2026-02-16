@@ -26,14 +26,19 @@ const Navbar = () => {
                 <NavButton>Home</NavButton>
               </motion.div>
             </Link>
-            <Link href="/information" passHref>
+            <Link href="/submit-satsang" passHref>
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                <NavButton>Information</NavButton>
+                <NavButton>Submit</NavButton>
               </motion.div>
             </Link>
             <Link href="/register" passHref>
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <NavButton>Register</NavButton>
+              </motion.div>
+            </Link>
+            <Link href="/information" passHref>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <NavButton>Information</NavButton>
               </motion.div>
             </Link>
             <Link href="/feedback" passHref>

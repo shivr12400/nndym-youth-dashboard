@@ -44,7 +44,7 @@ const Footer = () => {
                 Information
               </Link>
               <Link href="/register" color="inherit" variant="body2" display="block" sx={{ '&:hover': { color: (theme) => theme.palette.info.main } }}>
-                Register Kids
+                Register Yuvaks/Yuvatis
               </Link>
               <Link href="/feedback" color="inherit" variant="body2" display="block" sx={{ '&:hover': { color: (theme) => theme.palette.info.main } }}>
                 Feedback
