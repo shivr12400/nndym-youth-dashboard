@@ -1,5 +1,6 @@
+// pages/index.js
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Container, Box, Typography, Alert, CircularProgress } from '@mui/material'; // Import CircularProgress
+import { TextField, Button, Container, Box, Typography, Alert, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 
@@ -7,18 +8,17 @@ export default function Login({ isAuthenticated, setIsAuthenticated }) {
   const [templeName, setTempleName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false); // New local loading state
   const router = useRouter();
 
-  useEffect(() => {
-    // If user visits the login page but is already logged in, redirect them
-    if (isAuthenticated) {
-      router.push('/dashboard');
-    }
-  }, [isAuthenticated, router]);
+  // REMOVED: The conflicting useEffect redirect. 
+  // We will let handleLogin (immediate) and _app.js (global) handle navigation.
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
+    setError('');
+    setIsLoggingIn(true); // Start button spinner
+
     try {
       const response = await fetch('/api/login', {
         method: 'POST',
@@ -30,24 +30,22 @@ export default function Login({ isAuthenticated, setIsAuthenticated }) {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         setIsAuthenticated(true);
-        // Force immediate redirect to prevent lingering on login page
         router.push('/dashboard'); 
+        // Note: We do NOT set isLoggingIn(false) here. 
+        // We want the button to keep spinning until the page actually changes.
       } else {
         setError(data.message || 'Login failed');
+        setIsLoggingIn(false); // Stop spinner on error
       }
     } catch (error) {
       setError('An error occurred. Please try again.');
+      setIsLoggingIn(false); // Stop spinner on error
     }
   };
 
-  // FIX: Instead of returning null (white screen), show a loading spinner
-  if (isAuthenticated) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // REMOVED: The "if (isAuthenticated) return <Spinner>" block.
+  // This was causing the "stuck" screen. We now show the login form 
+  // until the router actually moves the user away.
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
@@ -86,7 +84,8 @@ export default function Login({ isAuthenticated, setIsAuthenticated }) {
               autoFocus
               value={templeName}
               onChange={(e) => setTempleName(e.target.value)}
-              sx={{ '& .MuiInputBase-input': { fontSize: '16px' } }} // Prevents iOS zoom
+              disabled={isLoggingIn} // Disable input while loading
+              sx={{ '& .MuiInputBase-input': { fontSize: '16px' } }} 
             />
             <TextField
               margin="normal"
@@ -98,15 +97,18 @@ export default function Login({ isAuthenticated, setIsAuthenticated }) {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              sx={{ '& .MuiInputBase-input': { fontSize: '16px' } }} // Prevents iOS zoom
+              disabled={isLoggingIn} // Disable input while loading
+              sx={{ '& .MuiInputBase-input': { fontSize: '16px' } }} 
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2, py: 1.5, fontSize: '1rem' }}
+              disabled={isLoggingIn} // Disable button while loading
+              sx={{ mt: 3, mb: 2, py: 1.5, fontSize: '1rem', height: '50px' }}
             >
-              Sign In
+              {/* Show Spinner inside button if logging in */}
+              {isLoggingIn ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
             </Button>
           </Box>
         </Box>

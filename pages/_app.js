@@ -1,6 +1,7 @@
+// pages/_app.js
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import { useRouter } from 'next/router';
 import theme from '../styles/theme';
 import { verifyToken } from '../utils/auth';
@@ -27,20 +28,23 @@ function MyApp({ Component, pageProps }) {
     if (!isLoading) {
       if (isAuthenticated && router.pathname === '/') {
         router.push('/dashboard');
-      } else if (!isAuthenticated) {
+      } else if (!isAuthenticated && router.pathname !== '/') { 
+        // FIX: Added "&& router.pathname !== '/'"
+        // This prevents the app from trying to push to '/' when you are already there,
+        // which can confuse mobile browsers.
         router.push('/');
       }
     }
   }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    // Basic loader while checking auth token on first load
+    return <div></div>; 
   }
 
   return (
     <ThemeProvider theme={theme}>
       <Head>
-        {/* Updated viewport tag */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </Head>
       <CssBaseline />
