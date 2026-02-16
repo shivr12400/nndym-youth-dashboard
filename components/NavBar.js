@@ -1,5 +1,4 @@
 // components/Navbar.js
-
 import { AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
 import Link from 'next/link';
 import { styled } from '@mui/system';
@@ -30,12 +29,6 @@ const Navbar = () => {
             <Link href="/information" passHref>
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <NavButton>Information</NavButton>
-              </motion.div>
-            </Link>
-            {/* New Tiers Page Link Added Here */}
-            <Link href="/tiers" passHref>
-              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                <NavButton>Tiers</NavButton>
               </motion.div>
             </Link>
             <Link href="/register" passHref>
