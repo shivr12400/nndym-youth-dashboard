@@ -4,11 +4,9 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow 
 } from '@mui/material';
 import { motion } from 'framer-motion';
-
-// Import your global Layout wrapper (adjust the relative path if needed)
 import Layout from '../components/Layout';
 
-// Defined columns with their respective tier colors for the header
+// Columns remain the same...
 const columns = [
   { id: 'category', label: 'Requirement', minWidth: 200, align: 'left', bgColor: '#f4f6f8', color: '#333' },
   { id: 'platinum', label: 'Platinum', minWidth: 120, align: 'center', bgColor: '#E5E4E2', color: '#333' },
@@ -18,70 +16,34 @@ const columns = [
   { id: 'standard', label: 'Standard', minWidth: 120, align: 'center', bgColor: '#1976d2', color: '#fff' },
 ];
 
-// Transposed data: Categories are now rows, Tiers are now columns
 const rows = [
-  {
-    category: 'ACTIVE Mandir Leaders',
-    platinum: '3',
-    gold: '3',
-    silver: '2',
-    bronze: '1',
-    standard: '1',
-  },
-  {
-    category: 'Average Kids',
-    platinum: '75',
-    gold: '50',
-    silver: '45',
-    bronze: '35',
-    standard: '30',
-  },
-  {
-    category: 'Classes each week',
-    platinum: '5',
-    gold: '4',
-    silver: '3',
-    bronze: '2',
-    standard: '1',
-  },
-  {
-    category: 'Monthly Events',
-    platinum: '2 Every Month',
-    gold: '2 Every Month',
-    silver: '1 Every Month',
-    bronze: '1 Every Other Month',
-    standard: '1 Every Two Months',
-  },
-  {
-    category: 'Regional/National Event Signups',
-    platinum: '50',
-    gold: '45',
-    silver: '35',
-    bronze: '30',
-    standard: '25 or less',
-  },
+  { category: 'ACTIVE Mandir Leaders', platinum: '3', gold: '3', silver: '2', bronze: '1', standard: '1' },
+  { category: 'Average Kids', platinum: '75', gold: '50', silver: '45', bronze: '35', standard: '30' },
+  { category: 'Classes each week', platinum: '5', gold: '4', silver: '3', bronze: '2', standard: '1' },
+  { category: 'Monthly Events', platinum: '2 Every Month', gold: '2 Every Month', silver: '1 Every Month', bronze: '1 Every Other Month', standard: '1 Every Two Months' },
+  { category: 'Regional/National Event Signups', platinum: '50', gold: '45', silver: '35', bronze: '30', standard: '25 or less' },
 ];
 
 export default function MandirTiers() {
   return (
     <Layout>
-      {/* We use a Box here for the top/bottom padding instead of a Container, 
-          since Layout.js already provides the Container wrapper */}
-      <Box sx={{ py: 8 }}>
+      <Box sx={{ py: 4, px: 2 }}> {/* Reduced padding for mobile */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <Typography component="h1" variant="h3" color="text.primary" gutterBottom fontWeight="bold">
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            {/* Responsive Font Size */}
+            <Typography component="h1" variant="h3" color="text.primary" gutterBottom fontWeight="bold" sx={{ fontSize: { xs: '2rem', md: '3rem' } }}>
               Mandir Progress Tiers
             </Typography>
-            <Typography variant="h6" color="text.secondary">
-              Compare goals and requirements across all levels of Mandir development.
+            <Typography variant="h6" color="text.secondary" sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
+              Compare goals and requirements across all levels.
             </Typography>
           </Box>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
+          {/* UPDATED: Added overflowX: 'auto' to ensure scrolling on mobile */}
           <Paper elevation={4} sx={{ width: '100%', overflow: 'hidden', borderRadius: 2 }}>
-            <TableContainer sx={{ maxHeight: 600 }}>
+            <TableContainer sx={{ maxHeight: 600, overflowX: 'auto' }}>
               <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                   <TableRow>
@@ -140,6 +102,10 @@ export default function MandirTiers() {
               </Table>
             </TableContainer>
           </Paper>
+          {/* Hint for mobile users */}
+          <Typography variant="caption" sx={{ display: { xs: 'block', md: 'none' }, textAlign: 'center', mt: 1, color: 'text.secondary' }}>
+            Scroll right to view all tiers →
+          </Typography>
         </motion.div>
       </Box>
     </Layout>

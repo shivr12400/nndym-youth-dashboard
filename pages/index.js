@@ -1,3 +1,4 @@
+// pages/index.js
 import React, { useState, useEffect } from 'react';
 import { TextField, Button, Container, Box, Typography, Alert } from '@mui/material';
 import { useRouter } from 'next/router';
@@ -27,8 +28,9 @@ export default function Login({ isAuthenticated, setIsAuthenticated }) {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         setIsAuthenticated(true);
+        router.push('/dashboard'); // Explicit push for smoother mobile transition
       } else {
-        setError(data.message);
+        setError(data.message || 'Login failed');
       }
     } catch (error) {
       setError('An error occurred. Please try again.');
@@ -36,7 +38,7 @@ export default function Login({ isAuthenticated, setIsAuthenticated }) {
   };
 
   if (isAuthenticated) {
-    return null; // or a loading indicator
+    return null; 
   }
 
   return (
@@ -48,23 +50,26 @@ export default function Login({ isAuthenticated, setIsAuthenticated }) {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            padding: 2, // Added padding for better spacing on small screens
           }}
         >
           <Box
             component="img"
             alt="NNDYM logo"
             src="/logo.svg"
-            sx={{ maxWidth: 160, height: 'auto' }}
+            sx={{ maxWidth: 160, height: 'auto', mb: 2 }} 
           />
-          <Typography component="h1" variant="h5" paddingTop={"20px"}>
+          <Typography component="h1" variant="h5">
             Dashboard Login
           </Typography>
+          
           {error && (
             <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
               {error}
             </Alert>
           )}
-          <Box component="form" onSubmit={handleLogin} noValidate sx={{ mt: 1 }}>
+
+          <Box component="form" onSubmit={handleLogin} noValidate sx={{ mt: 1, width: '100%' }}>
             <TextField
               margin="normal"
               required
@@ -75,6 +80,10 @@ export default function Login({ isAuthenticated, setIsAuthenticated }) {
               autoFocus
               value={templeName}
               onChange={(e) => setTempleName(e.target.value)}
+              // OPTIMIZATION: Ensures font size is large enough to prevent auto-zoom on iOS
+              sx={{
+                '& .MuiInputBase-input': { fontSize: '16px' } 
+              }}
             />
             <TextField
               margin="normal"
@@ -86,12 +95,15 @@ export default function Login({ isAuthenticated, setIsAuthenticated }) {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              sx={{
+                '& .MuiInputBase-input': { fontSize: '16px' }
+              }}
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 3, mb: 2, py: 1.5, fontSize: '1rem' }} // Taller button for easier tapping
             >
               Sign In
             </Button>

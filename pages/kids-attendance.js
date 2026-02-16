@@ -64,8 +64,8 @@ export default function KidsAttendance({ isAuthenticated }) {
         goals,
         handleInputChangeGoals,
         handleSubmitGoals,
-        openGoalsSnackbar,       // NEW
-        handleCloseGoalsSnackbar,// NEW
+        openGoalsSnackbar,
+        handleCloseGoalsSnackbar,
         setIsEditing,
         handleChangeBMC,
         handleChangeSC,
@@ -179,7 +179,8 @@ export default function KidsAttendance({ isAuthenticated }) {
                             <Typography component="h2" variant="h6" color="primary" gutterBottom>
                                 Class Occurrences
                             </Typography>
-                            <TableContainer>
+                            {/* UPDATED: Added overflowX: 'auto' for mobile scrolling */}
+                            <TableContainer sx={{ overflowX: 'auto' }}>
                                 <Table size="small">
                                     <TableHead>
                                         <TableRow>

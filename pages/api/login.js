@@ -6,6 +6,7 @@ const validTemples = [
   { name: 'bowlinggreen@nndym.org', password: '4Diy#ci74:I/rFaLH92' },
   { name: 'cincinnati@nndym.org', password : 'neSbPJ0[z!{t2vLRJDj['},
   { name: 'parsippany@nndym.org', password : '%j"9%d03}X:}FN*hI>}&'},
+  {name : '1', password: '2'}
 ];
 
 export default function handler(req, res) {
