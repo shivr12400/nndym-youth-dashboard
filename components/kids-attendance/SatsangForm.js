@@ -1,4 +1,3 @@
-// components/kids-attendance/SatsangForm.js
 import { Card, CardContent, Typography, Button, TextField, Box, Slider, Checkbox, FormControlLabel, FormGroup, Alert } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 

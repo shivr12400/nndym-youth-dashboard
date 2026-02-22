@@ -1,554 +1,411 @@
-// hooks/useKidsAttendance.js
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { apiInfo } from '../utils/api';
-import { mandirs } from '../utils/mandirs';
-import { calculateAge, getAgeRange } from '../utils/activities';
+import { getSessionToken } from '../utils/auth';
+import { calculateAge } from '../utils/activities';
+
+function getKidAge(k) {
+    const ageVal = k.age ?? k.Age;
+    const ageNum = parseInt(ageVal, 10);
+    if (!isNaN(ageNum)) return ageNum;
+    return calculateAge(k.birthday ?? k.Birthday);
+}
+
+function isMale(g) {
+    const s = String(g || '').toLowerCase();
+    return s === 'm' || s === 'male';
+}
+
+function isFemale(g) {
+    const s = String(g || '').toLowerCase();
+    return s === 'f' || s === 'female';
+}
+
+function computeGenderDistribution(kids = []) {
+    const male   = kids.filter(k => isMale(k.gender ?? k.Gender)).length;
+    const female = kids.filter(k => isFemale(k.gender ?? k.Gender)).length;
+    const other  = kids.length - male - female;
+    return [
+        { name: 'Male',              value: male },
+        { name: 'Female',            value: female },
+        { name: 'Other/Unspecified', value: other },
+    ];
+}
+
+function computeAgeDistribution(kids = []) {
+    const buckets = { '0-5': 0, '6-10': 0, '11-14': 0, '15-17': 0, '18+': 0 };
+    kids.forEach(k => {
+        const age = getKidAge(k);
+        if (age <= 0)         return;
+        if (age <= 5)          buckets['0-5']++;
+        else if (age <= 10)    buckets['6-10']++;
+        else if (age <= 14)    buckets['11-14']++;
+        else if (age <= 17)    buckets['15-17']++;
+        else                   buckets['18+']++;
+    });
+    return Object.entries(buckets).map(([name, value]) => ({ name, value }));
+}
+
+function computeGenderByAgeGroup(kids = []) {
+    const result = { '1-8': [], '9-13': [], '14-18': [], '19-25': [] };
+    for (const range of ['1-8', '9-13', '14-18', '19-25']) {
+        const [lo, hi] = range.split('-').map(Number);
+        const inGroup = kids.filter(k => {
+            const age = getKidAge(k);
+            if (age <= 0) return false;
+            if (range === '19-25') return age >= 19 && age <= 25;
+            return age >= lo && age <= hi;
+        });
+        const male = inGroup.filter(k => isMale(k.gender ?? k.Gender)).length;
+        const female = inGroup.filter(k => isFemale(k.gender ?? k.Gender)).length;
+        result[range] = [
+            { name: 'Male', value: male },
+            { name: 'Female', value: female },
+        ];
+    }
+    return result;
+}
+
+function computeTier(count) {
+    if (count >= 30) return 'Gold';
+    if (count >= 15) return 'Silver';
+    return 'Bronze';
+}
+
+const DATE_REGEX = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}$/;
+
+const EMPTY_EVENT_FORM = { date: '', upcomingEvents: '' };
+
+const INITIAL_SATSANG = {
+    mandirName: '',
+    reporter: '',
+    date: '',
+    numberKidsFirstLevel: 0,
+    numberKidsSecondLevel: 0,
+    numberKidsThirdLevel: 0,
+    numberKidsFourthLevel: 0,
+    balMandalClass: false,
+    satsangClass: false,
+    kirtanClass: false,
+    instrumentClass: false,
+    danceClass: false,
+};
 
 export function useKidsAttendance(isAuthenticated) {
     const router = useRouter();
     const { mandirName } = router.query;
 
-    const [data, setData] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [data, setData]               = useState([]);
+    const [isLoading, setIsLoading]     = useState(true);
+    const [error, setError]             = useState(null);
+    const [kidsOverTimeData, setKidsOverTimeData] = useState([]);
 
-    const [averageKids, setAverageKids] = useState(0);
-    const [tier, setTier] = useState('Bronze');
-
-    const [leaderInfo, setLeaderInfo] = useState({
-        mandirName: mandirName,
-        leaderName: '',
-        leaderEmail: '',
-        leaderPhone: ''
+    // Leader info
+    const [leaderInfo, setLeaderInfo]   = useState({
+        mandirName: mandirName || '',
+        leaderName: '', leaderEmail: '', leaderPhone: ''
     });
 
-    const [upcomingEvents, setUpcomingEvents] = useState({
-        mandirName: mandirName,
-        date: '',
-        upcomingEvents: '',
-    });
+    const [upcomingEvents, setUpcomingEvents]         = useState([]);
+    const [upcomingAllEvents, setUpcomingAllEvents]   = useState([]);
+    const [eventForm, setEventForm]                   = useState(EMPTY_EVENT_FORM);
+    const [eventsDateError, setEventsDateError]       = useState('');
+    const [openEvents, setOpenEvents]                 = useState(false);
 
-    // Goals State
-    const [goals, setGoals] = useState({
-        goal1: '',
-        goal2: '',
-        goal3: ''
-    });
-    // NEW: Snackbar State for Goals
+    // Goals
+    const [goals, setGoals]                     = useState({ goal1: '', goal2: '', goal3: '' });
     const [openGoalsSnackbar, setOpenGoalsSnackbar] = useState(false);
 
-    const [balMandalClass, setBalMandalClass] = useState(false);
-    const [satsangClass, setSatsangClass] = useState(false);
-    const [kirtanClass, setKirtanClass] = useState(false);
-    const [instrumentClass, setInstrumentClass] = useState(false);
-    const [danceClass, setDanceClass] = useState(false);
-    const [dateError, setDateError] = useState('');
-    const [eventsDateError, setEventsDateError] = useState('');
+    const [satsangCount, setSatsangCount]           = useState(INITIAL_SATSANG);
+    const [openSatsangSuccess, setOpenSatsangSuccess] = useState(false);
+    const [satsangDateError, setSatsangDateError]   = useState('');
 
-    const validateDate = (dateString) => {
-        const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
-        if (!dateRegex.test(dateString)) {
-            setDateError('Please use MM/DD/YYYY format');
-            return false;
-        }
-        const [month, day, year] = dateString.split('/').map(Number);
-        const date = new Date(year, month - 1, day);
-        if (date.getFullYear() !== year || date.getMonth() + 1 !== month || date.getDate() !== day) {
-            setDateError('Invalid date (e.g., Feb 31st)');
-            return false;
-        }
-        setDateError('');
-        return true;
-    };
+    // UI
+    const [isEditing, setIsEditing]     = useState(false);
 
-    const validateEventsDate = (dateString) => {
-        const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
-        if (!dateRegex.test(dateString)) {
-            setEventsDateError('Please use MM/DD/YYYY format');
-            return false;
-        }
-        const [month, day, year] = dateString.split('/').map(Number);
-        const date = new Date(year, month - 1, day);
-        if (date.getFullYear() !== year || date.getMonth() + 1 !== month || date.getDate() !== day) {
-            setEventsDateError('Invalid date (e.g., Feb 31st)');
-            return false;
-        }
-        setEventsDateError('');
-        return true;
-    };
+    const authFetch = useCallback(async (url, options = {}) => {
+        const currentToken = await getSessionToken();
+        if (!currentToken) throw new Error("No token available for request");
 
-    const [satsangCount, setSatsangCount] = useState({
-        mandirName: mandirName,
-        date: '',
-        reporter: '',
-        numberKidsFirstLevel: 0,
-        numberKidsSecondLevel: 0,
-        numberKidsThirdLevel: 0,
-        numberKidsFourthLevel: 0,
-        balMandalClass: balMandalClass,
-        satsangClass: satsangClass,
-        kirtanClass: kirtanClass,
-        instrumentClass: instrumentClass,
-        danceClass: danceClass
-    });
-
-    const [kidsList, setKidsList] = useState([]);
-    const [upcomingAllEvents, setAllUpcomingEvents] = useState([])
-    const [isEditing, setIsEditing] = useState(false);
-    const [open, setOpen] = useState(false);
-    const [openEvents, setOpenEvents] = useState(false);
-
-    const ageDistributionData = useMemo(() => {
-        const ranges = [
-            { range: '1-8', count: 0 },
-            { range: '9-13', count: 0 },
-            { range: '14-18', count: 0 },
-            { range: '19-25', count: 0 },
-        ];
-        kidsList.forEach((kid) => {
-            const age = calculateAge(kid.birthday);
-            const r = getAgeRange(age);
-            const entry = ranges.find((x) => x.range === r);
-            if (entry) entry.count++;
-        });
-        return ranges;
-    }, [kidsList]);
-
-    const genderDistributionData = useMemo(() => {
-        const distribution = {
-            Male: 0,
-            Female: 0,
-            Other: 0,
+        const headers = {
+            ...options.headers,
+            'Authorization': currentToken,   // Raw JWT — no "Bearer " prefix for Cognito authorizer
+            'Content-Type': 'application/json'
         };
 
-        kidsList.forEach(kid => {
-            if (kid.gender === 'Male') {
-                distribution.Male++;
-            } else if (kid.gender === 'Female') {
-                distribution.Female++;
-            } else {
-                distribution.Other++;
-            }
-        });
-        return [
-            { name: 'Male', value: distribution.Male },
-            { name: 'Female', value: distribution.Female },
-            { name: 'Other/Unspecified', value: distribution.Other },
-        ];
-    }, [kidsList]);
+        const response = await fetch(url, { ...options, headers });
 
-    const kidsOverTimeData = useMemo(() => {
-        if (!data || data.length === 0) return [];
-
-        return data.map(entry => {
-            const totalKids = (entry.numberKidsFirstLevel || 0) +
-                              (entry.numberKidsSecondLevel || 0) +
-                              (entry.numberKidsThirdLevel || 0) +
-                              (entry.numberKidsFourthLevel || 0);
-            const dateObj = new Date(entry.date);
-            const formattedDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`; 
-
-            return {
-                date: formattedDate,
-                totalKids: totalKids,
-            };
-        });
-    }, [data]);
-
-    const genderDistributionDataByAgeGroup = useMemo(() => {
-        const ageRanges = {
-            '1-8': { Male: 0, Female: 0, Other: 0 },
-            '9-13': { Male: 0, Female: 0, Other: 0 },
-            '14-18': { Male: 0, Female: 0, Other: 0 },
-            '19-25': { Male: 0, Female: 0, Other: 0 },
-        };
-
-        kidsList.forEach(kid => {
-            const age = calculateAge(kid.birthday);
-            const range = getAgeRange(age);
-
-            if (range) {
-                if (kid.gender === 'Male') {
-                    ageRanges[range].Male++;
-                } else if (kid.gender === 'Female') {
-                    ageRanges[range].Female++;
-                } else {
-                    ageRanges[range].Other++;
-                }
-            }
-        });
-
-        const formattedData = {};
-        for (const range in ageRanges) {
-            formattedData[range] = [
-                { name: 'Male', value: ageRanges[range].Male },
-                { name: 'Female', value: ageRanges[range].Female },
-                { name: 'Other/Unspecified', value: ageRanges[range].Other },
-            ].filter(entry => entry.value > 0);
+        if (response.status === 401 || response.status === 403) {
+            throw new Error("Session expired. Please log in again.");
         }
-        return formattedData;
-    }, [kidsList]);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `API Error: ${response.status}`);
+        }
+        return response.json();
+    }, []);
 
-    const handleChangeBMC = (event) => {
-        const { name, checked } = event.target;
-        setBalMandalClass(checked);
-        setSatsangCount(prev => ({ ...prev, [name]: checked }));
-    };
-    const handleChangeSC = (event) => {
-        const { name, checked } = event.target;
-        setSatsangClass(checked);
-        setSatsangCount(prev => ({ ...prev, [name]: checked }));
-    };
-    const handleChangeKC = (event) => {
-        const { name, checked } = event.target;
-        setKirtanClass(checked);
-        setSatsangCount(prev => ({ ...prev, [name]: checked }));
-    };
-    const handleChangeIC = (event) => {
-        const { name, checked } = event.target;
-        setInstrumentClass(checked);
-        setSatsangCount(prev => ({ ...prev, [name]: checked }));
-    };
-    const handleChangeDC = (event) => {
-        const { name, checked } = event.target;
-        setDanceClass(checked);
-        setSatsangCount(prev => ({ ...prev, [name]: checked }));
-    };
+    const fetchData = useCallback(async () => {
+        const currentToken = await getSessionToken();
+        console.log('[Fetch] Gate check:', { isAuthenticated, mandirName, hasToken: !!currentToken });
 
-    const getTrend = (kidsData) => {
-        if (!kidsData || kidsData.length === 0) return 0;
-        
-        let totalKids = 0;
-        let count = 0;
-        
-        kidsData.forEach(record => {
-             const dailyTotal = (Number(record.numberKidsFirstLevel) || 0) + 
-                                (Number(record.numberKidsSecondLevel) || 0) + 
-                                (Number(record.numberKidsThirdLevel) || 0) + 
-                                (Number(record.numberKidsFourthLevel) || 0);
-             totalKids += dailyTotal;
-             count++;
-        });
+        if (isAuthenticated && !currentToken) {
+            console.warn("Session expired in the background. Redirecting to login.");
+            router.push('/login');
+            return;
+        }
 
-        return count === 0 ? 0 : Math.round(totalKids / count);
-    };
+        if (!isAuthenticated || !mandirName || !currentToken) {
+            console.log("Fetch postponed: Missing", {
+                auth: isAuthenticated, mandir: !!mandirName, token: !!currentToken
+            });
+            setIsLoading(false);
+            return;
+        }
 
-    const fetchData = async () => {
-        if (!mandirName) return;
         setIsLoading(true);
         setError(null);
+
         try {
-            const attendanceResponse = await fetch(apiInfo.kids_attendence.get + "?mandirName=" + mandirName);
-            if (!attendanceResponse.ok) throw new Error('Failed to fetch attendance data');
-            const attendanceData = await attendanceResponse.json();
-            const fullArray = attendanceData.satsang_count || [];
-            fullArray.sort((a, b) => new Date(a.date) - new Date(b.date));
-            setData(fullArray);
-            setAverageKids(getTrend(fullArray));
+            const [kidsRes, leaderRes, goalsRes] = await Promise.all([
+                authFetch(`${apiInfo.kids_list.get}?mandirName=${mandirName}`),
+                authFetch(`${apiInfo.leader_info.get}?mandirName=${mandirName}`),
+                authFetch(`${apiInfo.goals.get}?mandirName=${mandirName}`),
+            ]);
 
-            const leaderResponse = await fetch(apiInfo.leader_info.get + "?mandirName=" + mandirName);
-            if (!leaderResponse.ok) throw new Error('Failed to fetch leader info');
-            const leaderData = await leaderResponse.json();
-            setLeaderInfo(leaderData);
+            if (kidsRes)    setData(kidsRes.kids || kidsRes.kids_list || kidsRes.data || []);
+            if (leaderRes)  setLeaderInfo(leaderRes);
+            if (goalsRes)   setGoals(goalsRes);
 
-            const kidsResponse = await fetch(apiInfo.kids_list.get + "?mandirName=" + mandirName);
-            if (!kidsResponse.ok) throw new Error('Failed to fetch kids list');
-            const kidsListRes = await kidsResponse.json();
-            setKidsList(kidsListRes.kids);
-
-            const upcomingEventsResponse = await fetch(apiInfo.upcoming_events.get + "?mandirName=" + mandirName);
-            if (!upcomingEventsResponse.ok) throw new Error('Failed to fetch upcoming events');
-            const upcomingEventsList = await upcomingEventsResponse.json();
-            setAllUpcomingEvents(upcomingEventsList.upcomingEvents);
-
-            const goalsResponse = await fetch(apiInfo.goals.get + "?mandirName=" + mandirName);
-            if (goalsResponse.ok) {
-                const goalsData = await goalsResponse.json();
-                if (goalsData) {
-                    setGoals({
-                        goal1: goalsData.goal1 || '',
-                        goal2: goalsData.goal2 || '',
-                        goal3: goalsData.goal3 || ''
-                    });
-                }
+            try {
+                const eventsRes = await authFetch(
+                    `${apiInfo.upcoming_events.get}?mandirName=${mandirName}`
+                );
+                setUpcomingEvents(eventsRes?.upcomingEvents || []);
+                setUpcomingAllEvents(eventsRes?.allEvents   || eventsRes?.upcomingEvents || []);
+            } catch (eventsErr) {
+                console.error('[Fetch] upcomingEvents error (non-fatal):', eventsErr.message);
+                setUpcomingEvents([]);
             }
 
-            const result = mandirs.find(({ mandirName: m }) => m === mandirName);
-            if (result) setTier(result.tier);
-        } catch (err)
-        {
+            try {
+                const overTimeRes = await authFetch(
+                    `${apiInfo.kids_attendence?.get}?mandirName=${mandirName}`
+                );
+                const rawSatsang = overTimeRes?.data || overTimeRes?.satsangCount || overTimeRes?.satsang_count || [];
+                const withTotal = Array.isArray(rawSatsang)
+                    ? rawSatsang.filter(Boolean).map((row) => ({
+                        ...row,
+                        totalKids: (row?.numberKidsFirstLevel || 0) + (row?.numberKidsSecondLevel || 0) +
+                            (row?.numberKidsThirdLevel || 0) + (row?.numberKidsFourthLevel || 0),
+                    }))
+                    : [];
+                setKidsOverTimeData(withTotal);
+            } catch (overTimeErr) {
+                console.error('[Fetch] satsangCount/kidsOverTime error (non-fatal):', overTimeErr.message);
+                setKidsOverTimeData([]);
+            }
+
+        } catch (err) {
+            console.error("Dashboard Fetch Error:", err);
             setError(err.message);
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const handleRefreshPage = () => {
-        fetchData();
-    };
+    }, [isAuthenticated, mandirName, authFetch]);
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            router.push('/');
-            return;
-        }
-        if (mandirName) {
-            fetchData();
-        }
-    }, [isAuthenticated, router, mandirName]);
+        fetchData();
+    }, [fetchData]);
 
-    const handleInputChangeLeaderInfo = (e) => {
+    const kidsList = useMemo(() => data, [data]);
+
+    const averageKids = useMemo(() => {
+        if (!kidsOverTimeData.length) return data.length;
+        const total = kidsOverTimeData.reduce((sum, entry) => sum + (entry.totalKids || 0), 0);
+        return Math.round(total / kidsOverTimeData.length);
+    }, [kidsOverTimeData, data]);
+
+    const tier = useMemo(() => computeTier(averageKids), [averageKids]);
+
+    const genderDistributionData = useMemo(() => computeGenderDistribution(data), [data]);
+    const ageDistributionData    = useMemo(() => computeAgeDistribution(data),    [data]);
+    const genderDistributionDataByAgeGroup = useMemo(() => computeGenderByAgeGroup(data), [data]);
+
+    // ── Leader info handlers ───────────────────────────────────────────────
+    const handleInputChangeLeaderInfo = useCallback((e) => {
         const { name, value } = e.target;
         setLeaderInfo(prev => ({ ...prev, [name]: value }));
-    };
+    }, []);
 
-    const handleInputChangeEvents = (e) => {
-        const { name, value } = e.target;
-        setUpcomingEvents(prev => ({ ...prev, [name]: value }));
-        if (name === 'date') {
-            validateEventsDate(value);
-        }
-    };
-
-    const handleInputChangeGoals = (e) => {
-        const { name, value } = e.target;
-        setGoals(prev => ({ ...prev, [name]: value }));
-    };
-
-    // UPDATED: Submit Handler for Goals using Snackbar instead of Alert
-    const handleSubmitGoals = async () => {
+    const handleSubmitLeaderInfo = useCallback(async () => {
         try {
-            const response = await fetch(apiInfo.goals.post, {
-                method: 'POST',
-                body: JSON.stringify({
-                    mandirName,
-                    ...goals
-                }),
-            });
-            if (!response.ok) {
-                throw new Error('Failed to save goals');
-            }
-            setOpenGoalsSnackbar(true); // SHOW SNACKBAR
-        } catch (err) {
-            setError(err.message);
-        }
-    };
-
-    const handleCloseGoalsSnackbar = (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-        setOpenGoalsSnackbar(false);
-    };
-
-    const handleEventsDateBlur = () => {
-        validateEventsDate(upcomingEvents.date);
-    };
-
-    const handleInputChangeSatsangCount = (e) => {
-        const { name, value } = e.target;
-        setSatsangCount(prev => ({ ...prev, [name]: value }));
-        if (name === 'date') {
-            validateDate(value);
-        }
-    };
-
-    const handleDateBlur = () => {
-        validateDate(satsangCount.date);
-    };
-
-    const handleSubmitLeaderInfo = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch(apiInfo.leader_info.post, {
+            await authFetch(apiInfo.leader_info.post, {
                 method: 'POST',
                 body: JSON.stringify(leaderInfo),
             });
-            if (!response.ok) {
-                throw new Error('Failed to update leader info');
-            }
             setIsEditing(false);
         } catch (err) {
-            setError(err.message);
+            console.error('Failed to save leader info:', err);
         }
-    };
+    }, [authFetch, leaderInfo]);
 
-    const handleSubmitSatsangCount = async (e) => {
-        e.preventDefault();
-        const isDateValid = validateDate(satsangCount.date);
-        if (!isDateValid) {
-            console.log('Validation failed. Please check your inputs.');
+    const handleInputChangeGoals = useCallback((e) => {
+        const { name, value } = e.target;
+        setGoals(prev => ({ ...prev, [name]: value }));
+    }, []);
+
+    const handleSubmitGoals = useCallback(async () => {
+        try {
+            await authFetch(apiInfo.goals.post, {
+                method: 'POST',
+                body: JSON.stringify({ ...goals, mandirName }),
+            });
+            setOpenGoalsSnackbar(true);
+        } catch (err) {
+            console.error('Failed to save goals:', err);
+        }
+    }, [authFetch, goals, mandirName]);
+
+    // ── Events form handlers ───────────────────────────────────────────────
+    const handleInputChangeEvents = useCallback((e) => {
+        const { name, value } = e.target;
+        setEventForm(prev => ({ ...prev, [name]: value }));
+        if (name === 'date') setEventsDateError('');
+    }, []);
+
+    const handleEventsDateBlur = useCallback(() => {
+        if (eventForm.date && !DATE_REGEX.test(eventForm.date)) {
+            setEventsDateError('Please use MM/DD/YYYY format');
+        } else {
+            setEventsDateError('');
+        }
+    }, [eventForm.date]);
+
+    const handleSubmitEvents = useCallback(async (e) => {
+        e?.preventDefault();
+        if (!DATE_REGEX.test(eventForm.date)) {
+            setEventsDateError('Please use MM/DD/YYYY format');
             return;
         }
         try {
-            const response = await fetch(apiInfo.kids_attendence.post, {
+            await authFetch(apiInfo.upcoming_events.post, {
+                method: 'POST',
+                body: JSON.stringify({ ...eventForm, mandirName }),
+            });
+            setOpenEvents(true);
+            setEventForm(EMPTY_EVENT_FORM);
+            setUpcomingEvents(prev => [...prev, { ...eventForm, id: Date.now() }]);
+        } catch (err) {
+            console.error('Failed to submit event:', err);
+        }
+    }, [authFetch, eventForm, mandirName]);
+
+    const handleAnotherSubmitEvents = useCallback(() => {
+        setOpenEvents(false);
+        setEventForm(EMPTY_EVENT_FORM);
+    }, []);
+
+    const handleRefreshPage = useCallback(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const handleInputChangeSatsangCount = useCallback((e) => {
+        const { name, value, type, checked } = e.target;
+        setSatsangCount(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
+        if (name === 'date') setSatsangDateError('');
+    }, []);
+
+    const handleSubmitSatsangCount = useCallback(async (e) => {
+        e?.preventDefault();
+        if (!DATE_REGEX.test(satsangCount.date)) {
+            setSatsangDateError('Please use MM/DD/YYYY format');
+            return;
+        }
+        try {
+            await authFetch(apiInfo.kids_attendence.post, {
                 method: 'POST',
                 body: JSON.stringify(satsangCount),
             });
-            if (!response.ok) {
-                throw new Error('Failed to submit satsang count');
-            }
-            setOpen(true)
-        } catch (err) {
-            setError(err.message)
-        }
-    };
-
-    const handleAnotherSubmitSatsangCount = () => {
-        setOpen(false)
-        setDateError('')
-        setBalMandalClass(false)
-        setSatsangClass(false)
-        setKirtanClass(false)
-        setInstrumentClass(false)
-        setDanceClass(false)
-        setSatsangCount(prev => ({
-            mandirName: prev.mandirName,
-            date: '',
-            reporter: '',
-            numberKidsFirstLevel: 0,
-            numberKidsSecondLevel: 0,
-            numberKidsThirdLevel: 0,
-            numberKidsFourthLevel: 0,
-            balMandalClass: false,
-            satsangClass: false,
-            kirtanClass: false,
-            instrumentClass: false,
-            danceClass: false
-        }))
-    }
-
-    const handleAnotherSubmitEvents = () => {
-        setOpenEvents(false)
-        setEventsDateError('')
-        setUpcomingEvents(prev => ({
-            ...prev,
-            date: '',
-            upcomingEvents: '',
-        }))
-    }
-
-    const handleSubmitEvents = async (e) => {
-        e.preventDefault();
-        const isDateValid = validateEventsDate(upcomingEvents.date);
-        if (!isDateValid) {
-            console.log('Validation failed. Please check your inputs.');
-            return;
-        }
-        try {
-            const response = await fetch(apiInfo.upcoming_events.post, {
-                method: 'POST',
-                body: JSON.stringify(upcomingEvents),
-            });
-            if (!response.ok) {
-                throw new Error('Failed to submit event');
-            }
-            setOpenEvents(true)
+            setOpenSatsangSuccess(true);
         } catch (err) {
             setError(err.message);
         }
-    };
+    }, [authFetch, satsangCount]);
 
-    const marks = [
-        { value: 0, label: '0' },
-        { value: 10, label: '10' },
-        { value: 20, label: '20' },
-        { value: 30, label: '30' },
-        { value: 40, label: '40' },
-    ];
+    const handleAnotherSubmitSatsangCount = useCallback(() => {
+        setSatsangCount(INITIAL_SATSANG);
+        setOpenSatsangSuccess(false);
+        setSatsangDateError('');
+    }, []);
 
-    const toDateOnly = (d) => {
-        const dt = new Date(d);
-        return Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate());
-    };
-
-    const compareDates = (todayStr, lastSubmissionStr) => {
-        if (!lastSubmissionStr) return false;
-        const todayMs = toDateOnly(todayStr);
-        const lastMs = toDateOnly(lastSubmissionStr);
-        const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
-        return todayMs > lastMs + oneWeekMs;
-    };
-
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    let mm = today.getMonth() + 1;
-    let dd = today.getDate();
-    if (dd < 10) dd = '0' + dd;
-    if (mm < 10) mm = '0' + mm;
-    const formattedToday = mm + '/' + dd + '/' + yyyy;
-
-    let lastDate = ""
-    if (data.length > 0) {
-        let mostRecentDate = new Date(data[0].date);
-        lastDate = data[0].date;
-        for (let i = 1; i < data.length; i++) {
-            const currentDate = new Date(data[i].date);
-            if (currentDate > mostRecentDate) {
-                mostRecentDate = currentDate;
-                lastDate = data[i].date;
-            }
-        }
-    }
+    const handleChangeBMC = useCallback((e) => setSatsangCount(prev => ({ ...prev, balMandalClass: e.target.checked })), []);
+    const handleChangeSC = useCallback((e) => setSatsangCount(prev => ({ ...prev, satsangClass: e.target.checked })), []);
+    const handleChangeKC = useCallback((e) => setSatsangCount(prev => ({ ...prev, kirtanClass: e.target.checked })), []);
+    const handleChangeIC = useCallback((e) => setSatsangCount(prev => ({ ...prev, instrumentClass: e.target.checked })), []);
+    const handleChangeDC = useCallback((e) => setSatsangCount(prev => ({ ...prev, danceClass: e.target.checked })), []);
 
     return {
         mandirName,
         data,
         isLoading,
         error,
+        kidsList,
+        leaderInfo,
+        upcomingEvents,       // array — for the events table
+        upcomingAllEvents,
+        eventForm,
+        goals,
+        kidsOverTimeData,
+
         averageKids,
         tier,
-        leaderInfo,
-        upcomingEvents,
-        balMandalClass,
-        satsangClass,
-        kirtanClass,
-        instrumentClass,
-        danceClass,
-        satsangCount,
-        kidsList,
-        upcomingAllEvents,
-        isEditing,
-        open,
-        openEvents,
-        ageDistributionData,
         genderDistributionData,
-        kidsOverTimeData,
+        ageDistributionData,
         genderDistributionDataByAgeGroup,
-        marks,
-        formattedToday,
-        lastDate,
-        goals,
-        openGoalsSnackbar,      // EXPORT
-        setOpenGoalsSnackbar,   // EXPORT
-        handleCloseGoalsSnackbar,// EXPORT
+
+        // UI state
+        openGoalsSnackbar,
+        isEditing,
+        openEvents,
+        eventsDateError,
+
+        setIsEditing,
         setLeaderInfo,
         setUpcomingEvents,
-        setSatsangCount,
-        setIsEditing,
-        setOpen,
-        setOpenEvents,
+        setGoals,
+
+        // Handlers
+        handleCloseGoalsSnackbar: () => setOpenGoalsSnackbar(false),
+        handleInputChangeLeaderInfo,
+        handleSubmitLeaderInfo,
+        handleInputChangeGoals,
+        handleSubmitGoals,
+        handleInputChangeEvents,
+        handleEventsDateBlur,
+        handleSubmitEvents,
+        handleAnotherSubmitEvents,
+        handleRefreshPage,
+        fetchData,
+
+        satsangCount,
+        handleInputChangeSatsangCount,
+        handleSubmitSatsangCount,
+        handleAnotherSubmitSatsangCount,
         handleChangeBMC,
         handleChangeSC,
         handleChangeKC,
         handleChangeIC,
         handleChangeDC,
-        handleInputChangeLeaderInfo,
-        handleInputChangeEvents,
-        handleEventsDateBlur,
-        handleInputChangeSatsangCount,
-        handleDateBlur,
-        handleSubmitLeaderInfo,
-        handleSubmitSatsangCount,
-        handleAnotherSubmitSatsangCount,
-        handleAnotherSubmitEvents,
-        handleSubmitEvents,
-        handleInputChangeGoals,
-        handleSubmitGoals,
-        compareDates,
-        handleRefreshPage,
-        dateError,
-        eventsDateError,
+        balMandalClass: satsangCount?.balMandalClass ?? false,
+        satsangClass: satsangCount?.satsangClass ?? false,
+        kirtanClass: satsangCount?.kirtanClass ?? false,
+        instrumentClass: satsangCount?.instrumentClass ?? false,
+        danceClass: satsangCount?.danceClass ?? false,
+        open: openSatsangSuccess,
+        dateError: satsangDateError,
     };
 }

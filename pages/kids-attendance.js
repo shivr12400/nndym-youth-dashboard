@@ -1,4 +1,3 @@
-// pages/kids-attendance.js
 import React, { useEffect } from 'react';
 import { 
     Container, 
@@ -25,7 +24,6 @@ import LeaderInfoCard from '../components/kids-attendance/LeaderInfoCard';
 import StatsCards from '../components/kids-attendance/StatsCards';
 import AgeDistributionChart from '../components/kids-attendance/AgeDistributionChart';
 import AttendanceCharts from '../components/kids-attendance/AttendanceCharts';
-// SatsangForm import removed
 import UpcomingEvents from '../components/kids-attendance/UpcomingEvents';
 import KidsListTable from '../components/kids-attendance/KidsListTable';
 import GenderDistributionChart from '../components/kids-attendance/GenderDistributionChart';
@@ -65,6 +63,7 @@ export default function KidsAttendance({ isAuthenticated }) {
         handleSubmitEvents,
         handleRefreshPage,
         eventsDateError,
+        eventForm,
         openEvents,
     } = useKidsAttendance(isAuthenticated);
 
@@ -75,7 +74,8 @@ export default function KidsAttendance({ isAuthenticated }) {
     }, [data]);
 
     const getOccurrenceCount = (activityName) => {
-        if (!data || !Array.isArray(data)) return 0;
+        const source = kidsOverTimeData && Array.isArray(kidsOverTimeData) ? kidsOverTimeData : data;
+        if (!source || !Array.isArray(source)) return 0;
 
         const keyMap = {
             'Bal Mandal': ['balMandal', 'bal_mandal', 'balMandalClass', 'bal_mandal_class'],
@@ -87,7 +87,7 @@ export default function KidsAttendance({ isAuthenticated }) {
 
         const targetKeys = keyMap[activityName] || [];
 
-        return data.filter(row => {
+        return source.filter(row => {
             return targetKeys.some(key => {
                 const val = row[key];
                 if (val === true) return true;
@@ -124,8 +124,8 @@ export default function KidsAttendance({ isAuthenticated }) {
         <Layout>
             <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Button onClick={() => router.push('/dashboard')} variant="outlined" color="primary">
-                        Back to Dashboard
+                    <Button onClick={() => router.push('/')} variant="outlined" color="primary">
+                        Back Home
                     </Button>
                     <Button onClick={() => router.push('/submit-satsang')} variant="contained" color="secondary">
                         Submit Satsang Count
@@ -133,7 +133,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                 </Box>
                 
                 <br />
-                <Typography variant="h4" component="h1" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                <Typography variant="h2" component="h1" gutterBottom>
                     {mandirName} Mandir
                 </Typography>
                 <br />
@@ -264,7 +264,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                 <KidsOverTimeChart data={kidsOverTimeData} />
 
                 <AttendanceCharts
-                    data={data}
+                    data={kidsOverTimeData}
                     isLoading={isLoading}
                     error={error}
                     activities={activities}
@@ -274,9 +274,8 @@ export default function KidsAttendance({ isAuthenticated }) {
                 
                 <br />
 
-                {/* SatsangForm was removed here */}
-
                 <UpcomingEvents
+                    eventForm={eventForm}
                     upcomingEvents={upcomingEvents}
                     upcomingAllEvents={upcomingAllEvents}
                     handleInputChangeEvents={handleInputChangeEvents}

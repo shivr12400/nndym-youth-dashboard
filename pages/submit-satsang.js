@@ -1,6 +1,5 @@
-// pages/submit-satsang.js
 import React, { useMemo, useState } from 'react';
-import { useRouter } from 'next/router'; // 1. Import useRouter
+import { useRouter } from 'next/router';
 import { 
     Container, 
     Typography, 
@@ -24,10 +23,8 @@ import { useKidsAttendance } from '../hooks/useKidsAttendance';
 import { mandirs } from '../utils/mandirs';
 
 export default function SubmitSatsang() {
-    const router = useRouter(); // 2. Initialize Router
+    const router = useRouter();
 
-    // Initialize Hook 
-    // We ignore the hook's 'isLoading' because it relies on URL params we don't have yet.
     const {
         satsangCount,
         handleInputChangeSatsangCount,
@@ -44,11 +41,10 @@ export default function SubmitSatsang() {
         instrumentClass,
         danceClass,
         error,
-        open, // Success state
+        open,
         dateError
     } = useKidsAttendance(true);
 
-    // Local Submission State for the button spinner
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleLocalSubmit = async (e) => {
@@ -58,15 +54,14 @@ export default function SubmitSatsang() {
         setIsSubmitting(false);
     };
 
-    // Calculate Total dynamically based on hook state
     const totalCount = useMemo(() => {
-        return (Number(satsangCount.numberKidsFirstLevel) || 0) + 
-               (Number(satsangCount.numberKidsSecondLevel) || 0) + 
-               (Number(satsangCount.numberKidsThirdLevel) || 0) + 
-               (Number(satsangCount.numberKidsFourthLevel) || 0);
+        const sc = satsangCount || {};
+        return (Number(sc.numberKidsFirstLevel) || 0) + 
+               (Number(sc.numberKidsSecondLevel) || 0) + 
+               (Number(sc.numberKidsThirdLevel) || 0) + 
+               (Number(sc.numberKidsFourthLevel) || 0);
     }, [satsangCount]);
 
-    // Adapter for Sliders
     const handleSliderChange = (name) => (event, newValue) => {
         const syntheticEvent = {
             target: {
@@ -88,14 +83,13 @@ export default function SubmitSatsang() {
         <Layout>
             <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
                 <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 3 }}>
-                    <Typography variant="h4" component="h1" gutterBottom align="center" color="primary">
+                    <Typography variant="h1" component="h1" gutterBottom align="center" color="primary">
                         Submit Satsang Count
                     </Typography>
                     
                     {!open ? (
                         <Box component="form" onSubmit={handleLocalSubmit} sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
                             
-                            {/* Mandir Selection */}
                             <FormControl fullWidth required>
                                 <InputLabel id="mandir-select-label">Mandir Name</InputLabel>
                                 <Select
@@ -124,7 +118,6 @@ export default function SubmitSatsang() {
                                 variant="outlined"
                             />
 
-                            {/* Date Selection */}
                             <TextField
                                 required
                                 fullWidth
@@ -137,8 +130,7 @@ export default function SubmitSatsang() {
                                 helperText={dateError}
                             />
 
-                            {/* Sliding Form Fields */}
-                            <Box sx={{ border: '1px solid #ddd', borderRadius: 1, p: 2 }}>
+                            <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 2 }}>
                                 <Typography variant="subtitle2" color="textSecondary" gutterBottom>
                                     Attendance by Age Group:
                                 </Typography>
@@ -183,8 +175,7 @@ export default function SubmitSatsang() {
                                 </Typography>
                             </Box>
 
-                            {/* Class Checkboxes */}
-                            <Box sx={{ border: '1px solid #ddd', borderRadius: 1, p: 2 }}>
+                            <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 2 }}>
                                 <Typography variant="subtitle2" color="textSecondary" gutterBottom>
                                     Classes Held:
                                 </Typography>
@@ -231,7 +222,6 @@ export default function SubmitSatsang() {
                             </Alert>
                             
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                {/* 3. UPDATED: Uses router.push() to preserve session */}
                                 <Button 
                                     variant="contained" 
                                     color="primary" 

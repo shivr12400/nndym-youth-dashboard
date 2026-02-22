@@ -2,7 +2,7 @@
 import { Accordion, AccordionSummary, AccordionDetails, Typography, Card, CardContent, CircularProgress, Grid } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
-import GenderDistributionChart from './GenderDistributionChart'; // Import GenderDistributionChart
+import GenderDistributionChart from './GenderDistributionChart';
 
 import { useTheme } from '@mui/material/styles';
 
@@ -31,7 +31,7 @@ export default function AttendanceCharts({ data, isLoading, error, activities, k
                     <AccordionDetails>
                         <Card sx={{ mb: 4 }}>
                             <CardContent>
-                                <Typography variant="h7" gutterBottom>
+                                <Typography variant="subtitle1" gutterBottom>
                                     Kids x Time
                                 </Typography>
                                 {isLoading ? (
@@ -61,11 +61,11 @@ export default function AttendanceCharts({ data, isLoading, error, activities, k
                                 )}
                             </CardContent>
                         </Card>
-                        <Grid container spacing={2}> {/* Grid for side-by-side charts */}
+                        <Grid container spacing={2}>
                             <Grid item xs={12} md={6}>
                                 <Card>
                                     <CardContent>
-                                        <Typography variant="h7" gutterBottom>
+                                        <Typography variant="subtitle1" gutterBottom>
                                             Top kids activities
                                         </Typography>
                                         <ResponsiveContainer width="100%" height={400}>

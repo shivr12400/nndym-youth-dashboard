@@ -1,4 +1,3 @@
-// components/kids-attendance/StatsCards.js
 import { Grid, Card, CardContent, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
@@ -13,7 +12,7 @@ export default function StatsCards({ averageKids, tier }) {
                         <Typography variant="h5" component="div">
                             Average # Yuvaks/Yuvatis
                         </Typography>
-                        <Typography variant="h3" sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                        <Typography variant="h4">
                             {averageKids}
                         </Typography>
                     </CardContent>
@@ -25,7 +24,7 @@ export default function StatsCards({ averageKids, tier }) {
                         <Typography variant="h5" component="div">
                             Tier
                         </Typography>
-                        <Typography variant="h3" sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                        <Typography variant="h4">
                             {tier}
                         </Typography>
                     </CardContent>

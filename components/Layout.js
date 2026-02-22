@@ -1,19 +1,26 @@
-import { Container, Box } from '@mui/material';
+import React from 'react';
+import { Box } from '@mui/material';
 import Navbar from './NavBar';
-import Footer from './Footer'; // Import Footer
+import Footer from './Footer';
 
-const Layout = ({ children }) => {
+export default function Layout({ children }) {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+        overflowX: 'hidden',
+        backgroundColor: 'background.default',
+      }}
+    >
       <Navbar />
+      
       <Box component="main" sx={{ flexGrow: 1 }}>
-        <Container maxWidth="lg">
-          {children}
-        </Container>
+        {children}
       </Box>
+
       <Footer />
     </Box>
   );
-};
-
-export default Layout;
+}

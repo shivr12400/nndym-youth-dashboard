@@ -1,9 +1,8 @@
 import { Card, CardContent, Typography } from '@mui/material';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'; // Using PieChart for gender distribution
-
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useTheme } from '@mui/material/styles';
 
-export default function GenderDistributionChart({ data }) {
+export default function GenderDistributionChart({ data = []}) {
     const theme = useTheme();
     const chartColors = [
         theme.palette.primary.main,
@@ -31,7 +30,7 @@ export default function GenderDistributionChart({ data }) {
                             outerRadius={80}
                             fill={theme.palette.primary.main}
                             dataKey="value"
-                            nameKey="name" // Use 'name' for label
+                            nameKey="name"
                         >
                             {chartData.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />

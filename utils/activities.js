@@ -18,6 +18,9 @@ export const getAgeRange = (age) => {
     return null;
 }
 
+const isMale = (g) => { const s = String(g || '').toLowerCase(); return s === 'm' || s === 'male'; };
+const isFemale = (g) => { const s = String(g || '').toLowerCase(); return s === 'f' || s === 'female'; };
+
 const countActivities = (kids) => {
     let artsCraftsMale = 0;
     let artsCraftsFemale = 0;
@@ -31,34 +34,34 @@ const countActivities = (kids) => {
     let sportsFemale = 0;
     let videoGamesMale = 0;
     let videoGamesFemale = 0;
-    
+
     for (let i = 0; i < kids.length; i++) {
         const kid = kids[i];
-        const gender = kid.gender;
+        const gender = kid.gender ?? kid.Gender;
 
-        if (kid.artsCraftsInterest) {
-            if (gender === 'Male') artsCraftsMale++;
-            else if (gender === 'Female') artsCraftsFemale++;
+        if (kid.artsCraftsInterest ?? kid.arts_crafts_interest) {
+            if (isMale(gender)) artsCraftsMale++;
+            else if (isFemale(gender)) artsCraftsFemale++;
         }
-        if (kid.dancingInterest) {
-            if (gender === 'Male') dancingMale++;
-            else if (gender === 'Female') dancingFemale++;
+        if (kid.dancingInterest ?? kid.dancing_interest) {
+            if (isMale(gender)) dancingMale++;
+            else if (isFemale(gender)) dancingFemale++;
         }
-        if (kid.instrumentInterest) {
-            if (gender === 'Male') instrumentMale++;
-            else if (gender === 'Female') instrumentFemale++;
+        if (kid.instrumentInterest ?? kid.instrument_interest) {
+            if (isMale(gender)) instrumentMale++;
+            else if (isFemale(gender)) instrumentFemale++;
         }
-        if (kid.singingInterest) {
-            if (gender === 'Male') singingMale++;
-            else if (gender === 'Female') singingFemale++;
+        if (kid.singingInterest ?? kid.singing_interest) {
+            if (isMale(gender)) singingMale++;
+            else if (isFemale(gender)) singingFemale++;
         }
-        if (kid.sportsInterest) {
-            if (gender === 'Male') sportsMale++;
-            else if (gender === 'Female') sportsFemale++;
+        if (kid.sportsInterest ?? kid.sports_interest) {
+            if (isMale(gender)) sportsMale++;
+            else if (isFemale(gender)) sportsFemale++;
         }
-        if (kid.videoGamesInterest) {
-            if (gender === 'Male') videoGamesMale++;
-            else if (gender === 'Female') videoGamesFemale++;
+        if (kid.videoGamesInterest ?? kid.video_games_interest) {
+            if (isMale(gender)) videoGamesMale++;
+            else if (isFemale(gender)) videoGamesFemale++;
         }
     }
     
@@ -80,16 +83,16 @@ export const activities = (kidsList) => {
         '19-25': []
     }
     
-    // Group kids by age range
     for (let i = 0; i < kidsList.length; i++) {
-        const age = calculateAge(kidsList[i].birthday);
+        const kid = kidsList[i];
+        const ageNum = parseInt(kid.age ?? kid.Age, 10);
+        const age = !isNaN(ageNum) ? ageNum : calculateAge(kid.birthday ?? kid.Birthday);
         const range = getAgeRange(age);
         if (range) {
-            ageRanges[range].push(kidsList[i]);
+            ageRanges[range].push(kid);
         }
     }
     
-    // Count activities for each age range
     return {
         '1-8': countActivities(ageRanges['1-8']),
         '9-13': countActivities(ageRanges['9-13']),

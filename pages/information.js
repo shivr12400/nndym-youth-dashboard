@@ -1,37 +1,13 @@
-// pages/information.js
 import React from 'react';
-import { 
-  Grid, Container, Box, Typography, Paper, 
+import {
+  Grid, Container, Box, Typography, Paper,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Divider, useMediaQuery
+  Divider, useTheme, useMediaQuery
 } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Layout from '../components/Layout'; 
+import Layout from '../components/Layout';
 import { motion } from 'framer-motion';
 import CustomButton from '../components/common/CustomButton';
 
-// 1. LIGHT THEME CONFIGURATION
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: { main: '#094D92' },
-    secondary: { main: '#1C1018' },
-    background: {
-      default: '#f4f6f8',
-      paper: '#ffffff',
-    },
-    text: { 
-      primary: '#333333',
-      secondary: '#666666'
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h4: { fontWeight: 600 },
-  },
-});
-
-// 2. TABLE DATA & CONFIGURATION
 const columns = [
   { id: 'category', label: 'Requirement', minWidth: 200, align: 'left', bgColor: '#f4f6f8', color: '#333' },
   { id: 'platinum', label: 'Platinum', minWidth: 120, align: 'center', bgColor: '#E5E4E2', color: '#000' }, 
@@ -43,13 +19,14 @@ const columns = [
 
 const rows = [
   { category: 'ACTIVE Mandir Leaders', platinum: '3', gold: '3', silver: '2', bronze: '1', standard: '1' },
-  { category: 'Average Yuvaks/Yuvatis', platinum: '75', gold: '50', silver: '45', bronze: '35', standard: '30' },
+  { category: 'Average Kids', platinum: '75', gold: '50', silver: '45', bronze: '35', standard: '30' },
   { category: 'Classes each week', platinum: '5', gold: '4', silver: '3', bronze: '2', standard: '1' },
   { category: 'Monthly Events', platinum: '2 / Month', gold: '2 / Month', silver: '1 / Month', bronze: '1 / 2 Months', standard: '1 / 2 Months' },
   { category: 'Regional/National Event Signups', platinum: '50', gold: '45', silver: '35', bronze: '30', standard: '≤ 25' },
 ];
 
 export default function InformationPage() {
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const buttons = [
@@ -61,10 +38,7 @@ export default function InformationPage() {
 
   return (
     <Layout>
-      <ThemeProvider theme={theme}>
-        <Container maxWidth="lg" sx={{ py: 6 }}>
-          
-          {/* --- Buttons Section --- */}
+      <Container maxWidth="lg" sx={{ py: 6 }}>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
             <Box sx={{ flexGrow: 1, mb: 6 }}>
               <Grid container spacing={3} justifyContent="center">
@@ -72,7 +46,6 @@ export default function InformationPage() {
                   <Grid item xs={12} sm={6} md={3} key={index}>
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <Box sx={{ width: '100%' }}>
-                         {/* UPDATED: Added sx properties to center text */}
                          <CustomButton 
                             href={button.url} 
                             target="_blank" 
@@ -97,10 +70,9 @@ export default function InformationPage() {
 
           <Divider sx={{ mb: 6 }} />
 
-          {/* --- Tiers Section --- */}
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
             <Box sx={{ mb: 4, textAlign: isMobile ? 'center' : 'left' }}>
-              <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold' }}>
+              <Typography variant="h1" color="primary">
                 Mandir Progress Tiers
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
@@ -129,10 +101,10 @@ export default function InformationPage() {
                           sx={{ 
                             backgroundColor: column.bgColor, 
                             color: column.color, 
-                            fontWeight: 'bold',
-                            fontSize: '0.9rem',
+                            fontWeight: 600,
                             textTransform: 'uppercase',
-                            borderBottom: '1px solid #ddd'
+                            borderBottom: '1px solid',
+                            borderColor: 'divider',
                           }}
                         >
                           {column.label}
@@ -156,11 +128,11 @@ export default function InformationPage() {
                             align={column.align}
                             sx={{ 
                               color: 'text.primary',
-                              fontSize: '0.95rem',
                               ...(column.id === 'category' && {
                                 fontWeight: 600,
                                 color: theme.palette.primary.main,
-                                borderRight: '1px solid #f0f0f0' 
+                                borderRight: '1px solid',
+                                borderColor: 'divider', 
                               })
                             }}
                           >
@@ -186,9 +158,8 @@ export default function InformationPage() {
             >
               Scroll right to view all tiers →
             </Typography>
-          </motion.div>
-        </Container>
-      </ThemeProvider>
+        </motion.div>
+      </Container>
     </Layout>
   );
 }

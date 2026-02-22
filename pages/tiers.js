@@ -6,14 +6,13 @@ import {
 import { motion } from 'framer-motion';
 import Layout from '../components/Layout';
 
-// Columns remain the same...
 const columns = [
   { id: 'category', label: 'Requirement', minWidth: 200, align: 'left', bgColor: '#f4f6f8', color: '#333' },
   { id: 'platinum', label: 'Platinum', minWidth: 120, align: 'center', bgColor: '#E5E4E2', color: '#333' },
   { id: 'gold', label: 'Gold', minWidth: 120, align: 'center', bgColor: '#FFD700', color: '#333' },
   { id: 'silver', label: 'Silver', minWidth: 120, align: 'center', bgColor: '#C0C0C0', color: '#333' },
   { id: 'bronze', label: 'Bronze', minWidth: 120, align: 'center', bgColor: '#CD7F32', color: '#fff' },
-  { id: 'standard', label: 'Standard', minWidth: 120, align: 'center', bgColor: '#1976d2', color: '#fff' },
+  { id: 'standard', label: 'Standard', minWidth: 120, align: 'center', bgColor: '#094D92', color: '#fff' },
 ];
 
 const rows = [
@@ -30,11 +29,10 @@ export default function MandirTiers() {
       <Box sx={{ py: 4, px: 2 }}> {/* Reduced padding for mobile */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            {/* Responsive Font Size */}
-            <Typography component="h1" variant="h3" color="text.primary" gutterBottom fontWeight="bold" sx={{ fontSize: { xs: '2rem', md: '3rem' } }}>
+            <Typography component="h1" variant="h4" color="text.primary" gutterBottom>
               Mandir Progress Tiers
             </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
+            <Typography variant="body1" color="text.secondary">
               Compare goals and requirements across all levels.
             </Typography>
           </Box>
@@ -74,8 +72,8 @@ export default function MandirTiers() {
                         tabIndex={-1} 
                         key={index}
                         sx={{ 
-                          '&:nth-of-type(odd)': { backgroundColor: '#fafafa' },
-                          '&:hover': { backgroundColor: '#f0f7ff !important' },
+                          '&:nth-of-type(odd)': { backgroundColor: 'grey.50' },
+                          '&:hover': { backgroundColor: 'grey.100' },
                           transition: 'background-color 0.2s ease'
                         }}
                       >
@@ -86,8 +84,8 @@ export default function MandirTiers() {
                               key={column.id} 
                               align={column.align}
                               sx={{ 
-                                fontWeight: column.id === 'category' ? 'bold' : 'normal',
-                                color: column.id === 'category' ? '#444' : 'text.primary',
+                                fontWeight: column.id === 'category' ? 600 : 400,
+                                color: 'text.primary',
                                 py: 2.5 
                               }}
                             >
@@ -102,7 +100,6 @@ export default function MandirTiers() {
               </Table>
             </TableContainer>
           </Paper>
-          {/* Hint for mobile users */}
           <Typography variant="caption" sx={{ display: { xs: 'block', md: 'none' }, textAlign: 'center', mt: 1, color: 'text.secondary' }}>
             Scroll right to view all tiers →
           </Typography>

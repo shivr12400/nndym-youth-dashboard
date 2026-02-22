@@ -1,16 +1,15 @@
-// components/Navbar.js
 import { AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
 import Link from 'next/link';
 import { styled } from '@mui/system';
 import { motion } from 'framer-motion';
 
-const NavButton = styled(Button)(({theme}) => ({
-    color: theme.palette.navText.main,
-    '&:hover': {
-        backgroundColor: '#FEFEFE',
-        color: '#094D92',
-    },
-  }));
+const NavButton = styled(Button)(({ theme }) => ({
+  color: theme.palette.navText.main,
+  '&:hover': {
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.primary.main,
+  },
+}));
 
 const Navbar = () => {
   return (
@@ -18,7 +17,7 @@ const Navbar = () => {
       <AppBar position="static" color='primary'>
         <Container maxWidth="lg">
           <Toolbar disableGutters>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'navText.main' }}>
+            <Typography variant="h4" component="div" sx={{ flexGrow: 1, color: 'navText.main' }}>
               NNDYM Mandir Dashboard
             </Typography>
             <Link href="/" passHref>
@@ -44,6 +43,11 @@ const Navbar = () => {
             <Link href="/feedback" passHref>
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <NavButton>Feedback</NavButton>
+              </motion.div>
+            </Link>
+            <Link href="/chatbot" passHref>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <NavButton>AI Assistant</NavButton>
               </motion.div>
             </Link>
           </Toolbar>

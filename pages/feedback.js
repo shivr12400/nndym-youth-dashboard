@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Container, Typography, TextField, Button, Box, Alert, CircularProgress } from '@mui/material';
 import Layout from '../components/Layout';
 import { motion } from 'framer-motion';
-import { apiInfo } from '../utils/api'; // Import apiInfo
+import { apiInfo } from '../utils/api';
+import { getSessionToken } from '../utils/auth';
 
 export default function Feedback() {
     const [name, setName] = useState('');
@@ -18,9 +19,16 @@ export default function Feedback() {
         setSubmitted(false);
 
         try {
+            const token = await getSessionToken();
+            if (!token) throw new Error('Session expired. Please log in again.');
+
             const response = await fetch(apiInfo.feedback.post, {
                 method: 'POST',
-                body: JSON.stringify({ name, message }),
+                headers: {
+                    'Authorization': `${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({name, message}),
             });
 
             if (!response.ok) {
@@ -31,7 +39,7 @@ export default function Feedback() {
             setName('');
             setMessage('');
             setSubmitted(true);
-            setTimeout(() => setSubmitted(false), 5000); // Hide success message after 5 seconds
+            setTimeout(() => setSubmitted(false), 5000);
 
         } catch (err) {
             setError(err.message);
@@ -45,7 +53,7 @@ export default function Feedback() {
         <Layout>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
                 <Container maxWidth="md" sx={{ py: 6 }}>
-                    <Typography variant="h4" component="h1" gutterBottom>
+                    <Typography variant="h1" component="h1" gutterBottom color="primary">
                         Feedback
                     </Typography>
                     <Typography variant="body1" paragraph>
@@ -92,7 +100,7 @@ export default function Feedback() {
                             variant="contained"
                             color="primary"
                             sx={{ mt: 3, mb: 2 }}
-                            disabled={loading} // Disable button while loading
+                            disabled={loading}
                         >
                             {loading ? <CircularProgress size={24} color="inherit" /> : 'Submit Feedback'}
                         </Button>

@@ -1,4 +1,3 @@
-// components/kids-attendance/KidsListTable.js
 import { Card, CardContent, Typography, Table, TableContainer, TableHead, TableBody, TableCell, TableRow, Paper } from '@mui/material';
 
 export default function KidsListTable({ kidsList }) {

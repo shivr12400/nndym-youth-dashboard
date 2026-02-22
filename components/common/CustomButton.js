@@ -1,11 +1,9 @@
-// components/common/CustomButton.js
 import { styled } from '@mui/material/styles';
 import { Button } from '@mui/material';
 
 const CustomButton = styled(Button)(({ theme }) => ({
+    ...theme.typography.h5,
     padding: theme.spacing(4),
-    fontSize: '1.5rem',
-    fontWeight: 'bold',
     minHeight: '200px',
     width: '100%',
     transition: 'all 0.3s ease-in-out',

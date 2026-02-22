@@ -5,12 +5,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
+    primary: { main: '#094D92' },
+    secondary: { main: '#1C1018' },
   },
 });
 
@@ -41,7 +37,7 @@ const NotAuthenticated = () => {
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main', width: 56, height: 56 }}>
             <LockOutlinedIcon />
           </Avatar>
-          <Typography component="h1" variant="h5" sx={{ mt: 2, mb: 2 }}>
+          <Typography component="h1" variant="h4" sx={{ mt: 2, mb: 2 }}>
             Not Authenticated
           </Typography>
           <Typography variant="body1" sx={{ mb: 3, textAlign: 'center' }}>

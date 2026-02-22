@@ -3,8 +3,9 @@ import { Card, CardContent, Typography, Button, TextField, Box, Table, TableCont
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 export default function UpcomingEvents({
-    upcomingEvents,
-    upcomingAllEvents,
+    upcomingEvents = [],
+    upcomingAllEvents = [],
+    eventForm = {},
     handleInputChangeEvents,
     handleEventsDateBlur,
     handleSubmitEvents,
@@ -17,14 +18,14 @@ export default function UpcomingEvents({
         <Card sx={{ mb: 4 }}>
             <CardContent>
                 <Typography variant="h6" gutterBottom>
-                    Upcoming events
+                    Upcoming Events
                 </Typography>
-                <br></br>
+                <br />
                 {upcomingEvents.length === 0 ? (
                     <Typography>No Upcoming Events</Typography>
                 ) : (
                     <TableContainer component={Paper} sx={{ maxHeight: 300, overflowX: 'auto' }}>
-                        <Table stickyHeader aria-label="kids information table">
+                        <Table stickyHeader aria-label="upcoming events table">
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Date</TableCell>
@@ -32,8 +33,8 @@ export default function UpcomingEvents({
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {upcomingAllEvents.map((event) => (
-                                    <TableRow key={event.id}>
+                                {upcomingEvents.map((event, i) => (
+                                    <TableRow key={event.id ?? i}>
                                         <TableCell>{event.date}</TableCell>
                                         <TableCell>{event.upcomingEvents}</TableCell>
                                     </TableRow>
@@ -42,22 +43,18 @@ export default function UpcomingEvents({
                         </Table>
                     </TableContainer>
                 )}
-                <br></br>
+                <br />
                 <Typography variant="h6" gutterBottom>
                     Submit Upcoming Events
                 </Typography>
                 <Box component="form" onSubmit={handleSubmitEvents} noValidate sx={{ mt: 1 }}>
                     <TextField
                         margin="normal"
-                        multiline
-                        rows={1}
                         required
                         fullWidth
-                        id="outlined-basic"
-                        variant="outlined"
                         label="Date (MM/DD/YYYY)"
                         name="date"
-                        value={upcomingEvents.date}
+                        value={eventForm.date || ''}
                         onChange={handleInputChangeEvents}
                         onBlur={handleEventsDateBlur}
                         error={!!eventsDateError}
@@ -65,22 +62,18 @@ export default function UpcomingEvents({
                     />
                     <TextField
                         margin="normal"
-                        multiline
-                        rows={1}
                         required
                         fullWidth
-                        id="outlined-basic"
-                        variant="outlined"
                         label="Event"
                         name="upcomingEvents"
-                        value={upcomingEvents.upcomingEvents}
+                        value={eventForm.upcomingEvents || ''}
                         onChange={handleInputChangeEvents}
                     />
                     <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
                         Submit
                     </Button>
-                    <br></br>
-                    {openEvents ?
+                    <br />
+                    {openEvents && (
                         <>
                             <Button onClick={handleAnotherSubmitEvents} variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
                                 Submit Another
@@ -88,13 +81,14 @@ export default function UpcomingEvents({
                             <Button onClick={handleRefreshPage} variant="outlined" startIcon={<RefreshIcon />} sx={{ mt: 2, mr: 1 }}>
                                 Refresh Charts
                             </Button>
-                        </> : <></>}
-                    <br></br>
-                    <br></br>
-                    {openEvents ?
+                        </>
+                    )}
+                    <br /><br />
+                    {openEvents && (
                         <Alert severity="success" sx={{ width: '100%' }}>
                             Successfully submitted!
-                        </Alert> : <></>}
+                        </Alert>
+                    )}
                 </Box>
             </CardContent>
         </Card>

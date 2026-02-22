@@ -18,12 +18,14 @@ import {
     Radio,
     RadioGroup,
     FormLabel,
+    Paper,
 } from '@mui/material';
 import Layout from '../components/Layout';
 
 import { useState, useMemo } from 'react';
 import { styled } from '@mui/system';
 import { apiInfo } from '../utils/api';
+import { getSessionToken } from '../utils/auth';
 import { mandirs } from '../utils/mandirs';
 import { motion } from 'framer-motion';
 
@@ -117,7 +119,7 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
     };
 
     const validatePhone = (value) => {
-        const phoneRegex = /^\d{10}$/; // Assuming 10 digits for phone number
+        const phoneRegex = /^\d{10}$/;
         if (!phoneRegex.test(value)) {
             setPhoneError('Please enter a 10-digit phone number');
             setIsPhoneValid(false);
@@ -149,19 +151,19 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
         setArtsCrafts(false)
         setDancing(false)
         setVideoGames(false)
-                setKidInfo(prev => ({
-                    name: '',
-                    birthday: '',
-                    email: '',
-                    phone: '',
-                                mandir: prev.mandir,
-                                gender: '', // Reset gender here
-                                sportsInterest: sports,                    singingInterest: singing,
-                    instrumentInterest: instrument,
-                    artsCraftsInterest: artsCrafts,
-                    dancingInterest: dancing,
-                    videoGamesInterest: videoGames,
-                }))
+        setKidInfo(prev => ({
+            name: '',
+            birthday: '',
+            email: '',
+            phone: '',
+            mandir: prev.mandir,
+            gender: '', // Reset gender here
+            sportsInterest: sports, singingInterest: singing,
+            instrumentInterest: instrument,
+            artsCraftsInterest: artsCrafts,
+            dancingInterest: dancing,
+            videoGamesInterest: videoGames,
+        }))
     }
 
     const handleSubmit = async (e) => {
@@ -177,8 +179,15 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
         }
 
         try {
+            const token = await getSessionToken();
+            if (!token) throw new Error('Session expired. Please log in again.');
+
             const response = await fetch(apiInfo.kids_list.post, {
                 method: 'POST',
+                headers: {
+                    'Authorization': `${token}`,
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify(kidInfo),
             });
             console.log(kidInfo)
@@ -194,127 +203,130 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
         }
     };
 
-    const Title = styled(Typography)(({ theme }) => ({
-        marginBottom: "40px"
+    const PageTitle = styled(Typography)(({ theme }) => ({
+        marginBottom: theme.spacing(5),
+        ...theme.typography.h4,
     }));
 
     return (
         <Layout>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
-                <Container maxWidth="lg" sx={{ py: 6 }}>
-                    <Title variant="h3" marginTop={"4"}>
-                        Register Yuvaks/Yuvatis
-                    </Title>
-                    {/* Form Card */}
-                    <Card sx={{ mb: 4 }}>
-                        <CardContent>
-                            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    id="name"
-                                    label="name"
-                                    name="name"
-                                    value={kidInfo.name}
-                                    onChange={handleRegisterKids}
-                                />
-                                <br></br>
-                                <FormControl component="fieldset" margin="normal" fullWidth>
-                                    <FormLabel component="legend">Gender</FormLabel>
-                                    <RadioGroup
-                                        row
-                                        name="gender"
-                                        value={kidInfo.gender}
+                <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
+                    <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 3 }}>
+                        <Typography variant="h1" component="h1" gutterBottom align="center" color="primary">
+                            Register Yuvaks / Yuvatis
+                        </Typography>
+
+                        <Card sx={{ mb: 4 }}>
+                            <CardContent>
+                                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                                    <TextField
+                                        margin="normal"
+                                        required
+                                        fullWidth
+                                        id="name"
+                                        label="name"
+                                        name="name"
+                                        value={kidInfo.name}
                                         onChange={handleRegisterKids}
-                                    >
-                                        <FormControlLabel value="Male" control={<Radio />} label="Male" />
-                                        <FormControlLabel value="Female" control={<Radio />} label="Female" />
-                                    </RadioGroup>
-                                </FormControl>
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    id="birthday"
-                                    label="birthday (MM/DD/YYYY)"
-                                    name="birthday"
-                                    value={kidInfo.birthday}
-                                    onChange={handleRegisterKids}
-                                    error={!!birthdayError}
-                                    helperText={birthdayError}
-                                />
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    id="email"
-                                    label="email"
-                                    name="email"
-                                    value={kidInfo.email}
-                                    onChange={handleRegisterKids}
-                                    error={!!emailError}
-                                    helperText={emailError}
-                                />
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    id="phone"
-                                    label="phone"
-                                    name="phone"
-                                    value={kidInfo.phone}
-                                    onChange={handleRegisterKids}
-                                    error={!!phoneError}
-                                    helperText={phoneError}
-                                />
-                                <br></br>
-                                <br></br>
-                                <FormControl fullWidth>
-                                    <InputLabel id="demo-simple-select-label">mandir</InputLabel>
-                                    <Select
-                                        labelId="demo-simple-select-label"
-                                        id="demo-simple-select"
-                                        name='mandir'
-                                        value={kidInfo.mandir}
-                                        label="mandir"
+                                    />
+                                    <br></br>
+                                    <FormControl component="fieldset" margin="normal" fullWidth>
+                                        <FormLabel component="legend">Gender</FormLabel>
+                                        <RadioGroup
+                                            row
+                                            name="gender"
+                                            value={kidInfo.gender}
+                                            onChange={handleRegisterKids}
+                                        >
+                                            <FormControlLabel value="Male" control={<Radio />} label="Male" />
+                                            <FormControlLabel value="Female" control={<Radio />} label="Female" />
+                                        </RadioGroup>
+                                    </FormControl>
+                                    <TextField
+                                        margin="normal"
+                                        required
+                                        fullWidth
+                                        id="birthday"
+                                        label="birthday (MM/DD/YYYY)"
+                                        name="birthday"
+                                        value={kidInfo.birthday}
                                         onChange={handleRegisterKids}
-                                    >
-                                                                                {mandirs.map(m => (
-                                                                                    <MenuItem key={m.mandirName} value={m.mandirName}>{m.mandirName}</MenuItem>
-                                                                                ))}
-                                                                            </Select>
-                                                                        </FormControl>
-                                                                        <br></br>
-                                                                        <br></br>
-                                                                        <Typography variant="h6" gutterBottom>
-                                    Interests
-                                </Typography>
-                                <FormGroup>
-                                    <FormControlLabel control={<Checkbox name="sportsInterest" checked={sports} onChange={handleChangeSports} />} label="Sports" />
-                                    <FormControlLabel control={<Checkbox name="singingInterest" checked={singing} onChange={handleChangeSinging} />} label="Singing" />
-                                    <FormControlLabel control={<Checkbox name="instrumentInterest" checked={instrument} onChange={handleChangeInstrument} />} label="Instruments" />
-                                    <FormControlLabel control={<Checkbox name="artsCraftsInterest" checked={artsCrafts} onChange={handleChangeArtsCrafts} />} label="Arts and Crafts" />
-                                    <FormControlLabel control={<Checkbox name="dancingInterest" checked={dancing} onChange={handleChangeDancing}/>} label="Dancing" />
-                                    <FormControlLabel control={<Checkbox name="videoGamesInterest" checked={videoGames} onChange={handleChangeVideoGames}/>} label="Video Games" />
-                                </FormGroup>
-                                <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
-                                    Submit
-                                </Button>
-                                <br></br>
-                                {open ?
-                                    <Button onClick={handleAnotherRegister} variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
-                                        Submit Another
-                                    </Button> : <></>}
-                                <br></br>
-                                <br></br>
-                                {open ?
-                                    <Alert severity="success" sx={{ width: '100%' }}>
-                                        Successfully submitted!
-                                    </Alert> : <></>}
-                            </Box>
-                        </CardContent>
-                    </Card>
+                                        error={!!birthdayError}
+                                        helperText={birthdayError}
+                                    />
+                                    <TextField
+                                        margin="normal"
+                                        required
+                                        fullWidth
+                                        id="email"
+                                        label="email"
+                                        name="email"
+                                        value={kidInfo.email}
+                                        onChange={handleRegisterKids}
+                                        error={!!emailError}
+                                        helperText={emailError}
+                                    />
+                                    <TextField
+                                        margin="normal"
+                                        required
+                                        fullWidth
+                                        id="phone"
+                                        label="phone"
+                                        name="phone"
+                                        value={kidInfo.phone}
+                                        onChange={handleRegisterKids}
+                                        error={!!phoneError}
+                                        helperText={phoneError}
+                                    />
+                                    <br></br>
+                                    <br></br>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="demo-simple-select-label">mandir</InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            name='mandir'
+                                            value={kidInfo.mandir}
+                                            label="mandir"
+                                            onChange={handleRegisterKids}
+                                        >
+                                            {mandirs.map(m => (
+                                                <MenuItem key={m.mandirName} value={m.mandirName}>{m.mandirName}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                    <br></br>
+                                    <br></br>
+                                    <Typography variant="h6" gutterBottom>
+                                        Interests
+                                    </Typography>
+                                    <FormGroup>
+                                        <FormControlLabel control={<Checkbox name="sportsInterest" checked={sports} onChange={handleChangeSports} />} label="Sports" />
+                                        <FormControlLabel control={<Checkbox name="singingInterest" checked={singing} onChange={handleChangeSinging} />} label="Singing" />
+                                        <FormControlLabel control={<Checkbox name="instrumentInterest" checked={instrument} onChange={handleChangeInstrument} />} label="Instruments" />
+                                        <FormControlLabel control={<Checkbox name="artsCraftsInterest" checked={artsCrafts} onChange={handleChangeArtsCrafts} />} label="Arts and Crafts" />
+                                        <FormControlLabel control={<Checkbox name="dancingInterest" checked={dancing} onChange={handleChangeDancing} />} label="Dancing" />
+                                        <FormControlLabel control={<Checkbox name="videoGamesInterest" checked={videoGames} onChange={handleChangeVideoGames} />} label="Video Games" />
+                                    </FormGroup>
+                                    <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
+                                        Submit
+                                    </Button>
+                                    <br></br>
+                                    {open ?
+                                        <Button onClick={handleAnotherRegister} variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
+                                            Submit Another
+                                        </Button> : <></>}
+                                    <br></br>
+                                    <br></br>
+                                    {open ?
+                                        <Alert severity="success" sx={{ width: '100%' }}>
+                                            Successfully submitted!
+                                        </Alert> : <></>}
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Paper>
                 </Container>
             </motion.div>
 

@@ -55,7 +55,7 @@ Follow these steps to set up and run the project locally:
 *   `components/`: Reusable UI components.
     *   `kids-attendance/`: Components specific to the kids attendance dashboard (e.g., charts, forms).
 *   `hooks/`: Custom React Hooks for encapsulating reusable logic (e.g., `useKidsAttendance`).
-*   `pages/`: Next.js pages (e.g., `index.js`, `dashboard.js`, `kids-attendance.js`, `register.js`).
+*   `pages/`: Next.js pages (e.g., `index.js`, `kids-attendance.js`, `register.js`).
 *   `public/`: Static assets.
 *   `styles/`: Global styles and Material-UI theme configuration.
 *   `utils/`: Utility functions (e.g., API calls, date calculations, activity processing).

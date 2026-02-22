@@ -1,4 +1,3 @@
-// components/kids-attendance/AgeDistributionChart.js
 import { Card, CardContent, Typography } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -19,10 +18,10 @@ export default function AgeDistributionChart({ data }) {
                         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="range" />
+                        <XAxis dataKey="name" />
                         <YAxis />
                         <Tooltip />
-                        <Bar dataKey="count" fill={theme.palette.primary.main} name="Kids" />
+                        <Bar dataKey="value" fill={theme.palette.primary.main} name="Kids" />
                     </BarChart>
                 </ResponsiveContainer>
             </CardContent>

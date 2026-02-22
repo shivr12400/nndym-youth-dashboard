@@ -8,18 +8,17 @@ const Footer = () => {
     <Box
       component="footer"
       sx={{
-        py: 6, // Increased padding
+        py: 6,
         px: 2,
         mt: 'auto',
-        backgroundColor: (theme) => theme.palette.primary.dark, // Use a darker primary color for the footer background
-        color: (theme) => theme.palette.primary.contrastText, // Ensure text is readable against the background
+        backgroundColor: (theme) => theme.palette.primary.dark,
+        color: (theme) => theme.palette.primary.contrastText,
         borderTop: '1px solid',
         borderColor: (theme) => theme.palette.divider,
       }}
     >
       <Container maxWidth="lg">
         <Grid container spacing={4} justifyContent="space-between">
-          {/* About Section */}
           <Grid item xs={12} md={4}>
             <Typography variant="h6" gutterBottom color="inherit">
               About NNDYM
@@ -31,7 +30,6 @@ const Footer = () => {
             </Typography>
           </Grid>
 
-          {/* Quick Links Section */}
           <Grid item xs={12} md={4}>
             <Typography variant="h6" gutterBottom color="inherit">
               Quick Links
@@ -52,7 +50,6 @@ const Footer = () => {
             </Box>
           </Grid>
 
-          {/* Contact & Social Media */}
           <Grid item xs={12} md={4}>
             <Typography variant="h6" gutterBottom color="inherit">
               Connect With Us
@@ -83,7 +80,6 @@ const Footer = () => {
           </Grid>
         </Grid>
 
-        {/* Copyright */}
         <Box sx={{ pt: 4, mt: 4, borderTop: '1px solid', borderColor: (theme) => theme.palette.divider }}>
           <Typography variant="body2" color="inherit" align="center">
             © {new Date().getFullYear()} Nar Narayan Dev Yuvak Mandal. All rights reserved.
