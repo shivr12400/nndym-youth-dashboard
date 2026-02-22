@@ -69,7 +69,7 @@ function computeGenderByAgeGroup(kids = []) {
 function computeTier(count) {
     if (count >= 30) return 'Gold';
     if (count >= 15) return 'Silver';
-    return 'Bronze';
+    return 'Standard';
 }
 
 const DATE_REGEX = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}$/;
