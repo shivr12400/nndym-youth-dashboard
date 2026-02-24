@@ -123,11 +123,11 @@ export default function KidsAttendance({ isAuthenticated }) {
     return (
         <Layout>
             <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Button onClick={() => router.push('/')} variant="outlined" color="primary">
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', gap: 2, mb: 2 }}>
+                    <Button onClick={() => router.push('/')} variant="outlined" color="primary" sx={{ width: { xs: '100%', sm: 'auto' } }}>
                         Back Home
                     </Button>
-                    <Button onClick={() => router.push('/submit-satsang')} variant="contained" color="secondary">
+                    <Button onClick={() => router.push('/submit-satsang')} variant="contained" color="secondary" sx={{ width: { xs: '100%', sm: 'auto' } }}>
                         Submit Satsang Count
                     </Button>
                 </Box>

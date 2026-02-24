@@ -87,7 +87,6 @@ export function getSessionToken() {
 export async function verifyToken() {
   if (typeof window === 'undefined') return false;
   const token = await getSessionToken();
-  console.log(token);
   return !!token;
 }
 
