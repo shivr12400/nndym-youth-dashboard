@@ -46,7 +46,11 @@ function MyApp({ Component, pageProps }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isLoading]); // ← router.pathname intentionally excluded
 
-  if (isLoading) {
+  const isRedirecting = 
+    (isAuthenticated && router.pathname === '/login') || 
+    (!isAuthenticated && router.pathname !== '/login');
+
+  if (isLoading || isRedirecting) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <CircularProgress />
