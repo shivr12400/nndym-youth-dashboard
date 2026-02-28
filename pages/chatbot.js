@@ -6,9 +6,12 @@ import {
     Paper, 
     TextField, 
     Button, 
-    CircularProgress 
+    CircularProgress,
+    IconButton,
+    Tooltip
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Layout from '../components/Layout';
 
 export default function Chatbot({ isAuthenticated }) {
@@ -97,7 +100,22 @@ export default function Chatbot({ isAuthenticated }) {
                                     borderRadius: 2
                                 }}
                             >
-                                <Typography variant="body1">{msg.text}</Typography>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', pt: 0.5 }}>
+                                        {msg.text}
+                                    </Typography>
+                                    {msg.role === 'assistant' && (
+                                        <Tooltip title="Copy response">
+                                            <IconButton 
+                                                size="small" 
+                                                onClick={() => navigator.clipboard.writeText(msg.text)}
+                                                sx={{ ml: 2, mt: -0.5, mr: -1, color: 'text.secondary' }}
+                                            >
+                                                <ContentCopyIcon fontSize="small" />
+                                            </IconButton>
+                                        </Tooltip>
+                                    )}
+                                </Box>
                             </Paper>
                         </Box>
                     ))}
