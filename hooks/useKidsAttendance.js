@@ -74,6 +74,15 @@ function computeTier(count) {
 
 const DATE_REGEX = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}$/;
 
+function isFutureOrToday(dateStr) {
+    const [month, day, year] = (dateStr || '').split('/').map(Number);
+    if (!month || !day || !year) return false;
+    const eventDate = new Date(year, month - 1, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return eventDate >= today;
+}
+
 const EMPTY_EVENT_FORM = { date: '', upcomingEvents: '' };
 
 const INITIAL_SATSANG = {
@@ -142,23 +151,19 @@ export function useKidsAttendance(isAuthenticated) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.message || `API Error: ${response.status}`);
         }
-        return response.json();
+        const text = await response.text();
+        try { return text ? JSON.parse(text) : null; } catch { return null; }
     }, []);
 
     const fetchData = useCallback(async () => {
         const currentToken = await getSessionToken();
-        console.log('[Fetch] Gate check:', { isAuthenticated, mandirName, hasToken: !!currentToken });
 
         if (isAuthenticated && !currentToken) {
-            console.warn("Session expired in the background. Redirecting to login.");
             router.push('/login');
             return;
         }
 
         if (!isAuthenticated || !mandirName || !currentToken) {
-            console.log("Fetch postponed: Missing", {
-                auth: isAuthenticated, mandir: !!mandirName, token: !!currentToken
-            });
             setIsLoading(false);
             return;
         }
@@ -181,7 +186,7 @@ export function useKidsAttendance(isAuthenticated) {
                 const eventsRes = await authFetch(
                     `${apiInfo.upcoming_events.get}?mandirName=${mandirName}`
                 );
-                setUpcomingEvents(eventsRes?.upcomingEvents || []);
+                setUpcomingEvents((eventsRes?.upcomingEvents || []).filter(e => isFutureOrToday(e.date)));
                 setUpcomingAllEvents(eventsRes?.allEvents   || eventsRes?.upcomingEvents || []);
             } catch (eventsErr) {
                 console.error('[Fetch] upcomingEvents error (non-fatal):', eventsErr.message);
@@ -301,6 +306,18 @@ export function useKidsAttendance(isAuthenticated) {
         }
     }, [authFetch, eventForm, mandirName]);
 
+    const handleDeleteEvent = useCallback(async (event) => {
+        try {
+            await authFetch(apiInfo.upcoming_events.delete, {
+                method: 'DELETE',
+                body: JSON.stringify({ mandirName, date: event.date }),
+            });
+            setUpcomingEvents(prev => prev.filter(e => e !== event));
+        } catch (err) {
+            console.error('Failed to delete event:', err);
+        }
+    }, [authFetch, mandirName]);
+
     const handleAnotherSubmitEvents = useCallback(() => {
         setOpenEvents(false);
         setEventForm(EMPTY_EVENT_FORM);
@@ -387,6 +404,7 @@ export function useKidsAttendance(isAuthenticated) {
         handleInputChangeEvents,
         handleEventsDateBlur,
         handleSubmitEvents,
+        handleDeleteEvent,
         handleAnotherSubmitEvents,
         handleRefreshPage,
         fetchData,

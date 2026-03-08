@@ -174,7 +174,6 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
         const isPhnValid = validatePhone(kidInfo.phone);
 
         if (!isBdayValid || !isMailValid || !isPhnValid) {
-            console.log('Validation failed. Please check your inputs.');
             return;
         }
 
@@ -190,7 +189,6 @@ export default function Register({ isAuthenticated, setIsAuthenticated }) {
                 },
                 body: JSON.stringify(kidInfo),
             });
-            console.log(kidInfo)
             if (!response.ok) {
                 throw new Error('Failed to update leader info');
             }

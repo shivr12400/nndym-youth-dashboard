@@ -9,7 +9,8 @@ export const apiInfo = {
     },
     "upcoming_events": {
         "post": "https://iwxkgbiu02.execute-api.us-east-1.amazonaws.com/production/upcomingEvents",
-        "get": "https://iwxkgbiu02.execute-api.us-east-1.amazonaws.com/production/upcomingEvents"
+        "get": "https://iwxkgbiu02.execute-api.us-east-1.amazonaws.com/production/upcomingEvents",
+        "delete": "https://iwxkgbiu02.execute-api.us-east-1.amazonaws.com/production/upcomingEvents"
     },
     "leader_info": {
         "post": "https://iwxkgbiu02.execute-api.us-east-1.amazonaws.com/production/leaderInfo",

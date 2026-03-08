@@ -61,17 +61,13 @@ export default function KidsAttendance({ isAuthenticated }) {
         handleSubmitLeaderInfo,
         handleAnotherSubmitEvents,
         handleSubmitEvents,
+        handleDeleteEvent,
         handleRefreshPage,
         eventsDateError,
         eventForm,
         openEvents,
     } = useKidsAttendance(isAuthenticated);
 
-    useEffect(() => {
-        if (data && data.length > 0) {
-            console.log("DEBUG: Data Keys found:", Object.keys(data[0]));
-        }
-    }, [data]);
 
     const getOccurrenceCount = (activityName) => {
         const source = kidsOverTimeData && Array.isArray(kidsOverTimeData) ? kidsOverTimeData : data;
@@ -281,6 +277,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                     handleInputChangeEvents={handleInputChangeEvents}
                     handleEventsDateBlur={handleEventsDateBlur}
                     handleSubmitEvents={handleSubmitEvents}
+                    handleDeleteEvent={handleDeleteEvent}
                     handleAnotherSubmitEvents={handleAnotherSubmitEvents}
                     handleRefreshPage={handleRefreshPage}
                     openEvents={openEvents}

@@ -1,6 +1,7 @@
 // components/kids-attendance/UpcomingEvents.js
-import { Card, CardContent, Typography, Button, TextField, Box, Table, TableContainer, TableHead, TableBody, TableCell, TableRow, Paper, Alert } from '@mui/material';
+import { Card, CardContent, Typography, Button, TextField, Box, Table, TableContainer, TableHead, TableBody, TableCell, TableRow, Paper, Alert, IconButton } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function UpcomingEvents({
     upcomingEvents = [],
@@ -9,6 +10,7 @@ export default function UpcomingEvents({
     handleInputChangeEvents,
     handleEventsDateBlur,
     handleSubmitEvents,
+    handleDeleteEvent,
     handleAnotherSubmitEvents,
     handleRefreshPage,
     openEvents,
@@ -30,6 +32,7 @@ export default function UpcomingEvents({
                                 <TableRow>
                                     <TableCell>Date</TableCell>
                                     <TableCell>Event</TableCell>
+                                    <TableCell />
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -37,6 +40,16 @@ export default function UpcomingEvents({
                                     <TableRow key={event.id ?? i}>
                                         <TableCell>{event.date}</TableCell>
                                         <TableCell>{event.upcomingEvents}</TableCell>
+                                        <TableCell align="right" sx={{ py: 0.5 }}>
+                                            <IconButton
+                                                size="small"
+                                                color="error"
+                                                onClick={() => handleDeleteEvent(event)}
+                                                aria-label="delete event"
+                                            >
+                                                <DeleteIcon fontSize="small" />
+                                            </IconButton>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
