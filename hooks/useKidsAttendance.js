@@ -67,8 +67,8 @@ function computeGenderByAgeGroup(kids = []) {
 }
 
 function computeTier(count) {
-    if (count >= 30) return 'Gold';
-    if (count >= 15) return 'Silver';
+    if (count >= 35) return 'Silver';
+    if (count >= 30) return 'Bronze';
     return 'Standard';
 }
 
