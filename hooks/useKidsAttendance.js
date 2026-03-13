@@ -114,6 +114,14 @@ export function useKidsAttendance(isAuthenticated) {
         mandirName: mandirName || '',
         leaderName: '', leaderEmail: '', leaderPhone: ''
     });
+    const [leaderInfoTwo, setLeaderInfoTwo] = useState({
+        mandirName: mandirName || '',
+        leaderName: '', leaderEmail: '', leaderPhone: ''
+    });
+    const [leaderInfoThree, setLeaderInfoThree] = useState({
+        mandirName: mandirName || '',
+        leaderName: '', leaderEmail: '', leaderPhone: ''
+    });
 
     const [upcomingEvents, setUpcomingEvents]         = useState([]);
     const [upcomingAllEvents, setUpcomingAllEvents]   = useState([]);
@@ -130,7 +138,9 @@ export function useKidsAttendance(isAuthenticated) {
     const [satsangDateError, setSatsangDateError]   = useState('');
 
     // UI
-    const [isEditing, setIsEditing]     = useState(false);
+    const [isEditing, setIsEditing]         = useState(false);
+    const [isEditingTwo, setIsEditingTwo]   = useState(false);
+    const [isEditingThree, setIsEditingThree] = useState(false);
 
     const authFetch = useCallback(async (url, options = {}) => {
         const currentToken = await getSessionToken();
@@ -178,9 +188,29 @@ export function useKidsAttendance(isAuthenticated) {
                 authFetch(`${apiInfo.goals.get}?mandirName=${mandirName}`),
             ]);
 
-            if (kidsRes)    setData(kidsRes.kids || kidsRes.kids_list || kidsRes.data || []);
-            if (leaderRes)  setLeaderInfo(leaderRes);
-            if (goalsRes)   setGoals(goalsRes);
+            if (kidsRes) setData(kidsRes.kids || kidsRes.kids_list || kidsRes.data || []);
+            if (leaderRes) {
+                const r = leaderRes;
+                setLeaderInfo({
+                    mandirName: r.mandirName || mandirName || '',
+                    leaderName: r.leaderOneName || '',
+                    leaderEmail: r.leaderOneEmail || '',
+                    leaderPhone: r.leaderOnePhone || '',
+                });
+                setLeaderInfoTwo({
+                    mandirName: r.mandirName || mandirName || '',
+                    leaderName: r.leaderTwoName || r.leadertTwoName || '',
+                    leaderEmail: r.leaderTwoEmail || '',
+                    leaderPhone: r.leaderTwoPhone || '',
+                });
+                setLeaderInfoThree({
+                    mandirName: r.mandirName || mandirName || '',
+                    leaderName: r.leaderThreeName || '',
+                    leaderEmail: r.leaderThreeEmail || '',
+                    leaderPhone: r.leaderThreePhone || '',
+                });
+            }
+            if (goalsRes) setGoals(goalsRes);
 
             try {
                 const eventsRes = await authFetch(
@@ -238,6 +268,19 @@ export function useKidsAttendance(isAuthenticated) {
     const genderDistributionDataByAgeGroup = useMemo(() => computeGenderByAgeGroup(data), [data]);
 
     // ── Leader info handlers ───────────────────────────────────────────────
+    const buildLeaderPayload = useCallback((one, two, three) => ({
+        mandirName:       mandirName || '',
+        leaderOneName:    one.leaderName  || '',
+        leaderOneEmail:   one.leaderEmail || '',
+        leaderOnePhone:   one.leaderPhone || '',
+        leaderTwoName:    two.leaderName  || '',
+        leaderTwoEmail:   two.leaderEmail || '',
+        leaderTwoPhone:   two.leaderPhone || '',
+        leaderThreeName:  three.leaderName  || '',
+        leaderThreeEmail: three.leaderEmail || '',
+        leaderThreePhone: three.leaderPhone || '',
+    }), [mandirName]);
+
     const handleInputChangeLeaderInfo = useCallback((e) => {
         const { name, value } = e.target;
         setLeaderInfo(prev => ({ ...prev, [name]: value }));
@@ -247,13 +290,47 @@ export function useKidsAttendance(isAuthenticated) {
         try {
             await authFetch(apiInfo.leader_info.post, {
                 method: 'POST',
-                body: JSON.stringify(leaderInfo),
+                body: JSON.stringify(buildLeaderPayload(leaderInfo, leaderInfoTwo, leaderInfoThree)),
             });
             setIsEditing(false);
         } catch (err) {
             console.error('Failed to save leader info:', err);
         }
-    }, [authFetch, leaderInfo]);
+    }, [authFetch, buildLeaderPayload, leaderInfo, leaderInfoTwo, leaderInfoThree]);
+
+    const handleInputChangeLeaderInfoTwo = useCallback((e) => {
+        const { name, value } = e.target;
+        setLeaderInfoTwo(prev => ({ ...prev, [name]: value }));
+    }, []);
+
+    const handleSubmitLeaderInfoTwo = useCallback(async () => {
+        try {
+            await authFetch(apiInfo.leader_info.post, {
+                method: 'POST',
+                body: JSON.stringify(buildLeaderPayload(leaderInfo, leaderInfoTwo, leaderInfoThree)),
+            });
+            setIsEditingTwo(false);
+        } catch (err) {
+            console.error('Failed to save leader two info:', err);
+        }
+    }, [authFetch, buildLeaderPayload, leaderInfo, leaderInfoTwo, leaderInfoThree]);
+
+    const handleInputChangeLeaderInfoThree = useCallback((e) => {
+        const { name, value } = e.target;
+        setLeaderInfoThree(prev => ({ ...prev, [name]: value }));
+    }, []);
+
+    const handleSubmitLeaderInfoThree = useCallback(async () => {
+        try {
+            await authFetch(apiInfo.leader_info.post, {
+                method: 'POST',
+                body: JSON.stringify(buildLeaderPayload(leaderInfo, leaderInfoTwo, leaderInfoThree)),
+            });
+            setIsEditingThree(false);
+        } catch (err) {
+            console.error('Failed to save leader three info:', err);
+        }
+    }, [authFetch, buildLeaderPayload, leaderInfo, leaderInfoTwo, leaderInfoThree]);
 
     const handleInputChangeGoals = useCallback((e) => {
         const { name, value } = e.target;
@@ -372,6 +449,8 @@ export function useKidsAttendance(isAuthenticated) {
         error,
         kidsList,
         leaderInfo,
+        leaderInfoTwo,
+        leaderInfoThree,
         upcomingEvents,       // array — for the events table
         upcomingAllEvents,
         eventForm,
@@ -387,11 +466,17 @@ export function useKidsAttendance(isAuthenticated) {
         // UI state
         openGoalsSnackbar,
         isEditing,
+        isEditingTwo,
+        isEditingThree,
         openEvents,
         eventsDateError,
 
         setIsEditing,
+        setIsEditingTwo,
+        setIsEditingThree,
         setLeaderInfo,
+        setLeaderInfoTwo,
+        setLeaderInfoThree,
         setUpcomingEvents,
         setGoals,
 
@@ -399,6 +484,10 @@ export function useKidsAttendance(isAuthenticated) {
         handleCloseGoalsSnackbar: () => setOpenGoalsSnackbar(false),
         handleInputChangeLeaderInfo,
         handleSubmitLeaderInfo,
+        handleInputChangeLeaderInfoTwo,
+        handleSubmitLeaderInfoTwo,
+        handleInputChangeLeaderInfoThree,
+        handleSubmitLeaderInfoThree,
         handleInputChangeGoals,
         handleSubmitGoals,
         handleInputChangeEvents,

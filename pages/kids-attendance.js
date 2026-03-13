@@ -20,7 +20,7 @@ import {
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import { useKidsAttendance } from '../hooks/useKidsAttendance';
-import LeaderInfoCard from '../components/kids-attendance/LeaderInfoCard';
+import LeaderContactSection from '../components/kids-attendance/LeaderContactSection';
 import StatsCards from '../components/kids-attendance/StatsCards';
 import AgeDistributionChart from '../components/kids-attendance/AgeDistributionChart';
 import AttendanceCharts from '../components/kids-attendance/AttendanceCharts';
@@ -40,11 +40,17 @@ export default function KidsAttendance({ isAuthenticated }) {
         averageKids,
         tier,
         leaderInfo,
+        leaderInfoTwo,
+        leaderInfoThree,
         upcomingEvents,
         // Removed destructured form handlers related to SatsangForm
         kidsList,
         upcomingAllEvents,
         isEditing,
+        isEditingTwo,
+        isEditingThree,
+        setIsEditingTwo,
+        setIsEditingThree,
         openGoalsSnackbar,
         handleCloseGoalsSnackbar,
         ageDistributionData,
@@ -56,9 +62,13 @@ export default function KidsAttendance({ isAuthenticated }) {
         handleSubmitGoals,
         setIsEditing,
         handleInputChangeLeaderInfo,
+        handleSubmitLeaderInfo,
+        handleInputChangeLeaderInfoTwo,
+        handleSubmitLeaderInfoTwo,
+        handleInputChangeLeaderInfoThree,
+        handleSubmitLeaderInfoThree,
         handleInputChangeEvents,
         handleEventsDateBlur,
-        handleSubmitLeaderInfo,
         handleAnotherSubmitEvents,
         handleSubmitEvents,
         handleDeleteEvent,
@@ -129,17 +139,17 @@ export default function KidsAttendance({ isAuthenticated }) {
                 </Box>
                 
                 <br />
-                <Typography variant="h2" component="h1" gutterBottom>
+                <Typography variant="h2" component="h1" gutterBottom sx={{ fontSize: { xs: '2rem', sm: '3rem', md: '3.75rem' } }}>
                     {mandirName} Mandir
                 </Typography>
                 <br />
 
-                <LeaderInfoCard
-                    leaderInfo={leaderInfo}
-                    isEditing={isEditing}
-                    handleInputChange={handleInputChangeLeaderInfo}
-                    handleSubmit={handleSubmitLeaderInfo}
-                    setIsEditing={setIsEditing}
+                <LeaderContactSection
+                    leaders={[
+                        { leaderInfo, isEditing, handleInputChange: handleInputChangeLeaderInfo, handleSubmit: handleSubmitLeaderInfo, setIsEditing },
+                        { leaderInfo: leaderInfoTwo, isEditing: isEditingTwo, handleInputChange: handleInputChangeLeaderInfoTwo, handleSubmit: handleSubmitLeaderInfoTwo, setIsEditing: setIsEditingTwo },
+                        { leaderInfo: leaderInfoThree, isEditing: isEditingThree, handleInputChange: handleInputChangeLeaderInfoThree, handleSubmit: handleSubmitLeaderInfoThree, setIsEditing: setIsEditingThree },
+                    ]}
                 />
 
                 <Grid container spacing={3} sx={{ mb: 4, mt: 1 }}>
@@ -154,7 +164,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                 boxShadow: 3 
                             }}
                         >
-                            <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                            <Typography component="h2" variant="h5" color="primary" gutterBottom>
                                 Class Occurrences
                             </Typography>
                             <TableContainer sx={{ overflowX: 'auto' }}>
@@ -197,7 +207,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                 boxShadow: 3 
                             }}
                         >
-                            <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                            <Typography component="h2" variant="h5" color="primary" gutterBottom>
                                 Q2 Goals
                             </Typography>
                             <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>

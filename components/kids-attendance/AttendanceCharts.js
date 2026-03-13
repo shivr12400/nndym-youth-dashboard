@@ -24,14 +24,14 @@ export default function AttendanceCharts({ data, isLoading, error, activities, k
                         aria-controls={`panel${index + 1}-content`}
                         id={`panel${index + 1}-header`}
                     >
-                        <Typography variant="h6" gutterBottom>
+                        <Typography variant="h5" gutterBottom>
                             {group.title}
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                         <Card sx={{ mb: 4 }}>
                             <CardContent>
-                                <Typography variant="subtitle1" gutterBottom>
+                                <Typography variant="h6" gutterBottom>
                                     Kids x Time
                                 </Typography>
                                 {isLoading ? (
@@ -39,16 +39,10 @@ export default function AttendanceCharts({ data, isLoading, error, activities, k
                                 ) : error ? (
                                     <Typography color="error">{error}</Typography>
                                 ) : (
-                                    <div style={{ width: '100%', height: 400 }}>
-                                        <ResponsiveContainer>
+                                    <ResponsiveContainer width="100%" height={280}>
                                             <LineChart
                                                 data={data}
-                                                margin={{
-                                                    top: 5,
-                                                    right: 30,
-                                                    left: 20,
-                                                    bottom: 5,
-                                                }}
+                                                margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
                                             >
                                                 <CartesianGrid strokeDasharray="3 3" />
                                                 <XAxis dataKey="date" />
@@ -56,8 +50,7 @@ export default function AttendanceCharts({ data, isLoading, error, activities, k
                                                 <Tooltip />
                                                 <Line type="monotone" dataKey={group.dataKey} stroke={theme.palette.primary.main} activeDot={{ r: 8 }} />
                                             </LineChart>
-                                        </ResponsiveContainer>
-                                    </div>
+                                    </ResponsiveContainer>
                                 )}
                             </CardContent>
                         </Card>
@@ -65,18 +58,13 @@ export default function AttendanceCharts({ data, isLoading, error, activities, k
                             <Grid item xs={12} md={6}>
                                 <Card>
                                     <CardContent>
-                                        <Typography variant="subtitle1" gutterBottom>
+                                        <Typography variant="h6" gutterBottom>
                                             Top kids activities
                                         </Typography>
-                                        <ResponsiveContainer width="100%" height={400}>
+                                        <ResponsiveContainer width="100%" height={280}>
                                             <BarChart
                                                 data={activities(kidsList)[group.activityKey]}
-                                                margin={{
-                                                    top: 20,
-                                                    right: 30,
-                                                    left: 20,
-                                                    bottom: 5,
-                                                }}
+                                                margin={{ top: 10, right: 10, left: 0, bottom: 5 }}
                                             >
                                                 <CartesianGrid strokeDasharray="3 3" />
                                                 <XAxis dataKey="name" />

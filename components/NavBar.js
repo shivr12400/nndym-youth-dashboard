@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { 
-  AppBar, Toolbar, Typography, Button, Container, 
-  IconButton, Drawer, List, ListItem, ListItemText, Box 
+import Image from 'next/image';
+import {
+  AppBar, Toolbar, Typography, Button, Container,
+  IconButton, Drawer, List, ListItem, ListItemText, Box
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import Link from 'next/link';
@@ -19,8 +20,8 @@ const NavButton = styled(Button)(({ theme }) => ({
 
 const navItems = [
   { label: 'Home', path: '/' },
-  { label: 'Submit', path: '/submit-satsang' },
-  { label: 'Register', path: '/register' },
+  { label: 'Submit Satsang Count', path: '/submit-satsang' },
+  { label: 'Register Yuvaks/Yuvatis', path: '/register' },
   { label: 'Information', path: '/information' },
   { label: 'Feedback', path: '/feedback' },
   { label: 'AI Assistant', path: '/chatbot' },
@@ -37,9 +38,9 @@ const Navbar = () => {
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', backgroundColor: theme.palette.primary.main, height: '100%', color: theme.palette.navText.main }}>
-      <Typography variant="h6" sx={{ my: 2 }}>
-        NNDYM
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+        <Image src="/nndym.png" alt="NNDYM" width={46} height={60} style={{ objectFit: 'contain' }} />
+      </Box>
       <List>
         {navItems.map((item) => (
           <Link key={item.label} href={item.path} passHref style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -57,9 +58,9 @@ const Navbar = () => {
       <AppBar position="static" color='primary'>
         <Container maxWidth="lg">
           <Toolbar disableGutters>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'navText.main', display: { xs: 'block', sm: 'block' }, fontWeight: 'bold' }}>
-              NNDYM Mandir Dashboard
-            </Typography>
+            <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+              <Image src="/nndym.png" alt="NNDYM" width={38} height={50} style={{ objectFit: 'contain' }} />
+            </Box>
 
             {isMobile ? (
               <>

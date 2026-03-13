@@ -19,7 +19,7 @@ export default function UpcomingEvents({
     return (
         <Card sx={{ mb: 4 }}>
             <CardContent>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h5" gutterBottom>
                     Upcoming Events
                 </Typography>
                 <br />
@@ -57,7 +57,7 @@ export default function UpcomingEvents({
                     </TableContainer>
                 )}
                 <br />
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h5" gutterBottom>
                     Submit Upcoming Events
                 </Typography>
                 <Box component="form" onSubmit={handleSubmitEvents} noValidate sx={{ mt: 1 }}>
@@ -82,23 +82,23 @@ export default function UpcomingEvents({
                         value={eventForm.upcomingEvents || ''}
                         onChange={handleInputChangeEvents}
                     />
-                    <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
-                        Submit
-                    </Button>
-                    <br />
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
+                        <Button type="submit" variant="contained" color="primary">
+                            Submit
+                        </Button>
+                        {openEvents && (
+                            <>
+                                <Button onClick={handleAnotherSubmitEvents} variant="contained" color="primary">
+                                    Submit Another
+                                </Button>
+                                <Button onClick={handleRefreshPage} variant="outlined" startIcon={<RefreshIcon />}>
+                                    Refresh Charts
+                                </Button>
+                            </>
+                        )}
+                    </Box>
                     {openEvents && (
-                        <>
-                            <Button onClick={handleAnotherSubmitEvents} variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
-                                Submit Another
-                            </Button>
-                            <Button onClick={handleRefreshPage} variant="outlined" startIcon={<RefreshIcon />} sx={{ mt: 2, mr: 1 }}>
-                                Refresh Charts
-                            </Button>
-                        </>
-                    )}
-                    <br /><br />
-                    {openEvents && (
-                        <Alert severity="success" sx={{ width: '100%' }}>
+                        <Alert severity="success" sx={{ width: '100%', mt: 2 }}>
                             Successfully submitted!
                         </Alert>
                     )}

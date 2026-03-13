@@ -4,19 +4,18 @@ export default function KidsListTable({ kidsList }) {
     return (
         <Card sx={{ mb: 4 }}>
             <CardContent>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h5" gutterBottom>
                     Yuvaks/Yuvatis
                 </Typography>
-                <br></br>
                 {kidsList.length === 0 ? (
                     <Typography>No Kids</Typography>
                 ) : (
                     <TableContainer component={Paper} sx={{ maxHeight: 300, overflowX: 'auto' }}>
-                        <Table stickyHeader aria-label="kids information table">
+                        <Table stickyHeader aria-label="kids information table" sx={{ minWidth: 480 }}>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Name</TableCell>
-                                    <TableCell>Phone Number</TableCell>
+                                    <TableCell>Phone</TableCell>
                                     <TableCell>Email</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -24,8 +23,16 @@ export default function KidsListTable({ kidsList }) {
                                 {kidsList.map((kid) => (
                                     <TableRow key={kid.id}>
                                         <TableCell>{kid.name}</TableCell>
-                                        <TableCell>{kid.phone}</TableCell>
-                                        <TableCell>{kid.email}</TableCell>
+                                        <TableCell>
+                                            <a href={`tel:${kid.phone}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                                {kid.phone}
+                                            </a>
+                                        </TableCell>
+                                        <TableCell>
+                                            <a href={`mailto:${kid.email}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                                {kid.email}
+                                            </a>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

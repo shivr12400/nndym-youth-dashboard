@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Container, TextField, Button, Typography, Box, Paper, Alert, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
 import { loginUser } from '../utils/auth';
@@ -106,7 +107,9 @@ export default function Login({ setIsAuthenticated }) {
         <Container maxWidth="xs">
             <Box sx={{ mt: 10 }}>
                 <Paper elevation={3} sx={{ p: 4 }}>
-                    <Typography variant="h4" component="h1" align="center" gutterBottom>Login</Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+                        <Image src="/blacknndym.png" alt="NNDYM" width={116} height={150} style={{ objectFit: 'contain' }} />
+                    </Box>
                     {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
                     <form onSubmit={handleSubmit}>
