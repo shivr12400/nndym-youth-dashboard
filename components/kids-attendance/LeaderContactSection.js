@@ -38,7 +38,7 @@ function LeaderColumn({ leaderInfo, isEditing, handleInputChange, handleSubmit, 
                         <Typography variant="body2" fontWeight={500}>
                             {leaderInfo.leaderName || '—'}
                         </Typography>
-                        <IconButton size="small" onClick={() => setIsEditing(true)} sx={{ p: 0.5 }}>
+                        <IconButton size="small" onClick={() => setIsEditing(true)} sx={{ p: 1 }}>
                             <EditIcon sx={{ fontSize: 16 }} />
                         </IconButton>
                     </Box>

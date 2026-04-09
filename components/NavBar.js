@@ -1,110 +1,168 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import {
-  AppBar, Toolbar, Typography, Button, Container,
-  IconButton, Drawer, List, ListItem, ListItemText, Box
+    AppBar, Toolbar, Box, Container, IconButton,
+    Drawer, List, ListItem, ListItemText, Typography,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
-import { styled, useTheme } from '@mui/system';
+import { useRouter } from 'next/router';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { motion } from 'framer-motion';
-
-const NavButton = styled(Button)(({ theme }) => ({
-  color: theme.palette.navText.main,
-  '&:hover': {
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.primary.main,
-  },
-}));
+import { useTheme } from '@mui/material/styles';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const navItems = [
-  { label: 'Home', path: '/' },
-  { label: 'Submit Satsang Count', path: '/submit-satsang' },
-  { label: 'Register Yuvaks/Yuvatis', path: '/register' },
-  { label: 'Information', path: '/information' },
-  { label: 'Feedback', path: '/feedback' },
-  { label: 'AI Assistant', path: '/chatbot' },
+    { label: 'Home',                    path: '/' },
+    { label: 'Submit Satsang',          path: '/submit-satsang' },
+    { label: 'Register',                path: '/register' },
+    { label: 'Information',             path: '/information' },
+    { label: 'Feedback',                path: '/feedback' },
+    { label: 'AI Assistant',            path: '/chatbot' },
 ];
 
-const Navbar = () => {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+export default function Navbar() {
+    const [open, setOpen] = useState(false);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const router = useRouter();
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+    const isActive = (path) =>
+        path === '/' ? router.pathname === '/' : router.pathname.startsWith(path);
 
-  const drawer = (
-    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', backgroundColor: theme.palette.primary.main, height: '100%', color: theme.palette.navText.main }}>
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
-        <Image src="/nndym.png" alt="NNDYM" width={46} height={60} style={{ objectFit: 'contain' }} />
-      </Box>
-      <List>
-        {navItems.map((item) => (
-          <Link key={item.label} href={item.path} passHref style={{ textDecoration: 'none', color: 'inherit' }}>
-            <ListItem button sx={{ justifyContent: 'center' }}>
-              <ListItemText primary={item.label} />
-            </ListItem>
-          </Link>
-        ))}
-      </List>
-    </Box>
-  );
+    return (
+        <AppBar
+            position="sticky"
+            elevation={0}
+            sx={{
+                top: 0,
+                zIndex: 1200,
+                background: 'rgba(9, 77, 146, 0.96)',
+                backdropFilter: 'blur(14px)',
+                WebkitBackdropFilter: 'blur(14px)',
+                borderBottom: '1px solid rgba(255,255,255,0.08)',
+            }}
+        >
+            <Container maxWidth="lg">
+                <Toolbar disableGutters sx={{ minHeight: 64 }}>
 
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-      <AppBar position="static" color='primary'>
-        <Container maxWidth="lg">
-          <Toolbar disableGutters>
-            <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-              <Image src="/nndym.png" alt="NNDYM" width={38} height={50} style={{ objectFit: 'contain' }} />
-            </Box>
+                    {/* Logo */}
+                    <Link href="/" passHref style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+                        <Image src="/nndym.png" alt="NNDYM" width={32} height={42} style={{ objectFit: 'contain' }} />
+                    </Link>
 
-            {isMobile ? (
-              <>
-                <IconButton
-                  color="inherit"
-                  aria-label="open drawer"
-                  edge="start"
-                  onClick={handleDrawerToggle}
-                  sx={{ ml: 2 }}
-                >
-                  <MenuIcon />
-                </IconButton>
-                <Drawer
-                  anchor="right"
-                  variant="temporary"
-                  open={mobileOpen}
-                  onClose={handleDrawerToggle}
-                  ModalProps={{
-                    keepMounted: true, // Better open performance on mobile.
-                  }}
-                  sx={{
-                    display: { xs: 'block', md: 'none' },
-                    '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
-                  }}
-                >
-                  {drawer}
-                </Drawer>
-              </>
-            ) : (
-              <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-                {navItems.map((item) => (
-                  <Link key={item.label} href={item.path} passHref>
-                    <motion.div style={{ display: 'inline-block' }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                      <NavButton>{item.label}</NavButton>
-                    </motion.div>
-                  </Link>
-                ))}
-              </Box>
-            )}
-          </Toolbar>
-        </Container>
-      </AppBar>
-    </motion.div>
-  );
-};
+                    <Box sx={{ flex: 1 }} />
 
-export default Navbar;
+                    {/* Desktop nav */}
+                    {!isMobile && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            {navItems.map((item) => {
+                                const active = isActive(item.path);
+                                return (
+                                    <Link key={item.path} href={item.path} passHref style={{ textDecoration: 'none' }}>
+                                        <Box
+                                            component="span"
+                                            sx={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                px: 1.5,
+                                                py: 0.75,
+                                                borderRadius: 1.5,
+                                                fontSize: '0.8rem',
+                                                fontWeight: active ? 600 : 400,
+                                                color: active ? 'white' : 'rgba(255,255,255,0.68)',
+                                                bgcolor: active ? 'rgba(255,255,255,0.12)' : 'transparent',
+                                                cursor: 'pointer',
+                                                transition: 'color 0.18s, background 0.18s',
+                                                '&:hover': {
+                                                    color: 'white',
+                                                    bgcolor: 'rgba(255,255,255,0.09)',
+                                                },
+                                            }}
+                                        >
+                                            {item.label}
+                                        </Box>
+                                    </Link>
+                                );
+                            })}
+                        </Box>
+                    )}
+
+                    {/* Mobile menu button */}
+                    {isMobile && (
+                        <IconButton
+                            onClick={() => setOpen(true)}
+                            sx={{ color: 'white', ml: 1 }}
+                            aria-label="open menu"
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                    )}
+                </Toolbar>
+            </Container>
+
+            {/* Mobile drawer */}
+            <Drawer
+                anchor="right"
+                open={open}
+                onClose={() => setOpen(false)}
+                PaperProps={{
+                    sx: {
+                        width: { xs: 240, sm: 260 },
+                        bgcolor: '#094D92',
+                        color: 'white',
+                        pt: 2,
+                    },
+                }}
+            >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2.5, pb: 2, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                    <Image src="/nndym.png" alt="NNDYM" width={28} height={36} style={{ objectFit: 'contain' }} />
+                    <IconButton onClick={() => setOpen(false)} sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                        <CloseIcon fontSize="small" />
+                    </IconButton>
+                </Box>
+
+                <AnimatePresence>
+                    {open && (
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.22, ease: 'easeOut' }}
+                        >
+                            <List sx={{ pt: 1 }}>
+                                {navItems.map((item) => {
+                                    const active = isActive(item.path);
+                                    return (
+                                        <Link key={item.path} href={item.path} passHref style={{ textDecoration: 'none', color: 'inherit' }}>
+                                            <ListItem
+                                                onClick={() => setOpen(false)}
+                                                sx={{
+                                                    borderRadius: 1.5,
+                                                    mx: 1,
+                                                    px: 2,
+                                                    mb: 0.5,
+                                                    bgcolor: active ? 'rgba(255,255,255,0.12)' : 'transparent',
+                                                    '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+                                                    cursor: 'pointer',
+                                                }}
+                                            >
+                                                <ListItemText
+                                                    primary={item.label}
+                                                    primaryTypographyProps={{
+                                                        fontSize: '0.9rem',
+                                                        fontWeight: active ? 600 : 400,
+                                                        color: active ? 'white' : 'rgba(255,255,255,0.72)',
+                                                    }}
+                                                />
+                                            </ListItem>
+                                        </Link>
+                                    );
+                                })}
+                            </List>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </Drawer>
+        </AppBar>
+    );
+}

@@ -231,8 +231,8 @@ export function useKidsAttendance(isAuthenticated) {
                 const withTotal = Array.isArray(rawSatsang)
                     ? rawSatsang.filter(Boolean).map((row) => ({
                         ...row,
-                        totalKids: (row?.numberKidsFirstLevel || 0) + (row?.numberKidsSecondLevel || 0) +
-                            (row?.numberKidsThirdLevel || 0) + (row?.numberKidsFourthLevel || 0),
+                        totalKids: (Number(row?.numberKidsFirstLevel) || 0) + (Number(row?.numberKidsSecondLevel) || 0) +
+                            (Number(row?.numberKidsThirdLevel) || 0) + (Number(row?.numberKidsFourthLevel) || 0),
                     }))
                     : [];
                 setKidsOverTimeData(withTotal);
@@ -256,10 +256,11 @@ export function useKidsAttendance(isAuthenticated) {
     const kidsList = useMemo(() => data, [data]);
 
     const averageKids = useMemo(() => {
-        if (!kidsOverTimeData.length) return data.length;
-        const total = kidsOverTimeData.reduce((sum, entry) => sum + (entry.totalKids || 0), 0);
-        return Math.round(total / kidsOverTimeData.length);
-    }, [kidsOverTimeData, data]);
+        const activeSessions = kidsOverTimeData.filter(entry => (entry.totalKids || 0) > 0);
+        if (!activeSessions.length) return 0;
+        const total = activeSessions.reduce((sum, entry) => sum + entry.totalKids, 0);
+        return Math.round(total / activeSessions.length);
+    }, [kidsOverTimeData]);
 
     const tier = useMemo(() => computeTier(averageKids), [averageKids]);
 

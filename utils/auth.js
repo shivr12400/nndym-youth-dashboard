@@ -90,6 +90,28 @@ export async function verifyToken() {
   return !!token;
 }
 
+export function getUserEmail() {
+    return new Promise((resolve) => {
+        if (typeof window === 'undefined') return resolve(null);
+
+        let cognitoUser = userPool.getCurrentUser();
+
+        if (!cognitoUser) {
+            const lastUser = localStorage.getItem('app_last_auth_user');
+            if (lastUser) {
+                cognitoUser = new CognitoUser({ Username: lastUser, Pool: userPool });
+            } else {
+                return resolve(null);
+            }
+        }
+
+        cognitoUser.getSession((err, session) => {
+            if (err || !session || !session.isValid()) return resolve(null);
+            resolve(session.getIdToken().payload.email || null);
+        });
+    });
+}
+
 export function logoutUser() {
   const cognitoUser = userPool.getCurrentUser();
   if (cognitoUser) cognitoUser.signOut();

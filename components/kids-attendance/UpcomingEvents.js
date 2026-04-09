@@ -42,7 +42,6 @@ export default function UpcomingEvents({
                                         <TableCell>{event.upcomingEvents}</TableCell>
                                         <TableCell align="right" sx={{ py: 0.5 }}>
                                             <IconButton
-                                                size="small"
                                                 color="error"
                                                 onClick={() => handleDeleteEvent(event)}
                                                 aria-label="delete event"

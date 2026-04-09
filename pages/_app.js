@@ -4,11 +4,12 @@ import Head from 'next/head';
 import { CssBaseline, ThemeProvider, Box, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
 import theme from '../styles/theme';
-import { verifyToken } from '../utils/auth';
+import { verifyToken, getUserEmail } from '../utils/auth';
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Run the token check once on mount to determine auth state.
@@ -17,8 +18,9 @@ function MyApp({ Component, pageProps }) {
       // Small defer to let Cognito SDK finish flushing its localStorage
       // writes after a login redirect before we try to read the session.
       await new Promise((resolve) => setTimeout(resolve, 0));
-      const isValid = await verifyToken();
+      const [isValid, email] = await Promise.all([verifyToken(), getUserEmail()]);
       setIsAuthenticated(isValid);
+      setUserEmail(email);
       setIsLoading(false);
     };
     checkAuth();
@@ -73,6 +75,8 @@ function MyApp({ Component, pageProps }) {
         {...pageProps}
         isAuthenticated={isAuthenticated}
         setIsAuthenticated={setIsAuthenticated}
+        userEmail={userEmail}
+        setUserEmail={setUserEmail}
       />
     </ThemeProvider>
   );
