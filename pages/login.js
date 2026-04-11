@@ -140,7 +140,7 @@ export default function Login({ setIsAuthenticated, setUserEmail }) {
 
     return (
         <Layout>
-            <Container maxWidth="xs" sx={{ py: 8 }}>
+            <Container maxWidth="xs" sx={{ py: 4, width: '100%' }}>
                 <motion.div
                     initial={{ opacity: 0, y: 14 }}
                     animate={{ opacity: 1, y: 0 }}

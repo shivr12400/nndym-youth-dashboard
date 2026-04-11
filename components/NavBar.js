@@ -30,6 +30,8 @@ export default function Navbar() {
     const isActive = (path) =>
         path === '/' ? router.pathname === '/' : router.pathname.startsWith(path);
 
+    const isLoginPage = router.pathname === '/login';
+
     return (
         <AppBar
             position="sticky"
@@ -54,7 +56,7 @@ export default function Navbar() {
                     <Box sx={{ flex: 1 }} />
 
                     {/* Desktop nav */}
-                    {!isMobile && (
+                    {!isMobile && !isLoginPage && (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             {navItems.map((item) => {
                                 const active = isActive(item.path);
@@ -89,7 +91,7 @@ export default function Navbar() {
                     )}
 
                     {/* Mobile menu button */}
-                    {isMobile && (
+                    {isMobile && !isLoginPage && (
                         <IconButton
                             onClick={() => setOpen(true)}
                             sx={{ color: 'white', ml: 1 }}

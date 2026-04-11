@@ -2,8 +2,12 @@ import React from 'react';
 import { Box } from '@mui/material';
 import Navbar from './NavBar';
 import Footer from './Footer';
+import { useRouter } from 'next/router';
 
 export default function Layout({ children }) {
+  const { pathname } = useRouter();
+  const isLoginPage = pathname === '/login';
+
   return (
     <Box
       sx={{
@@ -15,12 +19,22 @@ export default function Layout({ children }) {
       }}
     >
       <Navbar />
-      
-      <Box component="main" sx={{ flexGrow: 1 }}>
+
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          ...(isLoginPage && {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }),
+        }}
+      >
         {children}
       </Box>
 
-      <Footer />
+      {!isLoginPage && <Footer />}
     </Box>
   );
 }
