@@ -8,6 +8,7 @@ import Layout from '../components/Layout';
 import { motion } from 'framer-motion';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Link from 'next/link';
+import SectionLabel from '../components/common/SectionLabel';
 
 const columns = [
     { id: 'category', label: 'Requirement', minWidth: 200, align: 'left', bgColor: '#f4f6f8', color: '#333' },
@@ -22,7 +23,7 @@ const rows = [
     { category: 'ACTIVE Mandir Leaders', platinum: '3', gold: '3', silver: '2', bronze: '1', standard: '1' },
     { category: 'Average Kids', platinum: '75', gold: '50', silver: '45', bronze: '35', standard: '30' },
     { category: 'Classes each week', platinum: '5', gold: '4', silver: '3', bronze: '2', standard: '1' },
-    { category: 'Monthly Events', platinum: '2 / Month', gold: '2 / Month', silver: '1 / Month', bronze: '1 / 2 Months', standard: '1 / 2 Months' },
+    { category: 'Monthly Events', platinum: '2 Every Month', gold: '2 Every Month', silver: '1 Every Month', bronze: '1 Every Other Month', standard: '1 Every Two Months' },
     { category: 'Regional/National Event Signups', platinum: '50', gold: '45', silver: '35', bronze: '30', standard: '≤ 25' },
 ];
 
@@ -33,16 +34,6 @@ const buttons = [
     { text: 'Logos', url: 'https://drive.google.com/drive/folders/10kBv8GkBXxqWRR-B3cWvFh2of8PO8r8m?usp=sharing' },
 ];
 
-function SectionLabel({ children }) {
-    return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
-            <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.4, color: 'text.disabled', whiteSpace: 'nowrap' }}>
-                {children}
-            </Typography>
-            <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
-        </Box>
-    );
-}
 
 const stagger = { animate: { transition: { staggerChildren: 0.07 } } };
 const fadeUp = {

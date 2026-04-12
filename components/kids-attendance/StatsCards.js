@@ -1,9 +1,9 @@
 import { Grid, Card, CardContent, Typography } from '@mui/material';
-
-const TIER_COLOR = { Silver: '#9E9E9E', Bronze: '#CD7F32', Standard: '#78909C' };
+import { useTheme } from '@mui/material/styles';
 
 export default function StatsCards({ averageKids, tier }) {
-    const tierColor = TIER_COLOR[tier] || TIER_COLOR.Standard;
+    const theme = useTheme();
+    const tierColor = theme.palette.tier[tier?.toLowerCase()] || theme.palette.tier.standard;
 
     return (
         <Grid container spacing={2} sx={{ mb: 4 }}>

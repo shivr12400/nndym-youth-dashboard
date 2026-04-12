@@ -21,6 +21,7 @@ import Layout from '../components/Layout';
 import { motion } from 'framer-motion';
 import { useKidsAttendance } from '../hooks/useKidsAttendance';
 import { mandirs } from '../utils/mandirs';
+import SectionLabel from '../components/common/SectionLabel';
 
 const CARD = {
     border: '1px solid',
@@ -31,16 +32,6 @@ const CARD = {
     p: 3,
 };
 
-function SectionLabel({ children }) {
-    return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2, mt: 0.5 }}>
-            <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.4, color: 'text.disabled', whiteSpace: 'nowrap' }}>
-                {children}
-            </Typography>
-            <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
-        </Box>
-    );
-}
 
 const groupFields = [
     { label: 'Yuvaks/Yuvatis 1–8', name: 'numberKidsFirstLevel' },

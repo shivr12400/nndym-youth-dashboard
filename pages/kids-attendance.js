@@ -17,12 +17,13 @@ import KidsListTable from '../components/kids-attendance/KidsListTable';
 import GenderDistributionChart from '../components/kids-attendance/GenderDistributionChart';
 import KidsOverTimeChart from '../components/kids-attendance/KidsOverTimeChart';
 import { activities } from '../utils/activities';
+import SectionLabel from '../components/common/SectionLabel';
 
 // ── Design tokens ────────────────────────────────────────────
 const TIERS = [
     { label: 'Standard', min: 0,  color: '#78909C' },
     { label: 'Bronze',   min: 30, color: '#CD7F32' },
-    { label: 'Silver',   min: 35, color: '#9E9E9E' },
+    { label: 'Silver',   min: 35, color: '#C0C0C0' },
 ];
 const MAX_TRACK = 42;
 
@@ -102,17 +103,6 @@ function TierTrack({ averageKids }) {
                     </Typography>
                 ))}
             </Box>
-        </Box>
-    );
-}
-
-function SectionLabel({ children }) {
-    return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-            <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5, color: 'text.secondary', whiteSpace: 'nowrap' }}>
-                {children}
-            </Typography>
-            <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
         </Box>
     );
 }

@@ -4,6 +4,7 @@ import Layout from '../components/Layout';
 import { motion } from 'framer-motion';
 import { apiInfo } from '../utils/api';
 import { getSessionToken } from '../utils/auth';
+import SectionLabel from '../components/common/SectionLabel';
 
 const CARD = {
     border: '1px solid',
@@ -13,17 +14,6 @@ const CARD = {
     bgcolor: 'background.paper',
     p: 3,
 };
-
-function SectionLabel({ children }) {
-    return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
-            <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.4, color: 'text.disabled', whiteSpace: 'nowrap' }}>
-                {children}
-            </Typography>
-            <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
-        </Box>
-    );
-}
 
 export default function Feedback() {
     const [name, setName] = useState('');
