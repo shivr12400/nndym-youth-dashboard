@@ -1,73 +1,138 @@
 # NNDYM Youth Dashboard
 
-## Project Overview
+A full-stack web portal for Nar Narayan Dev Yuvak Mandal — helping mandir leaders manage youth attendance, registrations, and community growth across multiple locations.
 
-This project is a dynamic web dashboard designed for the NNDYM Youth program. It provides a centralized platform for managing and visualizing key data related to kids' attendance at satsangs, their interests in various activities, and leader information across different mandirs. The dashboard aims to provide actionable insights into youth engagement and participation trends, enabling better decision-making and program management.
+Built with **Next.js**, **AWS Cognito**, and **AWS API Gateway + Lambda**. Designed to be fast, clean, and easy for non-technical mandir leaders to use.
 
-## Key Features
+---
 
-*   **Mandir-specific Data:** Access and view data filtered by individual mandirs.
-*   **Kids Attendance Tracking:** Submit and monitor weekly satsang attendance counts.
-*   **Leader Information Management:** View and update contact details for mandir leaders.
-*   **Kids Registration:** Register new kids, capturing their demographic information and interests.
-*   **Comprehensive Data Visualization:**
-    *   **Age Distribution Chart:** Visualize the distribution of registered kids across different age groups.
-    *   **Gender Distribution Chart:** Understand the gender breakdown of registered kids overall and within specific age groups.
-    *   **Kids Over Time Chart:** Track total kids' attendance trends across all age groups over time.
-    *   **Top Kids Activities Charts (Gender-separated):** Identify popular activities among kids, with participation broken down by gender for each age group, providing granular insights into interests.
-*   **Upcoming Events Management:** View and submit details for future events.
+## Screenshots
 
-## Technology Stack
+### Home — Leaderboard & Mandir Overview
+![Home](public/screenshots/home.png)
 
-*   **Frontend:** Next.js (React), Material-UI
-*   **Backend/API:** Implied API endpoints for data persistence (e.g., AWS Amplify, Node.js/Express)
-*   **Data Visualization:** Recharts
-*   **State Management:** React Hooks (useState, useEffect, useMemo)
+### Mandir Dashboard — Attendance, Tiers & Analytics
+![Kids Attendance](public/screenshots/kids-attendance.png)
+
+### Log Satsang — Attendance Entry by Age Group
+![Submit Satsang](public/screenshots/submit-satsang.png)
+
+### Kid Registration
+![Register](public/screenshots/register.png)
+
+### Tiers & Requirements
+![Information](public/screenshots/information.png)
+
+### AI Assistant — Ask Anything About Your Mandir
+![AI Assistant](public/screenshots/chatbot.png)
+
+### Feedback
+![Feedback](public/screenshots/feedback.png)
+
+---
+
+## Features
+
+**Mandir Dashboard**
+- Dark-themed hero with live stats: average kids per satsang, current tier, total registered, classes run
+- Progress bar showing distance to the next tier (Standard → Bronze → Silver → Gold → Platinum)
+- Age distribution bar chart and gender distribution pie chart
+- Attendance trend line across all satsangs
+- Collapsible breakdowns by age group (1–8, 9–13, 14–18, 19–25)
+
+**Leadership**
+- Three leader cards per mandir with avatar initials, phone, and email
+- Inline editing — click the pencil, update, save without leaving the page
+
+**Kid Registration & Roster**
+- Register yuvaks/yuvatis with name, birthday, contact info, mandir, gender, and interests
+- Live roster with colored avatars, click-to-call phone links, and mailto email links
+- "Register kid" shortcut directly from the dashboard
+
+**Satsang Logging**
+- Log by age group (stepper UI) or pick directly from the full roster
+- Class tracking: Satsang, Bal Mandal, Kirtan, Instrument, Dance
+- Today's date pre-filled; reporter name captured for accountability
+
+**Events**
+- Add and delete upcoming events with date validation (MM/DD/YYYY)
+- Future events surface automatically on the dashboard
+
+**Goals**
+- Three free-text Q2 goal fields per mandir
+- Autosave — debounced 900 ms after the last keystroke, no save button needed
+
+**Tier System**
+- Clear requirements table: active leaders, average kids, classes/week, events, regional signups
+- Platinum / Gold / Silver / Bronze / Standard with color-coded columns
+
+**AI Assistant**
+- Conversational interface connected to a custom AWS Lambda endpoint
+- Suggested prompts for common questions (tier requirements, lesson plans, events)
+
+**Auth**
+- AWS Cognito with JWT session tokens
+- Each mandir gets its own login; admins see all mandirs
+- Sessions persist across page refreshes via a localStorage UUID fallback
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 14 (Pages Router), React 18 |
+| UI | MUI v6 (layout scaffolding), custom `.yd-*` CSS design system |
+| Animations | Framer Motion |
+| Auth | AWS Cognito (`amazon-cognito-identity-js`) |
+| Backend | AWS API Gateway + Lambda (REST) |
+| Charts | Recharts |
+| Fonts | Space Grotesk, DM Sans |
+
+---
+
+## Architecture Highlights
+
+**Custom design system** — All UI is built with a handwritten CSS token system using `oklch()` color format (`--cream`, `--ink`, `--accent`). Consistent spacing, borders, and animations across every page without component-library lock-in.
+
+**Mandir routing** — Non-admin users are matched to their mandir by normalizing their email prefix against a mandir list (`colonia@nndym.org` → `"Colonia"`). No extra config needed to onboard a new mandir.
+
+**Client-side data fetching** — All data loads via custom hooks (`useKidsAttendance`, `useLeaderboard`). No `getServerSideProps`, no blocking waterfalls. The home leaderboard fetches all active mandirs in parallel.
+
+**Skeleton loading** — The dashboard shows a shimmer skeleton matching the exact page layout while data fetches, eliminating layout shift on load.
+
+**Debounced autosave** — Goal inputs save to the backend 900 ms after typing stops. Brief "Saved" confirmation follows — no save button, no accidental data loss.
+
+**Session resilience** — Cognito stores tokens under the user's UUID (not email). A `app_last_auth_user` localStorage key ensures sessions survive page refreshes without the user having to log in again.
+
+---
 
 ## Getting Started
 
-Follow these steps to set up and run the project locally:
+```bash
+npm install
+npm run dev      # localhost:3000
+npm run build    # production build
+npm run lint
+```
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [repository-url]
-    cd nndym-youth-dashboard
-    ```
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    # or
-    yarn install
-    ```
-3.  **Configure Environment Variables (if any):**
-    *   If the project connects to a backend, ensure `apiInfo` in `utils/api.js` is correctly configured.
-    *   Refer to `.env.example` or project documentation for required environment variables.
-4.  **Run the development server:**
-    ```bash
-    npm run dev
-    # or
-    yarn dev
-    ```
-    Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
-
-## Project Structure (High-Level)
-
-*   `components/`: Reusable UI components.
-    *   `kids-attendance/`: Components specific to the kids attendance dashboard (e.g., charts, forms).
-*   `hooks/`: Custom React Hooks for encapsulating reusable logic (e.g., `useKidsAttendance`).
-*   `pages/`: Next.js pages (e.g., `index.js`, `kids-attendance.js`, `register.js`).
-*   `public/`: Static assets.
-*   `styles/`: Global styles and Material-UI theme configuration.
-*   `utils/`: Utility functions (e.g., API calls, date calculations, activity processing).
-
-## Contributing
-
-Contributions are welcome! Please follow the project's code style and submit pull requests for new features or bug fixes.
-
-## Support & Contact
-
-For any questions or support, please contact the development team.
-
-shiv.rathod@nndym.org
+> Requires AWS Cognito user pool credentials and API Gateway endpoints configured in `utils/auth.js` and `utils/api.js`.
 
 ---
+
+## Project Structure
+
+```
+pages/              # Next.js pages (home, kids-attendance, register, …)
+components/         # Shared components (Navbar, Layout, Icon, …)
+  kids-attendance/  # Dashboard sub-components
+  common/           # Icon, SectionLabel
+hooks/              # useKidsAttendance, useLeaderboard
+utils/              # auth.js, api.js, mandirs.js, activities.js
+styles/             # global.css (design tokens + .yd-* classes)
+public/             # Static assets, screenshots
+```
+
+---
+
+*Built for NNDYM — Nar Narayan Dev Yuvak Mandal, fostering spiritual growth, cultural values, and community service among youth.*
