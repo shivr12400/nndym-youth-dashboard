@@ -1,117 +1,80 @@
-import { Box, Container, Typography, Link, IconButton, Divider } from '@mui/material';
+import Link from 'next/link';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import YouTubeIcon from '@mui/icons-material/YouTube';
-import Image from 'next/image';
 
 const links = [
-    { label: 'Home',                   href: '/' },
-    { label: 'Information',            href: '/information' },
-    { label: 'Register',               href: '/register' },
-    { label: 'Submit Satsang',         href: '/submit-satsang' },
-    { label: 'Feedback',               href: '/feedback' },
+    { label: 'Home',         href: '/' },
+    { label: 'Tiers & Info', href: '/information' },
+    { label: 'Register',     href: '/register' },
+    { label: 'Log Satsang',  href: '/submit-satsang' },
+    { label: 'Feedback',     href: '/feedback' },
 ];
 
 const social = [
-    { icon: <InstagramIcon fontSize="small" />, href: 'https://www.instagram.com/officialnndym/', label: 'Instagram' },
-    { icon: <FacebookIcon  fontSize="small" />, href: 'https://www.facebook.com/officialnndym',  label: 'Facebook' },
-    { icon: <YouTubeIcon   fontSize="small" />, href: 'https://youtube.com/nndym',               label: 'YouTube' },
+    { icon: <InstagramIcon sx={{ fontSize: 16 }} />, href: 'https://www.instagram.com/officialnndym/', label: 'Instagram' },
+    { icon: <FacebookIcon  sx={{ fontSize: 16 }} />, href: 'https://www.facebook.com/officialnndym',  label: 'Facebook' },
+    { icon: <YouTubeIcon   sx={{ fontSize: 16 }} />, href: 'https://youtube.com/nndym',               label: 'YouTube' },
 ];
 
-const LINK_SX = {
-    display: 'block',
-    mb: 1,
-    fontSize: '0.825rem',
-    color: 'rgba(255,255,255,0.55)',
-    textDecoration: 'none',
-    transition: 'color 0.18s',
-    '&:hover': { color: 'white' },
-};
+function NLogo({ size = 24 }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden>
+            <circle cx="16" cy="16" r="14" fill="currentColor" />
+            <path d="M11 10v12M11 10l10 12M21 10v12" stroke="#F9F5EE" strokeWidth="2.4" strokeLinecap="round" />
+        </svg>
+    );
+}
 
 export default function Footer() {
     return (
-        <Box
-            component="footer"
-            sx={{
-                bgcolor: '#0a3a6e',
-                color: 'white',
-                borderTop: '1px solid rgba(255,255,255,0.07)',
-            }}
-        >
-            <Container maxWidth="lg">
-
-                {/* Main row */}
-                <Box sx={{
-                    py: 5,
-                    display: 'grid',
-                    gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '2fr 1fr 1fr' },
-                    gap: 4,
-                }}>
-                    {/* Brand */}
-                    <Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-                            <Image src="/nndym.png" alt="NNDYM" width={28} height={36} style={{ objectFit: 'contain' }} />
-                            <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: 'white' }}>
-                                NNDYM
-                            </Typography>
-                        </Box>
-                        <Typography sx={{ fontSize: '0.825rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 300 }}>
-                            Nar Narayan Dev Yuvak Mandal — fostering spiritual growth, cultural values, and community service among youth.
-                        </Typography>
-                        <Box sx={{ display: 'flex', gap: 0.5, mt: 2.5 }}>
-                            {social.map(({ icon, href, label }) => (
-                                <IconButton
-                                    key={label}
-                                    aria-label={label}
-                                    href={href}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    size="small"
-                                    sx={{
-                                        color: 'rgba(255,255,255,0.45)',
-                                        transition: 'color 0.18s',
-                                        '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.08)' },
-                                    }}
-                                >
-                                    {icon}
-                                </IconButton>
-                            ))}
-                        </Box>
-                    </Box>
-
-                    {/* Quick links */}
-                    <Box>
-                        <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.35)', mb: 2 }}>
-                            Quick Links
-                        </Typography>
-                        {links.map(({ label, href }) => (
-                            <Link key={href} href={href} sx={LINK_SX}>
-                                {label}
-                            </Link>
+        <footer className="yd-footer">
+            <div className="yd-footer__inner">
+                {/* Brand */}
+                <div>
+                    <div className="yd-footer__brand">
+                        <span style={{ color: 'var(--ink)' }}><NLogo size={24} /></span>
+                        <span className="yd-footer__name">NNDYM</span>
+                    </div>
+                    <p className="yd-footer__tagline">
+                        Nar Narayan Dev Yuvak Mandal — fostering spiritual growth, cultural values, and community service among youth.
+                    </p>
+                    <div className="yd-footer__social">
+                        {social.map(({ icon, href, label }) => (
+                            <a
+                                key={label}
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={label}
+                                className="yd-footer__socbtn"
+                            >
+                                {icon}
+                            </a>
                         ))}
-                    </Box>
+                    </div>
+                </div>
 
-                    {/* Contact */}
-                    <Box>
-                        <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.35)', mb: 2 }}>
-                            Contact
-                        </Typography>
-                        <Link href="mailto:nndym.usa@gmail.com" sx={LINK_SX}>
-                            nndym.usa@gmail.com
+                {/* Quick links */}
+                <div>
+                    <p className="yd-footer__col-label">Quick Links</p>
+                    {links.map(({ label, href }) => (
+                        <Link key={href} href={href} className="yd-footer__link">
+                            {label}
                         </Link>
-                        <Link href="https://www.nndym.org" target="_blank" rel="noopener noreferrer" sx={LINK_SX}>
-                            www.nndym.org
-                        </Link>
-                    </Box>
-                </Box>
+                    ))}
+                </div>
 
-                {/* Bottom bar */}
-                <Box sx={{ borderTop: '1px solid rgba(255,255,255,0.07)', py: 2.5, display: 'flex', justifyContent: 'center' }}>
-                    <Typography sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
-                        © {new Date().getFullYear()} Nar Narayan Dev Yuvak Mandal. All rights reserved.
-                    </Typography>
-                </Box>
-            </Container>
-        </Box>
+                {/* Contact */}
+                <div>
+                    <p className="yd-footer__col-label">Contact</p>
+                    <a href="mailto:nndym.usa@gmail.com" className="yd-footer__link">nndym.usa@gmail.com</a>
+                    <a href="https://www.nndym.org" target="_blank" rel="noopener noreferrer" className="yd-footer__link">www.nndym.org</a>
+                </div>
+            </div>
+            <div className="yd-footer__bottom">
+                © {new Date().getFullYear()} Nar Narayan Dev Yuvak Mandal. All rights reserved.
+            </div>
+        </footer>
     );
 }

@@ -1,170 +1,164 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import {
-    AppBar, Toolbar, Box, Container, IconButton,
-    Drawer, List, ListItem, ListItemText, Typography,
-} from '@mui/material';
+import { Drawer, List, ListItem, ListItemText, IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
-import { motion, AnimatePresence } from 'framer-motion';
+import { getUserEmail } from '../utils/auth';
+import { mandirs } from '../utils/mandirs';
 
-const navItems = [
-    { label: 'Home',                    path: '/' },
-    { label: 'Submit Satsang',          path: '/submit-satsang' },
-    { label: 'Register',                path: '/register' },
-    { label: 'Information',             path: '/information' },
-    { label: 'Feedback',                path: '/feedback' },
-    { label: 'AI Assistant',            path: '/chatbot' },
-];
+function normalize(str) {
+    return str.toLowerCase().replace(/[\s-]/g, '');
+}
+
+function getMandirPath(email) {
+    if (!email) return '/kids-attendance';
+    const prefix = email.split('@')[0];
+    if (prefix === 'admin') return '/kids-attendance';
+    const match = mandirs.find(m => normalize(m.mandirName) === normalize(prefix));
+    return match ? `/kids-attendance?mandirName=${encodeURIComponent(match.mandirName)}` : '/kids-attendance';
+}
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const [mandirPath, setMandirPath] = useState('/kids-attendance');
     const router = useRouter();
+    const isMobile = useMediaQuery('(max-width: 860px)');
+
+    useEffect(() => {
+        getUserEmail().then(email => setMandirPath(getMandirPath(email)));
+    }, []);
+
+    const navItems = [
+        { label: 'Home',         path: '/' },
+        { label: 'My Mandir',    path: mandirPath },
+        { label: 'Log Satsang',  path: '/submit-satsang' },
+        { label: 'Register',     path: '/register' },
+        { label: 'Tiers & Info', path: '/information' },
+        { label: 'Feedback',     path: '/feedback' },
+        { label: 'AI Assistant', path: '/chatbot' },
+    ];
 
     const isActive = (path) =>
-        path === '/' ? router.pathname === '/' : router.pathname.startsWith(path);
+        path === '/' ? router.pathname === '/' : router.pathname.startsWith(path.split('?')[0]);
 
     const isLoginPage = router.pathname === '/login';
 
     return (
-        <AppBar
-            position="sticky"
-            elevation={0}
-            sx={{
-                top: 0,
-                zIndex: 1200,
-                background: 'rgba(9, 77, 146, 0.96)',
-                backdropFilter: 'blur(14px)',
-                WebkitBackdropFilter: 'blur(14px)',
-                borderBottom: '1px solid rgba(255,255,255,0.08)',
-            }}
-        >
-            <Container maxWidth="lg">
-                <Toolbar disableGutters sx={{ minHeight: 64 }}>
+        <header className="yd-nav">
+            <div className="yd-nav__inner">
+                {/* Brand */}
+                <Link href="/" className="yd-nav__brand" style={{ textDecoration: 'none' }}>
+                    <Image
+                        src="/blacknndym.png"
+                        alt="NNDYM logo"
+                        width={100}
+                        height={32}
+                        style={{ objectFit: 'contain', display: 'block' }}
+                        priority
+                    />
+                </Link>
 
-                    {/* Logo */}
-                    <Link href="/" passHref style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-                        <Image src="/nndym.png" alt="NNDYM" width={32} height={42} style={{ objectFit: 'contain' }} />
-                    </Link>
+                {/* Desktop nav links */}
+                {!isMobile && !isLoginPage && (
+                    <nav className="yd-nav__links">
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.path}
+                                href={item.path}
+                                className={`yd-nav__link ${isActive(item.path) ? 'is-active' : ''}`}
+                            >
+                                {item.label}
+                            </Link>
+                        ))}
+                    </nav>
+                )}
 
-                    <Box sx={{ flex: 1 }} />
+                {(isMobile || isLoginPage) && <div style={{ flex: 1 }} />}
 
-                    {/* Desktop nav */}
-                    {!isMobile && !isLoginPage && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            {navItems.map((item) => {
-                                const active = isActive(item.path);
-                                return (
-                                    <Link key={item.path} href={item.path} passHref style={{ textDecoration: 'none' }}>
-                                        <Box
-                                            component="span"
-                                            sx={{
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                px: 1.5,
-                                                py: 0.75,
-                                                borderRadius: 1.5,
-                                                fontSize: '0.8rem',
-                                                fontWeight: active ? 600 : 400,
-                                                color: active ? 'white' : 'rgba(255,255,255,0.68)',
-                                                bgcolor: active ? 'rgba(255,255,255,0.12)' : 'transparent',
-                                                cursor: 'pointer',
-                                                transition: 'color 0.18s, background 0.18s',
-                                                '&:hover': {
-                                                    color: 'white',
-                                                    bgcolor: 'rgba(255,255,255,0.09)',
-                                                },
-                                            }}
-                                        >
-                                            {item.label}
-                                        </Box>
-                                    </Link>
-                                );
-                            })}
-                        </Box>
-                    )}
-
-                    {/* Mobile menu button */}
-                    {isMobile && !isLoginPage && (
-                        <IconButton
-                            onClick={() => setOpen(true)}
-                            sx={{ color: 'white', ml: 1 }}
-                            aria-label="open menu"
+                {/* Right side */}
+                {!isLoginPage && (
+                    <div className="yd-nav__right">
+                        <div
+                            className="yd-avatar yd-avatar--coral"
+                            style={{ width: 36, height: 36, fontSize: 14 }}
                         >
-                            <MenuIcon />
-                        </IconButton>
-                    )}
-                </Toolbar>
-            </Container>
+                            ML
+                        </div>
+                        {isMobile && (
+                            <IconButton
+                                onClick={() => setOpen(true)}
+                                aria-label="open menu"
+                                sx={{
+                                    color: 'var(--ink)',
+                                    border: '1px solid var(--line)',
+                                    borderRadius: '999px',
+                                    width: 40, height: 40,
+                                    background: 'var(--surface)',
+                                }}
+                            >
+                                <MenuIcon fontSize="small" />
+                            </IconButton>
+                        )}
+                    </div>
+                )}
+            </div>
 
-            {/* Mobile drawer */}
+            {/* Mobile Drawer */}
             <Drawer
                 anchor="right"
                 open={open}
                 onClose={() => setOpen(false)}
                 PaperProps={{
                     sx: {
-                        width: { xs: 240, sm: 260 },
-                        bgcolor: '#094D92',
-                        color: 'white',
-                        pt: 2,
+                        width: 260,
+                        bgcolor: 'var(--surface)',
+                        color: 'var(--ink)',
+                        pt: 1,
+                        borderLeft: '1px solid var(--line)',
                     },
                 }}
             >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2.5, pb: 2, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                    <Image src="/nndym.png" alt="NNDYM" width={28} height={36} style={{ objectFit: 'contain' }} />
-                    <IconButton onClick={() => setOpen(false)} sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.25rem 0.75rem', borderBottom: '1px solid var(--line)' }}>
+                    <span style={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, fontSize: '1rem', color: 'var(--ink)' }}>
+                        Menu
+                    </span>
+                    <IconButton onClick={() => setOpen(false)} sx={{ color: 'var(--ink-3)' }}>
                         <CloseIcon fontSize="small" />
                     </IconButton>
-                </Box>
-
-                <AnimatePresence>
-                    {open && (
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.22, ease: 'easeOut' }}
-                        >
-                            <List sx={{ pt: 1 }}>
-                                {navItems.map((item) => {
-                                    const active = isActive(item.path);
-                                    return (
-                                        <Link key={item.path} href={item.path} passHref style={{ textDecoration: 'none', color: 'inherit' }}>
-                                            <ListItem
-                                                onClick={() => setOpen(false)}
-                                                sx={{
-                                                    borderRadius: 1.5,
-                                                    mx: 1,
-                                                    px: 2,
-                                                    mb: 0.5,
-                                                    bgcolor: active ? 'rgba(255,255,255,0.12)' : 'transparent',
-                                                    '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
-                                                    cursor: 'pointer',
-                                                }}
-                                            >
-                                                <ListItemText
-                                                    primary={item.label}
-                                                    primaryTypographyProps={{
-                                                        fontSize: '0.9rem',
-                                                        fontWeight: active ? 600 : 400,
-                                                        color: active ? 'white' : 'rgba(255,255,255,0.72)',
-                                                    }}
-                                                />
-                                            </ListItem>
-                                        </Link>
-                                    );
-                                })}
-                            </List>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                </div>
+                <List sx={{ pt: 0.5, px: 0.75 }}>
+                    {navItems.map((item) => {
+                        const active = isActive(item.path);
+                        return (
+                            <Link key={item.path} href={item.path} style={{ textDecoration: 'none' }} onClick={() => setOpen(false)}>
+                                <ListItem
+                                    sx={{
+                                        borderRadius: '999px',
+                                        mb: 0.25,
+                                        px: 1.5,
+                                        bgcolor: active ? 'var(--ink)' : 'transparent',
+                                        '&:hover': { bgcolor: active ? 'var(--ink)' : 'var(--cream-2)' },
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    <ListItemText
+                                        primary={item.label}
+                                        primaryTypographyProps={{
+                                            fontFamily: '"DM Sans", sans-serif',
+                                            fontSize: '0.92rem',
+                                            fontWeight: active ? 600 : 500,
+                                            color: active ? 'var(--cream)' : 'var(--ink-2)',
+                                        }}
+                                    />
+                                </ListItem>
+                            </Link>
+                        );
+                    })}
+                </List>
             </Drawer>
-        </AppBar>
+        </header>
     );
 }

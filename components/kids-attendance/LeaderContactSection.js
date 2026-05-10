@@ -1,80 +1,96 @@
-import { Card, CardContent, Typography, Grid, IconButton, TextField, Box, Stack, Divider } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import CloseIcon from '@mui/icons-material/Close';
+import { useState } from 'react';
+import Icon from '../common/Icon';
 
-function LeaderColumn({ leaderInfo, isEditing, handleInputChange, handleSubmit, setIsEditing }) {
+function initials(name) {
+    if (!name) return '?';
+    return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+}
+
+const TONES = ['coral', 'mint', 'lilac'];
+
+function LeaderCard({ leaderInfo, isEditing, handleInputChange, handleSubmit, setIsEditing, tone }) {
+    if (isEditing) {
+        return (
+            <div className="yd-card yd-leader">
+                <form
+                    className="yd-leader__form"
+                    onSubmit={e => { e.preventDefault(); handleSubmit(); }}
+                    noValidate
+                >
+                    <input
+                        className="yd-input"
+                        name="leaderName"
+                        value={leaderInfo.leaderName}
+                        onChange={handleInputChange}
+                        placeholder="Name"
+                        style={{ minHeight: 40, padding: '0.55rem 0.85rem' }}
+                    />
+                    <input
+                        className="yd-input"
+                        name="leaderEmail"
+                        value={leaderInfo.leaderEmail}
+                        onChange={handleInputChange}
+                        placeholder="Email"
+                        style={{ minHeight: 40, padding: '0.55rem 0.85rem' }}
+                    />
+                    <input
+                        className="yd-input"
+                        name="leaderPhone"
+                        value={leaderInfo.leaderPhone}
+                        onChange={handleInputChange}
+                        placeholder="Phone"
+                        style={{ minHeight: 40, padding: '0.55rem 0.85rem' }}
+                    />
+                    <div className="yd-leader__actions">
+                        <button type="submit" className="yd-iconbtn yd-iconbtn--small" title="Save">
+                            <Icon name="save" size={14} />
+                        </button>
+                        <button type="button" className="yd-iconbtn yd-iconbtn--small" onClick={() => setIsEditing(false)} title="Cancel">
+                            <Icon name="close" size={14} />
+                        </button>
+                    </div>
+                </form>
+            </div>
+        );
+    }
+
     return (
-        <Box>
-            {isEditing ? (
-                <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} noValidate>
-                    <TextField
-                        size="small" fullWidth label="Name"
-                        name="leaderName" value={leaderInfo.leaderName}
-                        onChange={handleInputChange} sx={{ mb: 1 }}
-                    />
-                    <TextField
-                        size="small" fullWidth label="Email"
-                        name="leaderEmail" value={leaderInfo.leaderEmail}
-                        onChange={handleInputChange} sx={{ mb: 1 }}
-                    />
-                    <TextField
-                        size="small" fullWidth label="Phone"
-                        name="leaderPhone" value={leaderInfo.leaderPhone}
-                        onChange={handleInputChange} sx={{ mb: 1 }}
-                    />
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                        <IconButton size="small" color="primary" type="submit">
-                            <SaveIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" onClick={() => setIsEditing(false)}>
-                            <CloseIcon fontSize="small" />
-                        </IconButton>
-                    </Box>
-                </Box>
-            ) : (
-                <Stack spacing={0.5} alignItems="center">
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Typography variant="body2" fontWeight={500}>
-                            {leaderInfo.leaderName || '—'}
-                        </Typography>
-                        <IconButton size="small" onClick={() => setIsEditing(true)} sx={{ p: 1 }}>
-                            <EditIcon sx={{ fontSize: 16 }} />
-                        </IconButton>
-                    </Box>
-                    <Typography variant="body2" component="a" href={`mailto:${leaderInfo.leaderEmail}`} color="text.secondary" sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
-                        {leaderInfo.leaderEmail || '—'}
-                    </Typography>
-                    <Typography variant="body2" component="a" href={`tel:${leaderInfo.leaderPhone}`} color="text.secondary" sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
-                        {leaderInfo.leaderPhone || '—'}
-                    </Typography>
-                </Stack>
+        <div className="yd-card yd-leader">
+            <div className="yd-leader__top">
+                <div
+                    className={`yd-avatar yd-avatar--${tone}`}
+                    style={{ width: 52, height: 52, fontSize: 20 }}
+                >
+                    {initials(leaderInfo.leaderName)}
+                </div>
+                <button className="yd-iconbtn yd-iconbtn--small" onClick={() => setIsEditing(true)} title="Edit">
+                    <Icon name="edit" size={14} />
+                </button>
+            </div>
+            <div className="yd-leader__name">{leaderInfo.leaderName || '—'}</div>
+            <div className="yd-leader__role">{leaderInfo.leaderRole || 'Leader'}</div>
+            {leaderInfo.leaderPhone && (
+                <a className="yd-leader__phone" href={`tel:${leaderInfo.leaderPhone}`}>
+                    <Icon name="phone" size={14} />
+                    {leaderInfo.leaderPhone}
+                </a>
             )}
-        </Box>
+            {leaderInfo.leaderEmail && (
+                <a className="yd-leader__phone" href={`mailto:${leaderInfo.leaderEmail}`} style={{ marginTop: '0.4rem' }}>
+                    <Icon name="send" size={14} />
+                    {leaderInfo.leaderEmail}
+                </a>
+            )}
+        </div>
     );
 }
 
 export default function LeaderContactSection({ leaders }) {
     return (
-        <Card sx={{ mb: 4 }}>
-            <CardContent>
-                <Typography variant="h5" sx={{ mb: 3 }}>
-                    Leader Contact Information
-                </Typography>
-                <Grid container justifyContent="center">
-                    {leaders.map((leader, i) => (
-                        <Grid item xs={12} sm={4} key={i} sx={{
-                            px: 2,
-                            borderRight: i < leaders.length - 1 ? { sm: '1px solid', xs: 'none' } : 'none',
-                            borderColor: 'divider',
-                            pb: { xs: 2, sm: 0 },
-                            ...(i > 0 && { borderTop: { xs: '1px solid', sm: 'none' }, borderTopColor: 'divider', pt: { xs: 2, sm: 0 } }),
-                        }}>
-                            <LeaderColumn {...leader} />
-                        </Grid>
-                    ))}
-                </Grid>
-            </CardContent>
-        </Card>
+        <div className="yd-row yd-row--3" style={{ marginBottom: '1.25rem' }}>
+            {leaders.map((leader, i) => (
+                <LeaderCard key={i} {...leader} tone={TONES[i % TONES.length]} />
+            ))}
+        </div>
     );
 }

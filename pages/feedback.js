@@ -1,19 +1,10 @@
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Box, Alert, CircularProgress } from '@mui/material';
+import { Container } from '@mui/material';
 import Layout from '../components/Layout';
 import { motion } from 'framer-motion';
 import { apiInfo } from '../utils/api';
 import { getSessionToken } from '../utils/auth';
-import SectionLabel from '../components/common/SectionLabel';
-
-const CARD = {
-    border: '1px solid',
-    borderColor: 'divider',
-    boxShadow: 'none',
-    borderRadius: 2,
-    bgcolor: 'background.paper',
-    p: 3,
-};
+import Icon from '../components/common/Icon';
 
 export default function Feedback() {
     const [name, setName] = useState('');
@@ -24,9 +15,9 @@ export default function Feedback() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!message.trim()) return;
         setLoading(true);
         setError('');
-        setSubmitted(false);
 
         try {
             const token = await getSessionToken();
@@ -34,26 +25,20 @@ export default function Feedback() {
 
             const response = await fetch(apiInfo.feedback.post, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `${token}`,
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Authorization': `${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, message }),
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to submit feedback');
+                const data = await response.json();
+                throw new Error(data.message || 'Failed to submit feedback');
             }
 
             setName('');
             setMessage('');
             setSubmitted(true);
-            setTimeout(() => setSubmitted(false), 5000);
-
         } catch (err) {
             setError(err.message);
-            setTimeout(() => setError(''), 5000);
         } finally {
             setLoading(false);
         }
@@ -67,61 +52,68 @@ export default function Feedback() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35 }}
                 >
-                    <Box sx={{ mb: 4 }}>
-                        <Typography variant="h1" component="h1" color="primary" sx={{ mb: 0.5 }}>
-                            Feedback
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Share suggestions or features you'd like to see — we read everything.
-                        </Typography>
-                    </Box>
+                    <div className="yd-page yd-page--narrow">
 
-                    {submitted && (
-                        <Alert severity="success" sx={{ mb: 3, borderRadius: 1.5 }}>
-                            Thank you for your feedback!
-                        </Alert>
-                    )}
-                    {error && (
-                        <Alert severity="error" sx={{ mb: 3, borderRadius: 1.5 }}>
-                            {error}
-                        </Alert>
-                    )}
+                        <div className="yd-card yd-submit">
+                            {submitted ? (
+                                <div className="yd-success">
+                                    <div className="yd-success__check">
+                                        <Icon name="check" size={36} stroke={3} />
+                                    </div>
+                                    <h2>Thanks for the feedback!</h2>
+                                    <p>We read every note. The team will get back to you if needed.</p>
+                                    <div className="yd-submit__actions" style={{ justifyContent: 'center' }}>
+                                        <button className="yd-btn yd-btn--primary" onClick={() => setSubmitted(false)}>
+                                            Send another
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="yd-submit__eyebrow">Feedback</div>
+                                    <h1 className="yd-submit__title">Tell us what&apos;s up</h1>
+                                    <p className="yd-submit__sub">Bugs, ideas, things we should fix — all welcome.</p>
 
-                    <Box sx={CARD}>
-                        <SectionLabel>Your Message</SectionLabel>
-                        <Box component="form" onSubmit={handleSubmit} noValidate>
-                            <TextField
-                                margin="dense"
-                                required
-                                fullWidth
-                                label="Name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                size="small"
-                                autoFocus
-                                sx={{ mb: 1.5 }}
-                            />
-                            <TextField
-                                margin="dense"
-                                required
-                                fullWidth
-                                label="Message / Suggestions"
-                                multiline
-                                rows={6}
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                size="small"
-                            />
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                sx={{ mt: 2.5, textTransform: 'none', borderRadius: 1.5, fontWeight: 600, px: 3 }}
-                                disabled={loading}
-                            >
-                                {loading ? <CircularProgress size={22} color="inherit" /> : 'Submit Feedback'}
-                            </Button>
-                        </Box>
-                    </Box>
+                                    <form onSubmit={handleSubmit} noValidate>
+                                        <div className="yd-submit__field">
+                                            <label htmlFor="fb-name">Your name</label>
+                                            <input
+                                                id="fb-name"
+                                                className="yd-input"
+                                                type="text"
+                                                placeholder="Optional"
+                                                value={name}
+                                                onChange={e => setName(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="yd-submit__field">
+                                            <label htmlFor="fb-msg">Message</label>
+                                            <textarea
+                                                id="fb-msg"
+                                                className="yd-input yd-textarea"
+                                                rows={6}
+                                                placeholder="What's on your mind?"
+                                                value={message}
+                                                onChange={e => setMessage(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+
+                                        {error && (
+                                            <p style={{ color: 'oklch(0.55 0.15 20)', fontSize: '0.88rem', margin: '0 0 1rem' }}>{error}</p>
+                                        )}
+
+                                        <div className="yd-submit__actions">
+                                            <button type="submit" className="yd-btn yd-btn--primary" disabled={loading || !message.trim()}>
+                                                <Icon name="send" size={16} />
+                                                <span>{loading ? 'Sending…' : 'Send'}</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </>
+                            )}
+                        </div>
+                    </div>
                 </motion.div>
             </Container>
         </Layout>

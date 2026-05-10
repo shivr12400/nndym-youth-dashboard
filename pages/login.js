@@ -149,7 +149,7 @@ export default function Login({ setIsAuthenticated, setUserEmail }) {
                     <Box sx={{ ...CARD, overflow: 'hidden' }}>
                         {/* Gradient header */}
                         <Box sx={{
-                            background: 'linear-gradient(145deg, #094D92 0%, #1976d2 100%)',
+                            background: 'var(--ink)',
                             px: 4,
                             pt: 4,
                             pb: 3.5,
@@ -157,6 +157,18 @@ export default function Login({ setIsAuthenticated, setUserEmail }) {
                             flexDirection: 'column',
                             alignItems: 'center',
                             gap: 2,
+                            position: 'relative',
+                            overflow: 'hidden',
+                            '&::before': {
+                                content: '""',
+                                position: 'absolute',
+                                right: -40, top: -40,
+                                width: 160, height: 160,
+                                borderRadius: '50%',
+                                background: 'var(--coral)',
+                                opacity: 0.18,
+                                pointerEvents: 'none',
+                            },
                         }}>
                             <Image src="/nndym.png" alt="NNDYM" width={40} height={52} style={{ objectFit: 'contain' }} />
                             <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: 'rgba(255,255,255,0.9)', letterSpacing: 0.5 }}>

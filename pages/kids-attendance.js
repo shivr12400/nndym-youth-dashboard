@@ -1,10 +1,5 @@
-import React from 'react';
-import {
-    Container, Typography, Button, CircularProgress,
-    Box, Grid, Paper, Table, TableBody, TableCell,
-    TableContainer, TableHead, TableRow, TextField, Snackbar, Alert,
-} from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import React, { useRef, useState } from 'react';
+import { Container, Box } from '@mui/material';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import Layout from '../components/Layout';
@@ -17,38 +12,18 @@ import KidsListTable from '../components/kids-attendance/KidsListTable';
 import GenderDistributionChart from '../components/kids-attendance/GenderDistributionChart';
 import KidsOverTimeChart from '../components/kids-attendance/KidsOverTimeChart';
 import { activities } from '../utils/activities';
-import SectionLabel from '../components/common/SectionLabel';
+import Icon from '../components/common/Icon';
 
-// ── Design tokens ────────────────────────────────────────────
 const TIERS = [
-    { label: 'Standard', min: 0,  color: '#78909C' },
-    { label: 'Bronze',   min: 30, color: '#CD7F32' },
-    { label: 'Silver',   min: 35, color: '#C0C0C0' },
+    { label: 'Standard', min: 0 },
+    { label: 'Bronze',   min: 30 },
+    { label: 'Silver',   min: 35 },
+    { label: 'Gold',     min: 50 },
 ];
-const MAX_TRACK = 42;
+const MAX_TRACK = 55;
 
-const CARD = {
-    p: 3,
-    borderRadius: 2,
-    border: '1px solid',
-    borderColor: 'divider',
-    boxShadow: 'none',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    bgcolor: 'background.paper',
-};
-
-const stagger = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.09 } },
-};
-const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    show:   { opacity: 1, y: 0, transition: { duration: 0.38, ease: 'easeOut' } },
-};
-
-// ── Sub-components ───────────────────────────────────────────
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.09 } } };
+const fadeUp  = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: 'easeOut' } } };
 
 function TierTrack({ averageKids }) {
     const pct = Math.min((averageKids / MAX_TRACK) * 100, 100);
@@ -57,60 +32,87 @@ function TierTrack({ averageKids }) {
     const needed = next ? Math.max(0, next.min - averageKids) : 0;
 
     return (
-        <Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+        <div className="yd-tier">
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.75rem', color: 'oklch(1 0 0 / 0.55)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                     Tier Progress
-                </Typography>
-                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
-                    {next
-                        ? needed > 0 ? `${needed} more to reach ${next.label}` : `${next.label} reached!`
-                        : 'Top tier achieved 🎉'}
-                </Typography>
-            </Box>
-
-            {/* Track */}
-            <Box sx={{ position: 'relative', height: 6, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.18)' }}>
-                <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${pct}%` }}
-                    transition={{ duration: 1.1, ease: 'easeOut', delay: 0.5 }}
-                    style={{ position: 'absolute', top: 0, left: 0, height: '100%', borderRadius: 3, background: 'rgba(255,255,255,0.85)' }}
-                />
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'oklch(1 0 0 / 0.55)' }}>
+                    {next ? (needed > 0 ? `${needed} more to ${next.label}` : `${next.label} reached!`) : 'Top tier 🎉'}
+                </span>
+            </div>
+            <div className="yd-tier__track">
+                <div className="yd-tier__fill" style={{ width: `${pct}%` }} />
                 {TIERS.filter(t => t.min > 0).map(t => (
-                    <Box key={t.label} sx={{
-                        position: 'absolute',
-                        left: `${(t.min / MAX_TRACK) * 100}%`,
-                        top: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: 10, height: 10,
-                        borderRadius: '50%',
-                        bgcolor: averageKids >= t.min ? 'white' : 'rgba(255,255,255,0.3)',
-                        border: '2px solid rgba(255,255,255,0.5)',
-                    }} />
+                    <div key={t.label} className="yd-tier__milestone" style={{ left: `${(t.min / MAX_TRACK) * 100}%` }}>
+                        <div className={`yd-tier__dot${averageKids >= t.min ? ' is-reached' : ''}`} />
+                        <div className="yd-tier__milelabel">{t.label}<span>{t.min}+</span></div>
+                    </div>
                 ))}
-            </Box>
-
-            {/* Labels */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                {TIERS.map((t, i) => (
-                    <Typography key={t.label} sx={{
-                        fontSize: '0.7rem',
-                        color: currentIdx === i ? 'white' : 'rgba(255,255,255,0.45)',
-                        fontWeight: currentIdx === i ? 700 : 400,
-                    }}>
-                        {t.label}{t.min > 0 && <span style={{ opacity: 0.55 }}> ({t.min}+)</span>}
-                    </Typography>
-                ))}
-            </Box>
-        </Box>
+            </div>
+        </div>
     );
 }
 
-// ── Page ─────────────────────────────────────────────────────
+function SectionHeader({ icon, title, sub, action }) {
+    return (
+        <div className="yd-sec">
+            <div className="yd-sec__left">
+                <span className="yd-sec__icon">{icon}</span>
+                <div>
+                    <div className="yd-sec__title">{title}</div>
+                    {sub && <div className="yd-sec__sub">{sub}</div>}
+                </div>
+            </div>
+            {action}
+        </div>
+    );
+}
+
+/* ── Loading skeleton ───────────────────────────────────────── */
+function LoadingSkeleton() {
+    return (
+        <Container maxWidth="lg" sx={{ pt: 4, pb: 10 }}>
+            {/* Hero skeleton */}
+            <div className="yd-mhero" style={{ marginBottom: '3rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                    <div>
+                        <div className="yd-skel--dark" style={{ height: 12, width: 140, marginBottom: '0.6rem' }} />
+                        <div className="yd-skel--dark" style={{ height: 44, width: 260 }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        <div className="yd-skel--dark" style={{ height: 40, width: 90, borderRadius: 999 }} />
+                        <div className="yd-skel--dark" style={{ height: 40, width: 110, borderRadius: 999 }} />
+                    </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', paddingBottom: '1.75rem', marginBottom: '1.75rem', borderBottom: '1px solid oklch(1 0 0 / 0.08)' }}>
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i}>
+                            <div className="yd-skel--dark" style={{ height: 11, width: 90, marginBottom: '0.5rem' }} />
+                            <div className="yd-skel--dark" style={{ height: 40, width: 64, marginBottom: '0.35rem' }} />
+                            <div className="yd-skel--dark" style={{ height: 11, width: 110 }} />
+                        </div>
+                    ))}
+                </div>
+                <div className="yd-skel--dark" style={{ height: 10, borderRadius: 999 }} />
+            </div>
+            {/* Section skeletons */}
+            <div className="yd-skel" style={{ height: 180, marginBottom: '1.5rem' }} />
+            <div className="yd-row yd-row--2" style={{ marginBottom: '1.5rem' }}>
+                <div className="yd-skel" style={{ height: 240 }} />
+                <div className="yd-skel" style={{ height: 240 }} />
+            </div>
+            <div className="yd-skel" style={{ height: 300, marginBottom: '1.5rem' }} />
+            <div className="yd-skel" style={{ height: 200 }} />
+        </Container>
+    );
+}
 
 export default function KidsAttendance({ isAuthenticated }) {
     const router = useRouter();
+    const saveTimerRef = useRef(null);
+    const [goalSavedLabel, setGoalSavedLabel] = useState('');
+
     const {
         mandirName, data, isLoading, error,
         averageKids, tier,
@@ -118,7 +120,6 @@ export default function KidsAttendance({ isAuthenticated }) {
         upcomingEvents, kidsList, upcomingAllEvents,
         isEditing, isEditingTwo, isEditingThree,
         setIsEditing, setIsEditingTwo, setIsEditingThree,
-        openGoalsSnackbar, handleCloseGoalsSnackbar,
         ageDistributionData, genderDistributionData,
         kidsOverTimeData, genderDistributionDataByAgeGroup,
         goals, handleInputChangeGoals, handleSubmitGoals,
@@ -130,6 +131,18 @@ export default function KidsAttendance({ isAuthenticated }) {
         handleDeleteEvent, handleRefreshPage,
         eventsDateError, eventForm, openEvents,
     } = useKidsAttendance(isAuthenticated);
+
+    /* Autosave goals with 900ms debounce */
+    const handleGoalChange = (e) => {
+        handleInputChangeGoals(e);
+        setGoalSavedLabel('');
+        clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = setTimeout(() => {
+            handleSubmitGoals();
+            setGoalSavedLabel('Saved');
+            setTimeout(() => setGoalSavedLabel(''), 2000);
+        }, 900);
+    };
 
     const getOccurrenceCount = (name) => {
         const src = Array.isArray(kidsOverTimeData) ? kidsOverTimeData : data;
@@ -152,216 +165,220 @@ export default function KidsAttendance({ isAuthenticated }) {
     if (isLoading) {
         return (
             <Layout>
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                    <CircularProgress />
-                </Box>
+                <LoadingSkeleton />
             </Layout>
         );
     }
 
-    const classRows = ['Bal Mandal', 'Satsang', 'Kirtan', 'Instrument', 'Dance']
+    const classRows = ['Satsang', 'Bal Mandal', 'Kirtan', 'Instrument', 'Dance']
         .map(n => ({ name: n, count: getOccurrenceCount(n) }))
         .filter(r => r.count > 0);
+
+    const classTones = { Satsang: 'coral', 'Bal Mandal': 'mint', Kirtan: 'lilac', Instrument: 'sun', Dance: 'rose' };
+    const maxCount = Math.max(...classRows.map(r => r.count), 1);
 
     return (
         <Layout>
             <Container maxWidth="lg" sx={{ pt: 4, pb: 10 }}>
 
                 {/* ── Hero ── */}
-                <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: 'easeOut' }}>
-                    <Box sx={{
-                        background: 'linear-gradient(145deg, #094D92 0%, #1565c0 65%, #1976d2 100%)',
-                        borderRadius: 3,
-                        p: { xs: 3, md: 5 },
-                        mb: 6,
-                        position: 'relative',
-                        overflow: 'hidden',
-                    }}>
-                        {/* Decorative shapes */}
-                        <Box sx={{ position: 'absolute', right: -80, top: -80, width: 320, height: 320, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
-                        <Box sx={{ position: 'absolute', right: 50, bottom: -100, width: 220, height: 220, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.03)', pointerEvents: 'none' }} />
+                <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                    <div className="yd-mhero" style={{ marginBottom: '3rem' }}>
+                        <div className="yd-mhero__top">
+                            <div>
+                                <div className="yd-mhero__eyebrow">Mandir dashboard</div>
+                                <div className="yd-mhero__name">{mandirName} Mandir</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', position: 'relative' }}>
+                                <button
+                                    className="yd-btn yd-btn--cream"
+                                    style={{ padding: '0.65rem 1.1rem', minHeight: 40, fontSize: '0.88rem' }}
+                                    onClick={() => router.push('/')}
+                                >
+                                    <Icon name="arrow-left" size={15} />
+                                    <span>Home</span>
+                                </button>
+                                <button
+                                    className="yd-btn yd-btn--cream"
+                                    style={{ padding: '0.65rem 1.1rem', minHeight: 40, fontSize: '0.88rem' }}
+                                    onClick={() => router.push('/submit-satsang')}
+                                >
+                                    <Icon name="plus" size={15} />
+                                    <span>Log satsang</span>
+                                </button>
+                            </div>
+                        </div>
 
-                        {/* Nav */}
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
-                            <Button
-                                onClick={() => router.push('/')}
-                                startIcon={<ArrowBackIcon sx={{ fontSize: 16 }} />}
-                                sx={{ color: 'rgba(255,255,255,0.7)', textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}
-                            >
-                                Home
-                            </Button>
-                            <Button
-                                onClick={() => router.push('/submit-satsang')}
-                                sx={{
-                                    bgcolor: 'rgba(255,255,255,0.12)',
-                                    color: 'white',
-                                    textTransform: 'none',
-                                    fontWeight: 600,
-                                    borderRadius: 2,
-                                    border: '1px solid rgba(255,255,255,0.25)',
-                                    '&:hover': { bgcolor: 'rgba(255,255,255,0.22)', boxShadow: 'none' },
-                                    boxShadow: 'none',
-                                }}
-                            >
-                                Submit Satsang Count
-                            </Button>
-                        </Box>
-
-                        {/* Title */}
-                        <Typography sx={{ color: 'white', fontWeight: 700, fontSize: { xs: '1.75rem', md: '2.25rem' }, mb: 3, lineHeight: 1.2 }}>
-                            {mandirName} Mandir
-                        </Typography>
-
-                        {/* Stat pills */}
-                        <Box sx={{ display: 'flex', gap: { xs: 3, sm: 4 }, mb: 4, flexWrap: 'wrap' }}>
-                            <Box>
-                                <Typography sx={{ color: 'rgba(255,255,255,0.58)', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: 1, mb: 0.5 }}>
-                                    Avg Attendance
-                                </Typography>
-                                <Typography sx={{ color: 'white', fontWeight: 700, fontSize: '2rem', lineHeight: 1 }}>
-                                    {averageKids}
-                                </Typography>
-                            </Box>
-                            <Box sx={{ width: '1px', bgcolor: 'rgba(255,255,255,0.15)', display: { xs: 'none', sm: 'block' } }} />
-                            <Box>
-                                <Typography sx={{ color: 'rgba(255,255,255,0.58)', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: 1, mb: 0.5 }}>
-                                    Current Tier
-                                </Typography>
-                                <Typography sx={{ color: 'white', fontWeight: 700, fontSize: '2rem', lineHeight: 1 }}>
-                                    {tier}
-                                </Typography>
-                            </Box>
-                        </Box>
+                        <div className="yd-mhero__statgrid">
+                            <div>
+                                <div className="yd-mhero__lbl">Avg attendance</div>
+                                <div className="yd-mhero__big">{averageKids}</div>
+                                <div className="yd-mhero__hint">kids per satsang</div>
+                            </div>
+                            <div>
+                                <div className="yd-mhero__lbl">Current tier</div>
+                                <div className="yd-mhero__big" style={{ color: 'var(--coral)' }}>{tier}</div>
+                                <div className="yd-mhero__hint">
+                                    {(() => {
+                                        const idx = TIERS.findIndex(t => t.label === tier);
+                                        const next = TIERS[idx + 1];
+                                        return next ? `${Math.max(0, next.min - averageKids)} more to ${next.label}` : 'Top tier 🎉';
+                                    })()}
+                                </div>
+                            </div>
+                            <div>
+                                <div className="yd-mhero__lbl">Registered</div>
+                                <div className="yd-mhero__big">{kidsList.length}</div>
+                                <div className="yd-mhero__hint">yuvaks &amp; yuvatis</div>
+                            </div>
+                            <div>
+                                <div className="yd-mhero__lbl">Classes tracked</div>
+                                <div className="yd-mhero__big">{classRows.length}</div>
+                                <div className="yd-mhero__hint">activity types</div>
+                            </div>
+                        </div>
 
                         <TierTrack averageKids={averageKids} />
-                    </Box>
+                    </div>
                 </motion.div>
 
                 {/* ── Staggered sections ── */}
                 <motion.div variants={stagger} initial="hidden" animate="show">
 
-                    <motion.div variants={fadeUp}>
-                        <SectionLabel>Leadership</SectionLabel>
-                        <Box sx={{ mb: 5 }}>
-                            <LeaderContactSection
-                                leaders={[
-                                    { leaderInfo,      isEditing,      handleInputChange: handleInputChangeLeaderInfo,      handleSubmit: handleSubmitLeaderInfo,      setIsEditing },
-                                    { leaderInfo: leaderInfoTwo,   isEditing: isEditingTwo,   handleInputChange: handleInputChangeLeaderInfoTwo,   handleSubmit: handleSubmitLeaderInfoTwo,   setIsEditing: setIsEditingTwo },
-                                    { leaderInfo: leaderInfoThree, isEditing: isEditingThree, handleInputChange: handleInputChangeLeaderInfoThree, handleSubmit: handleSubmitLeaderInfoThree, setIsEditing: setIsEditingThree },
-                                ]}
-                            />
-                        </Box>
+                    {/* Leadership */}
+                    <motion.div variants={fadeUp} style={{ marginBottom: '3rem' }}>
+                        <SectionHeader
+                            icon={<Icon name="users" size={20} />}
+                            title="Leadership"
+                            sub="The people running things"
+                        />
+                        <LeaderContactSection
+                            leaders={[
+                                { leaderInfo,      isEditing,      handleInputChange: handleInputChangeLeaderInfo,      handleSubmit: handleSubmitLeaderInfo,      setIsEditing },
+                                { leaderInfo: leaderInfoTwo,   isEditing: isEditingTwo,   handleInputChange: handleInputChangeLeaderInfoTwo,   handleSubmit: handleSubmitLeaderInfoTwo,   setIsEditing: setIsEditingTwo },
+                                { leaderInfo: leaderInfoThree, isEditing: isEditingThree, handleInputChange: handleInputChangeLeaderInfoThree, handleSubmit: handleSubmitLeaderInfoThree, setIsEditing: setIsEditingThree },
+                            ]}
+                        />
                     </motion.div>
 
-                    <motion.div variants={fadeUp}>
-                        <SectionLabel>Activity & Goals</SectionLabel>
-                        <Grid container spacing={3} sx={{ mb: 5 }}>
-                            <Grid item xs={12} md={6}>
-                                <Paper sx={CARD}>
-                                    <Typography variant="h5" color="primary" sx={{ mb: 2 }}>Class Occurrences</Typography>
-                                    <TableContainer>
-                                        <Table size="small">
-                                            <TableHead>
-                                                <TableRow>
-                                                    <TableCell sx={{ fontWeight: 600, borderBottom: '2px solid', borderColor: 'divider' }}>Activity</TableCell>
-                                                    <TableCell align="right" sx={{ fontWeight: 600, borderBottom: '2px solid', borderColor: 'divider' }}>Sessions</TableCell>
-                                                </TableRow>
-                                            </TableHead>
-                                            <TableBody>
-                                                {classRows.length > 0 ? classRows.map(row => (
-                                                    <TableRow key={row.name} sx={{ '&:last-child td': { border: 0 } }}>
-                                                        <TableCell>{row.name}</TableCell>
-                                                        <TableCell align="right" sx={{ fontWeight: 700, color: 'primary.main' }}>{row.count}</TableCell>
-                                                    </TableRow>
-                                                )) : (
-                                                    <TableRow>
-                                                        <TableCell colSpan={2} align="center" sx={{ fontStyle: 'italic', color: 'text.disabled', py: 4, border: 0 }}>
-                                                            No classes recorded yet
-                                                        </TableCell>
-                                                    </TableRow>
-                                                )}
-                                            </TableBody>
-                                        </Table>
-                                    </TableContainer>
-                                </Paper>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Paper sx={CARD}>
-                                    <Typography variant="h5" color="primary" sx={{ mb: 2 }}>Q2 Goals</Typography>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, flex: 1 }}>
-                                        {['goal1', 'goal2', 'goal3'].map((name, i) => (
-                                            <TextField
-                                                key={name}
-                                                fullWidth
-                                                label={`Goal ${i + 1}`}
-                                                name={name}
-                                                value={goals?.[name] || ''}
-                                                onChange={handleInputChangeGoals}
-                                                size="small"
-                                                InputLabelProps={{ shrink: true }}
-                                            />
+                    {/* Class activity + Goals */}
+                    <motion.div variants={fadeUp} style={{ marginBottom: '3rem' }}>
+                        <div className="yd-row yd-row--2">
+
+                            {/* Class activity */}
+                            <div className="yd-card">
+                                <SectionHeader
+                                    icon={<Icon name="sparkle" size={20} />}
+                                    title="Class activity"
+                                    sub="Sessions logged this quarter"
+                                />
+                                {classRows.length === 0 ? (
+                                    <p style={{ color: 'var(--ink-3)', fontStyle: 'italic', margin: 0 }}>No classes recorded yet.</p>
+                                ) : (
+                                    <div className="yd-classes">
+                                        {classRows.map(({ name, count }) => (
+                                            <div key={name} className="yd-class">
+                                                <div className={`yd-class__dot yd-class__dot--${classTones[name] || 'coral'}`} />
+                                                <div className="yd-class__name">{name}</div>
+                                                <div className="yd-class__count">{count}</div>
+                                                <div className="yd-class__bar">
+                                                    <div
+                                                        className={`yd-class__barfill yd-class__barfill--${classTones[name] || 'coral'}`}
+                                                        style={{ width: `${(count / maxCount) * 100}%` }}
+                                                    />
+                                                </div>
+                                            </div>
                                         ))}
-                                    </Box>
-                                    <Box sx={{ pt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                                        <Button onClick={handleSubmitGoals} variant="contained" size="small" sx={{ textTransform: 'none', borderRadius: 2 }}>
-                                            Save Goals
-                                        </Button>
-                                    </Box>
-                                </Paper>
-                            </Grid>
-                        </Grid>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Goals — autosave */}
+                            <div className="yd-card">
+                                <div className="yd-sec" style={{ marginBottom: '1.25rem' }}>
+                                    <div className="yd-sec__left">
+                                        <span className="yd-sec__icon"><Icon name="flag" size={20} /></span>
+                                        <div>
+                                            <div className="yd-sec__title">Q2 goals</div>
+                                            <div className="yd-sec__sub">Track your quarterly focus areas</div>
+                                        </div>
+                                    </div>
+                                    {goalSavedLabel && (
+                                        <span style={{ fontSize: '0.82rem', color: 'var(--mint-deep)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                            <Icon name="check" size={14} stroke={2.5} /> Saved
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="yd-goals">
+                                    {['goal1', 'goal2', 'goal3'].map((key, i) => (
+                                        <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                                            <label style={{ fontSize: '0.82rem', color: 'var(--ink-3)', fontWeight: 600 }}>Goal {i + 1}</label>
+                                            <input
+                                                className="yd-input"
+                                                name={key}
+                                                value={goals?.[key] || ''}
+                                                onChange={handleGoalChange}
+                                                placeholder={`Enter goal ${i + 1}…`}
+                                                style={{ minHeight: 40, padding: '0.55rem 0.85rem' }}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                        </div>
                     </motion.div>
 
-                    <motion.div variants={fadeUp}>
-                        <SectionLabel>Attendance Overview</SectionLabel>
-                        <Grid container spacing={3} sx={{ mb: 4 }}>
-                            <Grid item xs={12} md={6}><AgeDistributionChart data={ageDistributionData} /></Grid>
-                            <Grid item xs={12} md={6}><GenderDistributionChart data={genderDistributionData} /></Grid>
-                        </Grid>
-                        <Box sx={{ mb: 4 }}><KidsOverTimeChart data={kidsOverTimeData} /></Box>
-                        <Box sx={{ mb: 5 }}>
-                            <AttendanceCharts
-                                data={kidsOverTimeData}
-                                isLoading={isLoading}
-                                error={error}
-                                activities={activities}
-                                kidsList={kidsList}
-                                genderDistributionDataByAgeGroup={genderDistributionDataByAgeGroup}
-                            />
-                        </Box>
+                    {/* Attendance charts */}
+                    <motion.div variants={fadeUp} style={{ marginBottom: '3rem' }}>
+                        <SectionHeader
+                            icon={<Icon name="chart" size={20} />}
+                            title="Attendance overview"
+                            sub="The shape of your sangat"
+                        />
+                        <div className="yd-row yd-row--2" style={{ marginBottom: '1.25rem' }}>
+                            <AgeDistributionChart data={ageDistributionData} />
+                            <GenderDistributionChart data={genderDistributionData} />
+                        </div>
+                        <div style={{ marginBottom: '1.25rem' }}>
+                            <KidsOverTimeChart data={kidsOverTimeData} />
+                        </div>
+                        <AttendanceCharts
+                            data={kidsOverTimeData}
+                            isLoading={isLoading}
+                            error={error}
+                            activities={activities}
+                            kidsList={kidsList}
+                            genderDistributionDataByAgeGroup={genderDistributionDataByAgeGroup}
+                        />
                     </motion.div>
 
-                    <motion.div variants={fadeUp}>
-                        <SectionLabel>Schedule</SectionLabel>
-                        <Box sx={{ mb: 5 }}>
-                            <UpcomingEvents
-                                eventForm={eventForm}
-                                upcomingEvents={upcomingEvents}
-                                upcomingAllEvents={upcomingAllEvents}
-                                handleInputChangeEvents={handleInputChangeEvents}
-                                handleEventsDateBlur={handleEventsDateBlur}
-                                handleSubmitEvents={handleSubmitEvents}
-                                handleDeleteEvent={handleDeleteEvent}
-                                handleAnotherSubmitEvents={handleAnotherSubmitEvents}
-                                handleRefreshPage={handleRefreshPage}
-                                openEvents={openEvents}
-                                eventsDateError={eventsDateError}
-                            />
-                        </Box>
+                    {/* Events */}
+                    <motion.div variants={fadeUp} style={{ marginBottom: '3rem' }}>
+                        <UpcomingEvents
+                            eventForm={eventForm}
+                            upcomingEvents={upcomingEvents}
+                            upcomingAllEvents={upcomingAllEvents}
+                            handleInputChangeEvents={handleInputChangeEvents}
+                            handleEventsDateBlur={handleEventsDateBlur}
+                            handleSubmitEvents={handleSubmitEvents}
+                            handleDeleteEvent={handleDeleteEvent}
+                            handleAnotherSubmitEvents={handleAnotherSubmitEvents}
+                            handleRefreshPage={handleRefreshPage}
+                            openEvents={openEvents}
+                            eventsDateError={eventsDateError}
+                        />
                     </motion.div>
 
+                    {/* Roster */}
                     <motion.div variants={fadeUp}>
-                        <SectionLabel>Roster</SectionLabel>
-                        <KidsListTable kidsList={kidsList} />
+                        <KidsListTable
+                            kidsList={kidsList}
+                            onRegister={() => router.push('/register')}
+                        />
                     </motion.div>
 
                 </motion.div>
-
-                <Snackbar open={openGoalsSnackbar} autoHideDuration={4000} onClose={handleCloseGoalsSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-                    <Alert onClose={handleCloseGoalsSnackbar} severity="success" sx={{ width: '100%' }}>
-                        Goals updated successfully!
-                    </Alert>
-                </Snackbar>
             </Container>
         </Layout>
     );
