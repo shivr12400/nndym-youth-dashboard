@@ -15,7 +15,7 @@ export default function KidsListTable({ kidsList, onRegister }) {
                     <span className="yd-sec__icon"><Icon name="users" size={20} /></span>
                     <div>
                         <div className="yd-sec__title">Yuvaks &amp; Yuvatis</div>
-                        <div className="yd-sec__sub">{kidsList.length} people in your sangat</div>
+                        <div className="yd-sec__sub">{kidsList.length} kids in your satsang class</div>
                     </div>
                 </div>
                 {onRegister && (

@@ -334,7 +334,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                         <SectionHeader
                             icon={<Icon name="chart" size={20} />}
                             title="Attendance overview"
-                            sub="The shape of your sangat"
+                            sub="The shape of your satsang class"
                         />
                         <div className="yd-row yd-row--2" style={{ marginBottom: '1.25rem' }}>
                             <AgeDistributionChart data={ageDistributionData} />
