@@ -299,7 +299,7 @@ export default function KidsAttendance({ isAuthenticated }) {
                                     <div className="yd-sec__left">
                                         <span className="yd-sec__icon"><Icon name="flag" size={20} /></span>
                                         <div>
-                                            <div className="yd-sec__title">Q2 goals</div>
+                                            <div className="yd-sec__title">Q3 Goals</div>
                                             <div className="yd-sec__sub">Track your quarterly focus areas</div>
                                         </div>
                                     </div>
