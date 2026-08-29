@@ -24,15 +24,20 @@ function getMandirPath(email) {
 export default function Navbar() {
     const [open, setOpen] = useState(false);
     const [mandirPath, setMandirPath] = useState('/kids-attendance');
+    const [isAdmin, setIsAdmin] = useState(false);
     const router = useRouter();
     const isMobile = useMediaQuery('(max-width: 860px)');
 
     useEffect(() => {
-        getUserEmail().then(email => setMandirPath(getMandirPath(email)));
+        getUserEmail().then(email => {
+            setMandirPath(getMandirPath(email));
+            setIsAdmin(!!email && email.split('@')[0].toLowerCase() === 'admin');
+        });
     }, []);
 
     const navItems = [
         { label: 'Home',         path: '/' },
+        ...(isAdmin ? [{ label: 'All Mandirs', path: '/admin' }] : []),
         { label: 'My Mandir',    path: mandirPath },
         { label: 'Log Satsang',  path: '/submit-satsang' },
         { label: 'Register',     path: '/register' },

@@ -188,9 +188,17 @@ export default function Dashboard({ isAuthenticated, userEmail }) {
                             <p className="yd-hero__sub">{subtitle}</p>
                             <div className="yd-hero__actions">
                                 {admin ? (
-                                    <span style={{ color: 'var(--ink-3)', fontSize: '0.95rem' }}>
-                                        Select a mandir below to open its dashboard.
-                                    </span>
+                                    <>
+                                        <button
+                                            className="yd-btn yd-btn--primary"
+                                            onClick={() => router.push('/admin')}
+                                        >
+                                            Network overview <ArrowRightIcon size={16} />
+                                        </button>
+                                        <span style={{ color: 'var(--ink-3)', fontSize: '0.95rem', alignSelf: 'center' }}>
+                                            or pick a mandir to open its dashboard.
+                                        </span>
+                                    </>
                                 ) : (
                                     <>
                                         <button

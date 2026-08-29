@@ -110,7 +110,7 @@ export default function Register({ isAuthenticated }) {
                             ) : (
                                 <>
                                     <div className="yd-submit__eyebrow">Register a kid</div>
-                                    <h1 className="yd-submit__title">Add to your sangat</h1>
+                                    <h1 className="yd-submit__title">Add to your satsang</h1>
                                     <p className="yd-submit__sub">A few details to add this yuvak/yuvati to your mandir.</p>
 
                                     <form onSubmit={handleSubmit} noValidate>
