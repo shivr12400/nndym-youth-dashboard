@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import LeaderboardSection from '../components/LeaderboardSection';
 import { useLeaderboard } from '../hooks/useLeaderboard';
-import { getSessionToken } from '../utils/auth';
-import { apiInfo } from '../utils/api';
 import { mandirs } from '../utils/mandirs';
 
 function normalize(str) {
@@ -85,6 +83,37 @@ function MandirSnapshot({ mandirName, avgKids, registeredKids, onOpen }) {
     );
 }
 
+/* ── Placeholders shown until the data lands ──────────────────── */
+function SnapshotSkeleton() {
+    return (
+        <div className="yd-snap" aria-busy="true">
+            <div className="yd-skel--dark" style={{ height: 11, width: 80, marginBottom: '0.5rem' }} />
+            <div className="yd-skel--dark" style={{ height: 26, width: 150 }} />
+            <div className="yd-snap__stats">
+                {[0, 1, 2].map(i => (
+                    <div key={i}>
+                        <div className="yd-skel--dark" style={{ height: 30, width: 56, marginBottom: '0.4rem' }} />
+                        <div className="yd-skel--dark" style={{ height: 11, width: 76 }} />
+                    </div>
+                ))}
+            </div>
+            <div className="yd-skel--dark" style={{ height: 10, borderRadius: 999 }} />
+            <div className="yd-skel--dark" style={{ height: 42, borderRadius: 12 }} />
+        </div>
+    );
+}
+
+function AlertCardSkeleton() {
+    return (
+        <div className="yd-alert-card yd-alert-card--info" aria-busy="true">
+            <div className="yd-loading">
+                <div className="yd-loading__ring" />
+                <span>Checking your weekend counts…</span>
+            </div>
+        </div>
+    );
+}
+
 /* ── Alert card ───────────────────────────────────────────────── */
 function AlertCard({ tone, eyebrow, title, body, action, href, onAction }) {
     return (
@@ -108,18 +137,11 @@ function AlertCard({ tone, eyebrow, title, body, action, href, onAction }) {
 /* ── Main page ────────────────────────────────────────────────── */
 export default function Dashboard({ isAuthenticated, userEmail }) {
     const router = useRouter();
-    const { leaderboardData, isLoading: leaderboardLoading } = useLeaderboard(isAuthenticated);
+    const { leaderboardData, datesByMandir, failedMandirs, isLoading: leaderboardLoading } = useLeaderboard(isAuthenticated);
     const admin = isAdmin(userEmail);
     const userMandir = admin ? null : getUserMandir(userEmail);
 
-    const [missingSatsang, setMissingSatsang] = useState(false);
-    const [prevWeekendDates, setPrevWeekendDates] = useState({ sat: '', sun: '' });
-
-    useEffect(() => {
-        if (!isAuthenticated || admin) return;
-        const mandir = getUserMandir(userEmail);
-        if (!mandir) return;
-
+    const prevWeekendDates = useMemo(() => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const day = today.getDay();
@@ -132,28 +154,27 @@ export default function Dashboard({ isAuthenticated, userEmail }) {
         const fmt = (d) =>
             `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
 
-        const satStr = fmt(prevSat);
-        const sunStr = fmt(prevSun);
-        setPrevWeekendDates({ sat: satStr, sun: sunStr });
+        return { sat: fmt(prevSat), sun: fmt(prevSun) };
+    }, []);
 
-        (async () => {
-            const token = await getSessionToken();
-            if (!token) return;
-            try {
-                const res = await fetch(
-                    `${apiInfo.kids_attendence.get}?mandirName=${encodeURIComponent(mandir.mandirName)}`,
-                    { headers: { Authorization: token, 'Content-Type': 'application/json' } }
-                );
-                if (!res.ok) return;
-                const json = await res.json();
-                const records = json?.data || json?.satsangCount || json?.satsang_count || [];
-                const dates = new Set(records.filter(Boolean).map(r => r.date));
-                setMissingSatsang(!dates.has(satStr) && !dates.has(sunStr));
-            } catch {
-                // non-fatal
-            }
-        })();
-    }, [isAuthenticated, userEmail, admin]);
+    // useLeaderboard already pulled every mandir's satsang history, so the
+    // weekend check reads from that instead of firing its own request for a
+    // response the page is holding anyway.
+    const missingSatsang = useMemo(() => {
+        if (admin || !userMandir) return false;
+        const dates = datesByMandir[userMandir.mandirName];
+        if (!dates) return false;
+        return !dates.has(prevWeekendDates.sat) && !dates.has(prevWeekendDates.sun);
+    }, [admin, userMandir, datesByMandir, prevWeekendDates]);
+
+    // Non-admins can't be told "all caught up" until the history is in — until
+    // then the card is a placeholder rather than a guess.
+    const weekendStatusPending = !admin && leaderboardLoading;
+
+    // If the user's own mandir is one of the ones that failed to load we know
+    // nothing about its weekend — saying "all caught up" would be a guess
+    // dressed up as a fact.
+    const ownMandirFailed = !admin && !!userMandir && failedMandirs.includes(userMandir.mandirName);
 
     const handleMandirSelect = (name) => {
         router.push(`/kids-attendance?mandirName=${encodeURIComponent(name)}`);
@@ -238,32 +259,30 @@ export default function Dashboard({ isAuthenticated, userEmail }) {
                                         ))}
                                     </div>
                                 </div>
+                            ) : leaderboardLoading ? (
+                                <SnapshotSkeleton />
+                            ) : mandirLeaderData ? (
+                                <MandirSnapshot
+                                    mandirName={mandirName}
+                                    avgKids={mandirLeaderData.avgKids}
+                                    registeredKids={mandirLeaderData.registeredKids}
+                                    onOpen={() => userMandir && handleMandirSelect(userMandir.mandirName)}
+                                />
                             ) : (
-                                !leaderboardLoading && mandirLeaderData ? (
-                                    <MandirSnapshot
-                                        mandirName={mandirName}
-                                        avgKids={mandirLeaderData.avgKids}
-                                        registeredKids={mandirLeaderData.registeredKids}
-                                        onOpen={() => userMandir && handleMandirSelect(userMandir.mandirName)}
-                                    />
-                                ) : (
-                                    !leaderboardLoading && (
-                                        <div className="yd-snap" style={{ opacity: 0.6 }}>
-                                            <div className="yd-snap__eyebrow">Your mandir</div>
-                                            <div className="yd-snap__name">{mandirName || '—'}</div>
-                                            <p style={{ color: 'oklch(1 0 0 / 0.5)', fontSize: '0.9rem', margin: 0 }}>
-                                                No data yet — log your first satsang to get started.
-                                            </p>
-                                            <button
-                                                className="yd-btn yd-btn--primary"
-                                                onClick={() => router.push('/submit-satsang')}
-                                                style={{ alignSelf: 'flex-start' }}
-                                            >
-                                                <PlusIcon size={16} /> Log satsang
-                                            </button>
-                                        </div>
-                                    )
-                                )
+                                <div className="yd-snap" style={{ opacity: 0.6 }}>
+                                    <div className="yd-snap__eyebrow">Your mandir</div>
+                                    <div className="yd-snap__name">{mandirName || '—'}</div>
+                                    <p style={{ color: 'oklch(1 0 0 / 0.5)', fontSize: '0.9rem', margin: 0 }}>
+                                        No data yet — log your first satsang to get started.
+                                    </p>
+                                    <button
+                                        className="yd-btn yd-btn--primary"
+                                        onClick={() => router.push('/submit-satsang')}
+                                        style={{ alignSelf: 'flex-start' }}
+                                    >
+                                        <PlusIcon size={16} /> Log satsang
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </section>
@@ -278,7 +297,18 @@ export default function Dashboard({ isAuthenticated, userEmail }) {
                             action="Register now"
                             href="https://nndym.org/retreat"
                         />
-                        {missingSatsang ? (
+                        {weekendStatusPending ? (
+                            <AlertCardSkeleton />
+                        ) : ownMandirFailed ? (
+                            <AlertCard
+                                tone="coral"
+                                eyebrow="Couldn't check"
+                                title="Your data didn't load"
+                                body={`We couldn't reach ${mandirName}'s records just now, so we can't tell you whether the weekend is logged. Reload to try again.`}
+                                action="Reload"
+                                onAction={() => router.reload()}
+                            />
+                        ) : missingSatsang ? (
                             <AlertCard
                                 tone="coral"
                                 eyebrow="Heads up"

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Container, TextField, Button, Typography, Box, Alert, CircularProgress } from '@mui/material';
-import { useRouter } from 'next/router';
-import { loginUser, getUserEmail } from '../utils/auth';
+import { loginUser, adoptSession } from '../utils/auth';
 import Layout from '../components/Layout';
 import { motion } from 'framer-motion';
 
@@ -21,7 +20,9 @@ export default function Login({ setIsAuthenticated, setUserEmail }) {
     const [pendingCognitoUser, setPendingCognitoUser] = useState(null);
     const [error, setError] = useState('');
     const [isLoggingIn, setIsLoggingIn] = useState(false);
-    const router = useRouter();
+
+    // Sign-in leaves isLoggingIn true on purpose: _app owns the redirect to /
+    // and swaps this page out, so the button keeps spinning until it does.
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,12 +30,13 @@ export default function Login({ setIsAuthenticated, setUserEmail }) {
         setIsLoggingIn(true);
 
         try {
-            const token = await loginUser(email, password);
+            // loginUser hands back the email straight off the id token it just
+            // received — asking Cognito for it again cost a whole extra round
+            // trip while the user watched the button spin.
+            const { token, email: resolvedEmail } = await loginUser(email, password);
             if (token) {
-                const resolvedEmail = await getUserEmail();
                 setUserEmail(resolvedEmail);
                 setIsAuthenticated(true);
-                router.push('/');
             }
         } catch (err) {
             setIsLoggingIn(false);
@@ -53,11 +55,13 @@ export default function Login({ setIsAuthenticated, setUserEmail }) {
         setIsLoggingIn(true);
 
         pendingCognitoUser.completeNewPasswordChallenge(newPassword, {}, {
-            onSuccess: async () => {
-                const resolvedEmail = await getUserEmail();
+            onSuccess: (session) => {
+                // Seed the shared session cache here too, otherwise the first
+                // load after a password reset had no stored user and every
+                // caller fell through to a fresh Cognito lookup.
+                const { email: resolvedEmail } = adoptSession(session);
                 setUserEmail(resolvedEmail);
                 setIsAuthenticated(true);
-                router.push('/');
             },
             onFailure: (err) => {
                 setIsLoggingIn(false);

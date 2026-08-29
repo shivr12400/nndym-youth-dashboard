@@ -2,10 +2,18 @@
 import '../styles/global.css';
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
-import { CssBaseline, ThemeProvider, Box, CircularProgress } from '@mui/material';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import { useRouter } from 'next/router';
 import theme from '../styles/theme';
-import { verifyToken, getUserEmail } from '../utils/auth';
+import { resolveSession, hasStoredSession } from '../utils/auth';
+
+function Splash() {
+  return (
+    <div className="yd-splash" role="status" aria-label="Loading">
+      <div className="yd-splash__ring" />
+    </div>
+  );
+}
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
@@ -13,54 +21,59 @@ function MyApp({ Component, pageProps }) {
   const [userEmail, setUserEmail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Run the token check once on mount to determine auth state.
+  // Run the session check once on mount to determine auth state.
   useEffect(() => {
-    const checkAuth = async () => {
-      // Small defer to let Cognito SDK finish flushing its localStorage
-      // writes after a login redirect before we try to read the session.
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      const [isValid, email] = await Promise.all([verifyToken(), getUserEmail()]);
-      setIsAuthenticated(isValid);
-      setUserEmail(email);
+    let cancelled = false;
+
+    // If the browser has nothing stored, the user is definitively signed out.
+    // Settling synchronously here is what keeps /login from sitting behind a
+    // spinner while we ask Cognito a question we already know the answer to.
+    if (!hasStoredSession()) {
       setIsLoading(false);
-    };
-    checkAuth();
+      return;
+    }
+
+    // A single resolveSession() replaces the old verifyToken() + getUserEmail()
+    // pair, which issued two concurrent getSession() calls — and therefore two
+    // concurrent token refreshes racing each other on a cold load.
+    resolveSession().then((session) => {
+      if (cancelled) return;
+      setIsAuthenticated(!!session);
+      setUserEmail(session ? session.email : null);
+      setIsLoading(false);
+    });
+
+    return () => { cancelled = true; };
   }, []);
 
-  // BUG FIX: router.pathname was previously in the dependency array, which caused
-  // this effect to re-run on EVERY client-side navigation (e.g. clicking a mandir
-  // card). On each re-run there was a brief window where isAuthenticated could be
-  // stale/false, immediately redirecting the user back to /login.
-  //
-  // The redirect logic only needs to fire when auth state is first determined
-  // (isLoading flips to false) or when it changes (login / logout). Route changes
-  // are already handled by the guard condition inside the effect — pathname just
-  // needs to be READ, not depended upon as a trigger.
+  // The redirect only needs to fire when auth state is first determined
+  // (isLoading flips to false) or when it changes (login / logout). Route
+  // changes are already handled by the guard condition inside the effect —
+  // pathname just needs to be READ, not depended upon as a trigger. Depending
+  // on it re-ran this on every client-side navigation, and each re-run had a
+  // window where isAuthenticated read stale/false and bounced to /login.
   useEffect(() => {
     if (isLoading) return;
 
     const { pathname } = router;
 
+    // replace() rather than push() so the auth bounce doesn't stack up in
+    // history and trap the back button.
     if (isAuthenticated && pathname === '/login') {
-      router.push('/');
+      router.replace('/');
     } else if (!isAuthenticated && pathname !== '/login') {
-      router.push('/login');
+      router.replace('/login');
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isLoading]); // ← router.pathname intentionally excluded
 
-  const isRedirecting = 
-    (isAuthenticated && router.pathname === '/login') || 
-    (!isAuthenticated && router.pathname !== '/login');
+  const isRedirecting = !isLoading && (
+    (isAuthenticated && router.pathname === '/login') ||
+    (!isAuthenticated && router.pathname !== '/login')
+  );
 
-  if (isLoading || isRedirecting) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
+  // The head stays mounted through the splash so fonts, the title and the
+  // favicon start loading during the auth check rather than after it.
   return (
     <ThemeProvider theme={theme}>
       <Head>
@@ -72,13 +85,17 @@ function MyApp({ Component, pageProps }) {
         <title>Mandir Portal</title>
       </Head>
       <CssBaseline />
-      <Component
-        {...pageProps}
-        isAuthenticated={isAuthenticated}
-        setIsAuthenticated={setIsAuthenticated}
-        userEmail={userEmail}
-        setUserEmail={setUserEmail}
-      />
+      {isLoading || isRedirecting ? (
+        <Splash />
+      ) : (
+        <Component
+          {...pageProps}
+          isAuthenticated={isAuthenticated}
+          setIsAuthenticated={setIsAuthenticated}
+          userEmail={userEmail}
+          setUserEmail={setUserEmail}
+        />
+      )}
     </ThemeProvider>
   );
 }

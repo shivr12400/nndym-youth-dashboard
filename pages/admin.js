@@ -96,7 +96,7 @@ export default function AdminOverview({ isAuthenticated, userEmail }) {
     const [weekWindow, setWeekWindow] = useState(12);
 
     const {
-        weeks, mandirStats, network, colorRank,
+        weeks, mandirStats, failedMandirs, network, colorRank,
         isLoading, isRefreshing, error, fetchedAt, refresh,
     } = useAdminOverview(isAuthenticated, admin, weekWindow);
 
@@ -209,6 +209,23 @@ export default function AdminOverview({ isAuthenticated, userEmail }) {
                     <div className="yd-alert-card yd-alert-card--coral" style={{ marginBottom: '1.5rem' }}>
                         <div className="yd-alert__eyebrow">Couldn&apos;t load everything</div>
                         <p className="yd-alert__body" style={{ margin: 0 }}>{error}</p>
+                    </div>
+                )}
+
+                {/* Named explicitly rather than charted as zero — every figure
+                    on this page excludes these mandirs. */}
+                {failedMandirs.length > 0 && (
+                    <div className="yd-alert-card yd-alert-card--coral" style={{ marginBottom: '1.5rem' }}>
+                        <div className="yd-alert__eyebrow">
+                            {failedMandirs.length} of {failedMandirs.length + mandirStats.length} mandirs didn&apos;t load
+                        </div>
+                        <p className="yd-alert__body" style={{ margin: '0 0 0.75rem' }}>
+                            {failedMandirs.join(', ')} — excluded from every figure below rather than
+                            counted as zero. Hit Refresh to try them again.
+                        </p>
+                        <button className="yd-alert__action" onClick={refresh} disabled={isRefreshing}>
+                            {isRefreshing ? 'Retrying…' : 'Retry'} <Icon name="refresh" size={14} />
+                        </button>
                     </div>
                 )}
 

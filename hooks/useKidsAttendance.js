@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { apiInfo } from '../utils/api';
 import { getSessionToken } from '../utils/auth';
@@ -105,9 +105,25 @@ export function useKidsAttendance(isAuthenticated) {
     const { mandirName } = router.query;
 
     const [data, setData]               = useState([]);
-    const [isLoading, setIsLoading]     = useState(true);
     const [error, setError]             = useState(null);
     const [kidsOverTimeData, setKidsOverTimeData] = useState([]);
+
+    // The mandir the data currently in state belongs to, and the one being
+    // asked for right now. null while the router is still hydrating.
+    const [loadedFor, setLoadedFor]     = useState(null);
+    const requestKey = router.isReady ? String(mandirName || '') : null;
+
+    // Derived rather than stored. When an admin switches from mandir A to
+    // mandir B the query updates instantly but the numbers in state are still
+    // A's, and fetchData can't flip a loading flag until it has awaited a
+    // token — so the page rendered A's attendance under B's name, which is
+    // exactly the "false data until I refresh" symptom. Comparing what we hold
+    // against what was asked for closes that window entirely.
+    const isLoading = requestKey === null || loadedFor !== requestKey;
+
+    // Guards against out-of-order responses: switch mandirs quickly and the
+    // slower earlier request must not overwrite the newer one's data.
+    const requestIdRef = useRef(0);
 
     // Leader info
     const [leaderInfo, setLeaderInfo]   = useState({
@@ -166,7 +182,18 @@ export function useKidsAttendance(isAuthenticated) {
     }, []);
 
     const fetchData = useCallback(async () => {
+        // router.query is empty on the first render of a statically-optimised
+        // page, so mandirName reads as undefined until the router hydrates.
+        // Without this guard the "no mandir" branch below marked the load
+        // complete on that first pass and the page painted a full dashboard of
+        // zeroes before the real request had even started.
+        if (requestKey === null) return;
+
+        const requestId = ++requestIdRef.current;
+        const superseded = () => requestIdRef.current !== requestId;
+
         const currentToken = await getSessionToken();
+        if (superseded()) return;
 
         if (isAuthenticated && !currentToken) {
             router.push('/login');
@@ -174,11 +201,10 @@ export function useKidsAttendance(isAuthenticated) {
         }
 
         if (!isAuthenticated || !mandirName || !currentToken) {
-            setIsLoading(false);
+            setLoadedFor(requestKey);
             return;
         }
 
-        setIsLoading(true);
         setError(null);
 
         try {
@@ -187,6 +213,7 @@ export function useKidsAttendance(isAuthenticated) {
                 authFetch(`${apiInfo.leader_info.get}?mandirName=${mandirName}`),
                 authFetch(`${apiInfo.goals.get}?mandirName=${mandirName}`),
             ]);
+            if (superseded()) return;
 
             if (kidsRes) setData(kidsRes.kids || kidsRes.kids_list || kidsRes.data || []);
             if (leaderRes) {
@@ -216,17 +243,19 @@ export function useKidsAttendance(isAuthenticated) {
                 const eventsRes = await authFetch(
                     `${apiInfo.upcoming_events.get}?mandirName=${mandirName}`
                 );
+                if (superseded()) return;
                 setUpcomingEvents((eventsRes?.upcomingEvents || []).filter(e => isFutureOrToday(e.date)));
                 setUpcomingAllEvents(eventsRes?.allEvents   || eventsRes?.upcomingEvents || []);
             } catch (eventsErr) {
                 console.error('[Fetch] upcomingEvents error (non-fatal):', eventsErr.message);
-                setUpcomingEvents([]);
+                if (!superseded()) setUpcomingEvents([]);
             }
 
             try {
                 const overTimeRes = await authFetch(
                     `${apiInfo.kids_attendence?.get}?mandirName=${mandirName}`
                 );
+                if (superseded()) return;
                 const rawSatsang = overTimeRes?.data || overTimeRes?.satsangCount || overTimeRes?.satsang_count || [];
                 const withTotal = Array.isArray(rawSatsang)
                     ? rawSatsang.filter(Boolean).map((row) => ({
@@ -238,16 +267,21 @@ export function useKidsAttendance(isAuthenticated) {
                 setKidsOverTimeData(withTotal);
             } catch (overTimeErr) {
                 console.error('[Fetch] satsangCount/kidsOverTime error (non-fatal):', overTimeErr.message);
-                setKidsOverTimeData([]);
+                if (!superseded()) setKidsOverTimeData([]);
             }
 
         } catch (err) {
             console.error("Dashboard Fetch Error:", err);
-            setError(err.message);
+            if (!superseded()) setError(err.message);
         } finally {
-            setIsLoading(false);
+            // Marking the load complete is what reveals the dashboard, so a
+            // superseded request must never do it — otherwise the older
+            // response un-hides the page while the newer mandir is still
+            // loading.
+            if (!superseded()) setLoadedFor(requestKey);
         }
-    }, [isAuthenticated, mandirName, authFetch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated, mandirName, requestKey, authFetch]);
 
     useEffect(() => {
         fetchData();

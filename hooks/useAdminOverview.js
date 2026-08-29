@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getSessionToken } from '../utils/auth';
 import { apiInfo } from '../utils/api';
 import { mandirs } from '../utils/mandirs';
+import { mapPool, fetchJson } from '../utils/fetchPool';
 import {
     buildMandirStats,
     buildNetworkStats,
@@ -36,36 +37,51 @@ export function useAdminOverview(isAuthenticated, isAdmin, weekWindow = 12) {
             if (!token) throw new Error('Session expired. Please log in again.');
             const headers = { Authorization: token, 'Content-Type': 'application/json' };
 
-            const results = await Promise.all(
-                mandirs.map(async (mandir) => {
-                    const name = mandir.mandirName;
-                    const q = encodeURIComponent(name);
+            // Flat job list so the pool caps TOTAL requests in flight. Firing
+            // all 28 at once made the API return HTTP 500 for most of them, and
+            // the old `r.ok ? r.json() : null` turned each of those into an
+            // empty array — so a mandir that errored was charted as a real zero.
+            const jobs = mandirs.flatMap(({ mandirName: name }) => {
+                const q = encodeURIComponent(name);
+                return [
+                    { name, kind: 'kids',    url: `${apiInfo.kids_list.get}?mandirName=${q}` },
+                    { name, kind: 'satsang', url: `${apiInfo.kids_attendence.get}?mandirName=${q}` },
+                ];
+            });
 
-                    const [kidsRes, satsangRes] = await Promise.allSettled([
-                        fetch(`${apiInfo.kids_list.get}?mandirName=${q}`, { headers })
-                            .then(r => (r.ok ? r.json() : null)),
-                        fetch(`${apiInfo.kids_attendence.get}?mandirName=${q}`, { headers })
-                            .then(r => (r.ok ? r.json() : null)),
-                    ]);
+            const settled = await mapPool(jobs, async (job) => {
+                try {
+                    return { ...job, value: await fetchJson(job.url, { headers }) };
+                } catch (err) {
+                    console.error(`[AdminOverview] ${job.name}/${job.kind} failed:`, err.message);
+                    return { ...job, error: err };
+                }
+            });
 
-                    const kidsPayload = kidsRes.status === 'fulfilled' ? kidsRes.value : null;
-                    const satsangPayload = satsangRes.status === 'fulfilled' ? satsangRes.value : null;
-
-                    const kids = kidsPayload
-                        ? (kidsPayload.kids || kidsPayload.kids_list || kidsPayload.data || [])
-                        : [];
-                    const satsang = satsangPayload
-                        ? (satsangPayload.data || satsangPayload.satsangCount || satsangPayload.satsang_count || [])
-                        : [];
-
-                    return {
-                        name,
-                        kids: Array.isArray(kids) ? kids.filter(Boolean) : [],
-                        records: normalizeSatsangRecords(satsang),
-                        failed: kidsRes.status !== 'fulfilled' && satsangRes.status !== 'fulfilled',
-                    };
-                })
+            const byMandir = new Map(
+                mandirs.map(m => [m.mandirName, { kids: null, satsang: null, failed: false }])
             );
+            for (const result of settled) {
+                const entry = byMandir.get(result.name);
+                if (result.error) entry.failed = true;
+                else entry[result.kind] = result.value;
+            }
+
+            const results = [...byMandir].map(([name, entry]) => {
+                const kids = entry.kids
+                    ? (entry.kids.kids || entry.kids.kids_list || entry.kids.data || [])
+                    : [];
+                const satsang = entry.satsang
+                    ? (entry.satsang.data || entry.satsang.satsangCount || entry.satsang.satsang_count || [])
+                    : [];
+
+                return {
+                    name,
+                    kids: Array.isArray(kids) ? kids.filter(Boolean) : [],
+                    records: normalizeSatsangRecords(satsang),
+                    failed: entry.failed,
+                };
+            });
 
             setRaw(results);
             setFetchedAt(new Date());
@@ -82,13 +98,23 @@ export function useAdminOverview(isAuthenticated, isAdmin, weekWindow = 12) {
 
     const weeks = useMemo(() => buildWeeks(weekWindow), [weekWindow]);
 
+    // A mandir we couldn't load is excluded outright. Charting it as zero
+    // would drag down every network average and read as "this mandir reported
+    // nobody" — indistinguishable, on screen, from a mandir that really did.
+    const failedMandirs = useMemo(
+        () => raw.filter(entry => entry.failed).map(entry => entry.name),
+        [raw]
+    );
+
     const mandirStats = useMemo(
-        () => raw.map(entry => buildMandirStats({
-            name: entry.name,
-            kids: entry.kids,
-            records: entry.records,
-            weeks,
-        })),
+        () => raw
+            .filter(entry => !entry.failed)
+            .map(entry => buildMandirStats({
+                name: entry.name,
+                kids: entry.kids,
+                records: entry.records,
+                weeks,
+            })),
         [raw, weeks]
     );
 
@@ -107,6 +133,7 @@ export function useAdminOverview(isAuthenticated, isAdmin, weekWindow = 12) {
     return {
         weeks,
         mandirStats,
+        failedMandirs,
         network,
         colorRank,
         isLoading,

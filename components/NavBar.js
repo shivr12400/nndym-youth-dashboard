@@ -25,6 +25,10 @@ export default function Navbar() {
     const [open, setOpen] = useState(false);
     const [mandirPath, setMandirPath] = useState('/kids-attendance');
     const [isAdmin, setIsAdmin] = useState(false);
+    // Until the email resolves we don't know which of "My Mandir" / "All
+    // Mandirs" belongs in the bar, so neither is rendered — that way an admin
+    // never sees "My Mandir" flash in before it's removed.
+    const [roleResolved, setRoleResolved] = useState(false);
     const router = useRouter();
     const isMobile = useMediaQuery('(max-width: 860px)');
 
@@ -32,13 +36,16 @@ export default function Navbar() {
         getUserEmail().then(email => {
             setMandirPath(getMandirPath(email));
             setIsAdmin(!!email && email.split('@')[0].toLowerCase() === 'admin');
+            setRoleResolved(true);
         });
     }, []);
 
     const navItems = [
         { label: 'Home',         path: '/' },
-        ...(isAdmin ? [{ label: 'All Mandirs', path: '/admin' }] : []),
-        { label: 'My Mandir',    path: mandirPath },
+        // Admins have no mandir of their own — they reach a dashboard by
+        // picking one from "All Mandirs" or the home page.
+        ...(roleResolved && isAdmin  ? [{ label: 'All Mandirs', path: '/admin' }] : []),
+        ...(roleResolved && !isAdmin ? [{ label: 'My Mandir',   path: mandirPath }] : []),
         { label: 'Log Satsang',  path: '/submit-satsang' },
         { label: 'Register',     path: '/register' },
         { label: 'Tiers & Info', path: '/information' },

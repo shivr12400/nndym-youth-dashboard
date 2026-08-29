@@ -170,6 +170,50 @@ export default function KidsAttendance({ isAuthenticated }) {
         );
     }
 
+    // Every figure below is derived from state that stays empty when the fetch
+    // fails, so rendering the dashboard anyway would show a real-looking wall
+    // of zeroes for a mandir that may be perfectly healthy.
+    if (error) {
+        return (
+            <Layout>
+                <Container maxWidth="sm" sx={{ pt: 8, pb: 10 }}>
+                    <div className="yd-alert-card yd-alert-card--coral">
+                        <div className="yd-alert__eyebrow">Couldn&apos;t load {mandirName || 'this mandir'}</div>
+                        <p className="yd-alert__body">
+                            {error} — nothing below would be accurate, so we&apos;ve held the dashboard back
+                            rather than show you zeroes.
+                        </p>
+                        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                            <button className="yd-btn yd-btn--primary" onClick={handleRefreshPage}>
+                                <Icon name="refresh" size={16} /> <span>Try again</span>
+                            </button>
+                            <button className="yd-btn yd-btn--ghost" onClick={() => router.push('/')}>
+                                <Icon name="arrow-left" size={16} /> <span>Back to home</span>
+                            </button>
+                        </div>
+                    </div>
+                </Container>
+            </Layout>
+        );
+    }
+
+    // Admins can reach this page with no mandir selected.
+    if (!mandirName) {
+        return (
+            <Layout>
+                <Container maxWidth="sm" sx={{ pt: 8, pb: 10 }}>
+                    <div className="yd-card yd-mandirpicker">
+                        <h1>No mandir selected</h1>
+                        <p>Pick one from the home page to open its dashboard.</p>
+                        <button className="yd-btn yd-btn--primary" onClick={() => router.push('/')}>
+                            <Icon name="arrow-left" size={16} /> <span>Back to home</span>
+                        </button>
+                    </div>
+                </Container>
+            </Layout>
+        );
+    }
+
     const classRows = ['Satsang', 'Bal Mandal', 'Kirtan', 'Instrument', 'Dance']
         .map(n => ({ name: n, count: getOccurrenceCount(n) }))
         .filter(r => r.count > 0);
